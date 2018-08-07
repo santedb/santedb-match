@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MatchConfiguration xmlns="http://santedb.org/matcher"
+                    id="sample.patient"
+                    uThreshold="0.5"
+                    mThreshold="0.9">
+  <target resource="Patient">
+    <trigger>BeforeInsert</trigger>
+    <trigger>BeforeUpdate</trigger>
+  </target>
+  <blocking op="and">
+    <!-- Patients whose DOB are either null or within 1 week of inserted -->
+    <imsiExpression trueIfNull="true">dateOfBirth=:(diff|&lt;=1w)$input.dateOfBirth</imsiExpression>
+    <!-- Patients whose first three digits of their SIN match-->
+    <imsiExpression trueIfNull="true">identifier[SSN].value=:(first|3)$input.identifier[SSN].value</imsiExpression>
+    <!-- Patients who have at least one name where the metaphone code matches the input -->
+    <imsiExpression trueIfNull="false">name.component.value=:(metaphone|4)$input.name.component.value</imsiExpression>
+  </blocking>
+  <classification>
+    <!-- When the input's DOB has the same week as the block's DOB add the weight or add the non weight
+      To Calculate Weight:
+        (1) Take the probability that a person has the same week DOB and is not a match u=(1/52 = 0.019)
+        (2) Estimate the probability that pairs will definately match (perfect data is 1.0) this is an estimation. A 95% chance would be represented as m=0.95
+        
+       The algorithm will then calculate:
+       u(match) = 0.019
+       m(match) = 0.95
+       u(non-match) = 0.981
+       m(non-match) = 0.05
+       
+       f(match) = m(match)/u(match) = 50  << Frequency ratio of matches based on week of birth
+       f(non-match) = m(non-match)/u(non-match) = 0.0509
+       
+       weight for matches: ln(f(match))/ln(2) = 5.64385
+       weight for non-matches: ln(f(non-match))/ln(2) = -4.2961
+       
+       Please note that you can specify either u and m or matchWeight and nonMatchWeight but not both sets
+    -->
+    <vector m="0.980" u="0.019" whenNull="match" required="false">
+      <rule op="eq">
+        <transform id="ExtractWeek"/>
+      </rule>
+    </vector>
+  </classification>
+</MatchConfiguration>

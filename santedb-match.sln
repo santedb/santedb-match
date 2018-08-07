@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SanteDB.Matcher", "SanteDB.Matcher\SanteDB.Matcher.csproj", "{A37BB496-739D-440E-AB64-E2939A759898}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FBC6492A-ABFA-4435-837C-82A1F7A85E3D}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\PatientMatchSample.xml = Solution Items\PatientMatchSample.xml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A37BB496-739D-440E-AB64-E2939A759898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A37BB496-739D-440E-AB64-E2939A759898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A37BB496-739D-440E-AB64-E2939A759898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A37BB496-739D-440E-AB64-E2939A759898}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {916B6090-8E98-4CDE-BC72-6ED53DBADCC2}
+	EndGlobalSection
+EndGlobal

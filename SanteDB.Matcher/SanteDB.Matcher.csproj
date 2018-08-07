@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A37BB496-739D-440E-AB64-E2939A759898}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SanteDB.Matcher</RootNamespace>
+    <AssemblyName>SanteDB.Matcher</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <PackageReference Include="SanteDB.Core.Api">
+      <Version>1.1.0.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MathExtensions.cs" />
+    <Compile Include="Model\BinaryOperatorType.cs" />
+    <Compile Include="Model\ImsiExpressionFilter.cs" />
+    <Compile Include="Model\MatchBlock.cs" />
+    <Compile Include="Model\MatchConfiguration.cs" />
+    <Compile Include="Model\MatchTarget.cs" />
+    <Compile Include="Model\MatchTransform.cs" />
+    <Compile Include="Model\MatchTransformParameter.cs" />
+    <Compile Include="Model\MatchVector.cs" />
+    <Compile Include="Model\MatchVectorNullBehavior.cs" />
+    <Compile Include="Model\MatchVectorRule.cs" />
+    <Compile Include="Nueral\Activations\RectifiedActivationFunction.cs" />
+    <Compile Include="Nueral\Activations\SigmoidActivationFunction.cs" />
+    <Compile Include="Nueral\Activations\StepActivationFunction.cs" />
+    <Compile Include="Nueral\IActivationFunction.cs" />
+    <Compile Include="Nueral\IInputFunction.cs" />
+    <Compile Include="Nueral\INeuron.cs" />
+    <Compile Include="Nueral\Inputs\WeightedSum.cs" />
+    <Compile Include="Nueral\ISynapse.cs" />
+    <Compile Include="Nueral\NeuralLayer.cs" />
+    <Compile Include="Nueral\NeuralLayerFactory.cs" />
+    <Compile Include="Nueral\Neurons\Neuron.cs" />
+    <Compile Include="Nueral\NeuralNetwork.cs" />
+    <Compile Include="Nueral\Synapses\InputSynapse.cs" />
+    <Compile Include="Nueral\Synapses\Synapse.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+</Project>
