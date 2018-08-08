@@ -22,7 +22,7 @@ namespace SanteDB.Matcher.Test
         /// </summary>
         public DummyMatchConfigurationProvider()
         {
-            foreach (var n in typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceNames().Where(o=>o.Contains(".xml"))
+            foreach (var n in typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceNames().Where(o=>o.Contains(".xml")))
                 this.m_configs.Add(MatchConfiguration.Load(typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceStream(n)));
         }
 
