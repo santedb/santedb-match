@@ -1,6 +1,7 @@
 ﻿using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -50,5 +51,25 @@ namespace SanteDB.Matcher.Model
         [XmlArray("classification")]
         [XmlArrayItem("vector")]
         public List<MatchVector> Classification { get; set; }
+
+        /// <summary>
+        /// Load match configuration from the specified stream
+        /// </summary>
+        /// <param name="s">The stream to load from</param>
+        /// <returns>The loaded match configuration</returns>
+        public static MatchConfiguration Load(Stream s)
+        {
+            var xs = new XmlSerializer(typeof(MatchConfiguration));
+            return xs.Deserialize(s) as MatchConfiguration;
+        }
+
+        /// <summary>
+        /// Save this match configuration collection to the specified stream
+        /// </summary>
+        public void Save(Stream s)
+        {
+            var xs = new XmlSerializer(typeof(MatchConfiguration));
+            xs.Serialize(s, this);
+        }
     }
 }

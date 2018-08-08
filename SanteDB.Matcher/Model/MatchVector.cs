@@ -20,7 +20,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Gets or sets the match weight
         /// </summary>
-        [XmlAttribute("matchWeight")]
+        [XmlAttribute("m")]
         public double M {
             get => this.m_m.GetValueOrDefault();
             set => this.m_m = value;
@@ -29,7 +29,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Gets or sets the unmatch weight (penalty)
         /// </summary>
-        [XmlAttribute("nonMatchWeight")]
+        [XmlAttribute("u")]
         public double U {
             get => this.m_u.GetValueOrDefault();
             set => this.m_u = value;
@@ -97,7 +97,7 @@ namespace SanteDB.Matcher.Model
                 // U must be set
                 if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
 
-                this.m_weightM = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
+                this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
             }
         }
     }

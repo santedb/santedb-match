@@ -20,7 +20,11 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Gets or sets the match transformation parameter
         /// </summary>
-        [XmlElement("parameter")]
-        public List<MatchTransformParameter> Parameters { get; set; }
+        [XmlArray("args")]
+        [XmlArrayItem("int", typeof(int))]
+        [XmlArrayItem("double", typeof(double))]
+        [XmlArrayItem("string", typeof(string))]
+        [XmlArrayItem("boolean", typeof(bool))]
+        public List<Object> Parameters { get; set; }
     }
 }
