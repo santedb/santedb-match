@@ -77,11 +77,11 @@ namespace SanteDB.Matcher.Matchers
                 IEnumerable<T> retVal = null;
                 foreach (var b in strongConfig.Blocking)
                     if (retVal == null)
-                        retVal = this.DoBlock<T>(input, strongConfig.Blocking.First());
+                        retVal = this.DoBlock<T>(input, b);
                     else if(b.Operator == BinaryOperatorType.AndAlso)
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, strongConfig.Blocking.First()), new IdentifiedComparator<T>());
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
                     else if (b.Operator == BinaryOperatorType.OrElse)
-                        retVal = retVal.Union(this.DoBlock<T>(input, strongConfig.Blocking.First())).Distinct(new IdentifiedComparator<T>());
+                        retVal = retVal.Union(this.DoBlock<T>(input, b)).Distinct(new IdentifiedComparator<T>());
                 return retVal;
             }
             else
@@ -103,7 +103,7 @@ namespace SanteDB.Matcher.Matchers
             NameValueCollection qfilter = new NameValueCollection();
             foreach (var b in filter)
             {
-                var nvc = NameValueCollection.ParseQueryString(b.Filter);
+                var nvc = NameValueCollection.ParseQueryString(b);
                 foreach (var nv in nvc)
                     foreach (var val in nv.Value)
                         qfilter.Add(nv.Key, val);

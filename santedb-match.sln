@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FBC6492A-ABFA-4435-837C-82A1F7A85E3D}"
 	ProjectSection(SolutionItems) = preProject
 		Solution Items\PatientMatchSample.xml = Solution Items\PatientMatchSample.xml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SanteDB.Matcher.Test", "SanteDB.Matcher.Test\SanteDB.Matcher.Test.csproj", "{E210AD94-8006-4F32-A86D-198CB2D8A9CE}"

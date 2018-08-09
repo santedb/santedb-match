@@ -68,7 +68,36 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            Assert.AreEqual(2, matchService.Block<Patient>(patient, "test.dob_and_gender_no_class").Count());
+            var blocks = matchService.Block<Patient>(patient, "test.dob_and_gender_no_class");
+            Assert.AreEqual(2, blocks.Count());
+        }
+
+
+        /// <summary>
+        /// Test that matching patients are blocked
+        /// </summary>
+        [TestMethod]
+        public void ShouldBlockFuzzyPatients()
+        {
+            var matchService = ApplicationContext.Current.GetService<IRecordMatchingService>();
+
+            // We will block patients, there are no patients that match this record (last name doesn't sound like)
+            var patient = new Patient()
+            {
+                DateOfBirth = DateTime.Parse("1986-10-01"),
+                GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
+                Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
+                {
+                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "993644-49382738-1986S")
+                },
+                Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
+                {
+                    new Core.Model.Entities.EntityName(NameUseKeys.OfficialRecord, "Ross", "Sam")
+                }
+            };
+            patient = patient.LoadConcepts();
+            var blocks = matchService.Block<Patient>(patient, "test.dob_and_gender_with_class");
+            Assert.AreEqual(1, blocks.Count());
         }
     }
 }

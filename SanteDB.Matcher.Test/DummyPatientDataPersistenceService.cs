@@ -25,7 +25,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Dummy data persistence service
     /// </summary>
-    public class DummyPatientDataPersistenceService : IRepositoryService<Patient>
+    public class DummyPatientDataPersistenceService : IRepositoryService<Patient>, IAliasProvider
     {
 
         // Sample Patients
@@ -65,6 +65,37 @@ namespace SanteDB.Matcher.Test
             return this.m_patients.FirstOrDefault(o => o.Key.Value == key);
         }
 
+        public IEnumerable<ComponentAlias> GetAlias(string name)
+        {
+            switch (name.ToLower())
+            {
+                case "sam":
+                    return new ComponentAlias[] {
+                        new ComponentAlias("samantha", 1.0)
+                    };
+                case "samantha":
+                    return new ComponentAlias[] {
+                        new ComponentAlias("sam", 1.0)
+                    };
+                case "samira":
+                    return new ComponentAlias[] {
+                        new ComponentAlias("sam", 0.5)
+                    };
+                case "william":
+                    return new ComponentAlias[] {
+                        new ComponentAlias("bill", 1.0),
+                        new ComponentAlias("will", 1.0)
+                    };
+                case "robert":
+                    return new ComponentAlias[]
+                    {
+                        new ComponentAlias("rob", 1.0),
+                        new ComponentAlias("bob", 1.0)
+                    };
+            }
+            return null;
+        }
+
         public Patient Insert(Patient data)
         {
             throw new NotImplementedException();
@@ -100,7 +131,7 @@ namespace SanteDB.Matcher.Test
             using (var sr = new StreamReader(typeof(DummyPatientDataPersistenceService).Assembly.GetManifestResourceStream("SanteDB.Matcher.Test.Resources.Patients.csv")))
             {
                 sr.ReadLine(); // header
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     var data = sr.ReadLine().Split(',');
                     var pat = new Patient()
@@ -134,12 +165,12 @@ namespace SanteDB.Matcher.Test
                         },
                         MultipleBirthOrder = !String.IsNullOrEmpty(data[16]) ? (Int32?)Int32.Parse(data[16]) : null
                     };
- 
+
                     patients.Add(pat);
                 }
             }
 
-            this.m_patients = patients.AsParallel().Select(p=>p.LoadConcepts()).ToList();
+            this.m_patients = patients.AsParallel().Select(p => p.LoadConcepts()).ToList();
 
 
         }

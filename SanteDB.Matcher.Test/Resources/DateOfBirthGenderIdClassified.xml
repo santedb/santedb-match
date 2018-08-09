@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MatchConfiguration xmlns="http://santedb.org/matcher"
-                    id="test.dob_and_gender_no_class"
+                    id="test.dob_and_gender_with_class"
                     uThreshold="0.5"
                     mThreshold="0.9">
   <target resource="Patient">
@@ -11,8 +11,8 @@
     <imsiExpression>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;1w</imsiExpression>
     <imsiExpression>identifier[HIN].value=:(substr|0,6)$input.identifier[HIN].value</imsiExpression>
     <imsiExpression>name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</imsiExpression>
+    <imsiExpression>name.component[Given].value=:(alias|$input.name.component[Given].value)&gt;0</imsiExpression>
   </blocking>
   <classification>
-    
   </classification>
 </MatchConfiguration>

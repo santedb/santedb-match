@@ -74,6 +74,12 @@ namespace SanteDB.Matcher.Model
         public bool Required { get; set; }
 
         /// <summary>
+        /// Gets or sets the mode in which weight is applied
+        /// </summary>
+        [XmlAttribute("weightMode")]
+        public MatchVectorWeightType WeightType { get; set; }
+
+        /// <summary>
         /// Gets or sets the rules
         /// </summary>
         [XmlElement("rule")]

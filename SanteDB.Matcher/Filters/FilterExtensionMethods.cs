@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Phonix;
 using SanteDB.Core;
 using SanteDB.Core.Interfaces;
+using SanteDB.Core.Services;
 using SanteDB.Matcher.Util;
 
 namespace SanteDB.Matcher.Filters
@@ -119,7 +120,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static TimeSpan Difference(this DateTime source, DateTime target)
         {
-            return source.Subtract(target);
+            return source.Subtract(target).Duration();
         }
 
         /// <summary>
@@ -127,7 +128,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static TimeSpan Difference(this DateTimeOffset source, DateTimeOffset target)
         {
-            return source.Subtract(target);
+            return source.Subtract(target).Duration();
         }
 
         /// <summary>
@@ -152,5 +153,12 @@ namespace SanteDB.Matcher.Filters
             return me.Substring(start, length);
         }
 
+        /// <summary>
+        /// Determines of other is an alias of me and the strength of the alias
+        /// </summary>
+        public static double Alias(this String me, String other)
+        {
+            return (ApplicationServiceContext.Current.GetSerivce<IAliasProvider>()?.GetAlias(me)?.FirstOrDefault(o => o.Alias.Equals(other, StringComparison.CurrentCultureIgnoreCase)).Relevance).GetValueOrDefault();
+        }
     }
 }

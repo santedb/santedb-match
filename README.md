@@ -35,3 +35,4 @@ Query filters are in the format:
 | ```:(soundex)otherString```| Matches the field based on the SOUNDEX code | ```?name.component.value=:(soundex)Smith``` matches any name whose soundex code matches SMITH|
 | ```:(soundslike\|otherString)```| Matches the field based on the currently configured phonetic algorithm handler (lets server decide the algorithm)||
 | ```:(phonetic_diff\|otherString[,algorithm])distance``` | Matches a field based on phonetic difference to another code using metaphone (default) or using soundex or dmetaphone| ```?name.component.value=:(phonetic_diff\|SMITH)<2``` Matches any name where the metaphone code is only 1 character different|
+| ```:(alias\|otherString)relevance``` | Matches records which are an alias | ```name.component.value=:(alias\|Will)>0``` will match Will, William, and Bill |

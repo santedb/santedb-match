@@ -22,7 +22,7 @@ namespace SanteDB.Matcher.Model
         /// Gets or sets the block filters
         /// </summary>
         [XmlElement("imsiExpression")]
-        public List<ImsiExpressionFilter> Filter { get; set; }
+        public List<String> Filter { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum results for this filter
