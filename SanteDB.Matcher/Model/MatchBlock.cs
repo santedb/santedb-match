@@ -24,5 +24,10 @@ namespace SanteDB.Matcher.Model
         [XmlElement("imsiExpression")]
         public List<ImsiExpressionFilter> Filter { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum results for this filter
+        /// </summary>
+        [XmlAttribute("maxResults")]
+        public int MaxReuslts { get; set; }
     }
 }

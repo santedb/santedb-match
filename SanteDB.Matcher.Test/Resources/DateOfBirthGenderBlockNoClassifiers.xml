@@ -1,19 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MatchConfiguration xmlns="http://santedb.org/matcher"
-                    id="sample.patient"
+                    id="test.dob_and_gender_no_class"
                     uThreshold="0.5"
                     mThreshold="0.9">
   <target resource="Patient">
     <trigger>BeforeInsert</trigger>
     <trigger>BeforeUpdate</trigger>
   </target>
-  <blocking op="and">
-    <!-- Patients whose DOB are either null or within 1 week of inserted -->
-    <imsiExpression trueIfNull="true">dateOfBirth=:(diff|&lt;=1w)$input.dateOfBirth</imsiExpression>
-    <!-- Patients whose first three digits of their SIN match-->
-    <imsiExpression trueIfNull="true">identifier[SSN].value=:(first|3)$input.identifier[SSN].value</imsiExpression>
-    <!-- Patients who have at least one name where the metaphone code matches the input -->
-    <imsiExpression trueIfNull="false">name.component.value=:(metaphone|4)$input.name.component.value</imsiExpression>
+  <blocking op="and" maxResults="1000">
+    <imsiExpression trueIfNull="true">dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;2w</imsiExpression>
+    <imsiExpression trueIfNull="true">identifier[HIN].value=:(substr|0,6)$input.identifier[HIN].value</imsiExpression>
+    <imsiExpression trueIfNull="false">name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</imsiExpression>
   </blocking>
   <classification>
     <!-- When the input's DOB has the same week as the block's DOB add the weight or add the non weight

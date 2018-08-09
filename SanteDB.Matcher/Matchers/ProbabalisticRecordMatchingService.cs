@@ -10,27 +10,21 @@ namespace SanteDB.Matcher.Matchers
     /// <summary>
     /// Represents a probabalistic record matching service
     /// </summary>
-    public class ProbabalisticRecordMatchingService : IRecordMatchingService
+    public class ProbabalisticRecordMatchingService : BaseRecordMatchingService
     {
 
         /// <summary>
-        /// Perform blocking using the current database layer of resources matching the specified IMSI expressions
+        /// Classify the records using the specified configuration
         /// </summary>
-        /// <typeparam name="T">The type of data we're blocking</typeparam>
-        /// <param name="input">The input object to block against</param>
-        /// <param name="configurationName">The configuration name</param>
-        /// <returns>Blocked input</returns>
-        public IEnumerable<T> Block<T>(T input, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
         {
             throw new NotImplementedException();
         }
 
-        public bool Classify<T>(T input, IEnumerable<T> blocks, string configurationName, out IEnumerable<T> matched, out IEnumerable<T> probable, out IEnumerable<T> discard)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Match<T>(T input, string configurationName, out IEnumerable<T> matched, out IEnumerable<T> probable, out IEnumerable<T> discard)
+        /// <summary>
+        /// Block and match records based on their match result
+        /// </summary>
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
         {
             throw new NotImplementedException();
         }

@@ -1,0 +1,138 @@
+﻿using MARC.HI.EHRS.SVC.Core.Data;
+using MARC.HI.EHRS.SVC.Core.Event;
+using MARC.HI.EHRS.SVC.Core.Services;
+using SanteDB.Core.Interfaces;
+using SanteDB.Core.Model.Constants;
+using SanteDB.Core.Model.DataTypes;
+using SanteDB.Core.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Principal;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SanteDB.Matcher.Test
+{
+    /// <summary>
+    /// Repository service for concepts
+    /// </summary>
+    public class DummyConceptRepositoryService : IDataPersistenceService<Concept>
+    {
+
+        private Dictionary<Guid, Concept> m_concepts = new Dictionary<Guid, Concept>()
+        {
+            { NameUseKeys.OfficialRecord, new Concept() { Mnemonic = "OfficialRecord" } },
+            { NameUseKeys.Pseudonym, new Concept() { Mnemonic = "Pseudonym" } },
+            { AddressUseKeys.HomeAddress, new Concept() { Mnemonic = "HomeAddress" } },
+            { NameComponentKeys.Given, new Concept() { Mnemonic = "Given" } },
+            { NameComponentKeys.Family, new Concept() { Mnemonic = "Family" } },
+            { AddressComponentKeys.StreetAddressLine, new Concept() { Mnemonic = "StreetAddressLine" } },
+            { AddressComponentKeys.City, new Concept() { Mnemonic = "City" } },
+            { AddressComponentKeys.Country, new Concept() { Mnemonic = "Country" } },
+            { AddressComponentKeys.State, new Concept() { Mnemonic = "State" } },
+            { AddressComponentKeys.PostalCode, new Concept() { Mnemonic = "PostalCode" } },
+            { Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"), new Concept(){ Mnemonic = "Female"} },
+            { Guid.Parse("f4e3a6bb-612e-46b2-9f77-ff844d971198"), new Concept() { Mnemonic = "Male"} },
+            { EntityClassKeys.Patient, new Concept() { Mnemonic = "Patient"} },
+            { EntityClassKeys.Person, new Concept() { Mnemonic = "Person"} },
+            { DeterminerKeys.Specific, new Concept() { Mnemonic = "Specific" } },
+            {  EntityRelationshipTypeKeys.Birthplace, new Concept() { Mnemonic = "Birthplace" } },
+            {  EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Birthplace" } },
+        };
+
+        public event EventHandler<AuditDataEventArgs> DataCreated;
+        public event EventHandler<AuditDataEventArgs> DataUpdated;
+        public event EventHandler<AuditDataEventArgs> DataObsoleted;
+        public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
+        public event EventHandler<PrePersistenceEventArgs<Concept>> Inserting;
+        public event EventHandler<PostPersistenceEventArgs<Concept>> Inserted;
+        public event EventHandler<PrePersistenceEventArgs<Concept>> Updating;
+        public event EventHandler<PostPersistenceEventArgs<Concept>> Updated;
+        public event EventHandler<PrePersistenceEventArgs<Concept>> Obsoleting;
+        public event EventHandler<PostPersistenceEventArgs<Concept>> Obsoleted;
+        public event EventHandler<PreRetrievalEventArgs> Retrieving;
+        public event EventHandler<PostRetrievalEventArgs<Concept>> Retrieved;
+        public event EventHandler<PreQueryEventArgs<Concept>> Querying;
+        public event EventHandler<PostQueryEventArgs<Concept>> Queried;
+
+        public int Count(Expression<Func<Concept, bool>> query, IPrincipal authContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Concept> Find(Expression<Func<Concept, bool>> query)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Concept> Find(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Get(Guid key)
+        {
+            Concept tr = null;
+            if (this.m_concepts.TryGetValue(key, out tr))
+            {
+                tr.Key = key;
+                return tr;
+            }
+            else
+                return null;
+        }
+
+        public Concept Get(Guid key, Guid versionKey)
+        {
+            return this.Get(key);
+        }
+
+        public Concept Get<TIdentifier>(MARC.HI.EHRS.SVC.Core.Data.Identifier<TIdentifier> containerId, IPrincipal principal, bool loadFast)
+        {
+            var id = containerId as Identifier<Guid>;
+            return this.Get(id.Id);
+        }
+
+        public Concept Insert(Concept data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Insert(Concept storageData, IPrincipal principal, TransactionMode mode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Obsolete(Guid key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Obsolete(Concept storageData, IPrincipal principal, TransactionMode mode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal authContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, IPrincipal authContext, out int totalCount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Save(Concept data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Update(Concept storageData, IPrincipal principal, TransactionMode mode)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

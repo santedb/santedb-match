@@ -12,7 +12,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Dummy configuration provider
     /// </summary>
-    public class DummyMatchConfigurationProvider : IRecordMatchConfigurationService
+    public class DummyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
 
         private List<IRecordMatchingConfiguration> m_configs = new List<IRecordMatchingConfiguration>();

@@ -1,10 +1,15 @@
 ﻿using MARC.HI.EHRS.SVC.Core.Data;
 using MARC.HI.EHRS.SVC.Core.Event;
 using MARC.HI.EHRS.SVC.Core.Services;
+using SanteDB.Core.Applets.ViewModel.Null;
+using SanteDB.Core.Interfaces;
+using SanteDB.Core.Model;
+using SanteDB.Core.Model.Collection;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.Entities;
 using SanteDB.Core.Model.Roles;
+using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +25,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Dummy data persistence service
     /// </summary>
-    public class DummyPatientDataPersistenceService : IDataPersistenceService<Patient>
+    public class DummyPatientDataPersistenceService : IRepositoryService<Patient>
     {
 
         // Sample Patients
@@ -34,53 +39,43 @@ namespace SanteDB.Matcher.Test
             this.LoadPatientData();
         }
 
-        public event EventHandler<PrePersistenceEventArgs<Patient>> Inserting;
-        public event EventHandler<PostPersistenceEventArgs<Patient>> Inserted;
-        public event EventHandler<PrePersistenceEventArgs<Patient>> Updating;
-        public event EventHandler<PostPersistenceEventArgs<Patient>> Updated;
-        public event EventHandler<PrePersistenceEventArgs<Patient>> Obsoleting;
-        public event EventHandler<PostPersistenceEventArgs<Patient>> Obsoleted;
-        public event EventHandler<PreRetrievalEventArgs> Retrieving;
-        public event EventHandler<PostRetrievalEventArgs<Patient>> Retrieved;
-        public event EventHandler<PreQueryEventArgs<Patient>> Querying;
-        public event EventHandler<PostQueryEventArgs<Patient>> Queried;
+        public event EventHandler<AuditDataEventArgs> DataCreated;
+        public event EventHandler<AuditDataEventArgs> DataUpdated;
+        public event EventHandler<AuditDataEventArgs> DataObsoleted;
+        public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
 
-        public int Count(Expression<Func<Patient, bool>> query, IPrincipal authContext)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Patient Get<TIdentifier>(MARC.HI.EHRS.SVC.Core.Data.Identifier<TIdentifier> containerId, IPrincipal principal, bool loadFast)
-        {
-            var c = containerId as Identifier<Guid>;
-            return this.m_patients.FirstOrDefault(o => o.Key.Value == c.Id);
-        }
-
-        public Patient Insert(Patient storageData, IPrincipal principal, TransactionMode mode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Patient Obsolete(Patient storageData, IPrincipal principal, TransactionMode mode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Patient> Query(Expression<Func<Patient, bool>> query, IPrincipal authContext)
+        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query)
         {
             return this.m_patients.Where(query.Compile());
         }
 
-        /// <summary>
-        /// Query with limits
-        /// </summary>
-        public IEnumerable<Patient> Query(Expression<Func<Patient, bool>> query, int offset, int? count, IPrincipal authContext, out int totalCount)
+        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults)
         {
-            totalCount = this.m_patients.Count(query.Compile());
+            totalResults = this.m_patients.Count(query.Compile());
             return this.m_patients.Where(query.Compile()).Skip(offset).Take(count ?? 100);
         }
 
-        public Patient Update(Patient storageData, IPrincipal principal, TransactionMode mode)
+        public Patient Get(Guid key)
+        {
+            return this.m_patients.FirstOrDefault(o => o.Key.Value == key);
+        }
+
+        public Patient Get(Guid key, Guid versionKey)
+        {
+            return this.m_patients.FirstOrDefault(o => o.Key.Value == key);
+        }
+
+        public Patient Insert(Patient data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Patient Obsolete(Guid key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Patient Save(Patient data)
         {
             throw new NotImplementedException();
         }
@@ -108,13 +103,13 @@ namespace SanteDB.Matcher.Test
                 while(!sr.EndOfStream)
                 {
                     var data = sr.ReadLine().Split(',');
-                    patients.Add(new Patient()
+                    var pat = new Patient()
                     {
                         Key = Guid.NewGuid(),
                         Identifiers = new List<EntityIdentifier>()
                         {
-                            new EntityIdentifier(Guid.Parse("8ba75e94-e1ac-4aea-aede-b2f0c9aa8b77"), data[0]),
-                            new EntityIdentifier(Guid.Parse("22ae27be-8b5f-46e0-9429-80d66acf6f7c"), data[6])
+                            new EntityIdentifier(new AssigningAuthority("MRN", "MRN", "1.2.3.4"), data[0]),
+                            new EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), data[6])
                         },
                         GenderConceptKey = Guid.Parse(data[2].ToLower() == "m" ? "f4e3a6bb-612e-46b2-9f77-ff844d971198" :
                             data[2].ToLower() == "f" ? "094941e9-a3db-48b5-862c-bc289bd7f86c" :
@@ -138,9 +133,13 @@ namespace SanteDB.Matcher.Test
                             })
                         },
                         MultipleBirthOrder = !String.IsNullOrEmpty(data[16]) ? (Int32?)Int32.Parse(data[16]) : null
-                    });
+                    };
+ 
+                    patients.Add(pat);
                 }
             }
+
+            this.m_patients = patients.AsParallel().Select(p=>p.LoadConcepts()).ToList();
 
 
         }
