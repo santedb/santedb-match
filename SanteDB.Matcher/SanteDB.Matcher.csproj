@@ -55,7 +55,7 @@
     <Compile Include="Model\MatchTransformConfiguration.cs" />
     <Compile Include="Model\MatchVector.cs" />
     <Compile Include="Model\MatchVectorNullBehavior.cs" />
-    <Compile Include="Model\MatchVectorRule.cs" />
+    <Compile Include="Model\MatchVectorAssertion.cs" />
     <Compile Include="Model\MatchVectorWeightType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transforms\Date\DateDifferenceTransform.cs" />

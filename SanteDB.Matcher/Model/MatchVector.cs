@@ -74,16 +74,16 @@ namespace SanteDB.Matcher.Model
         public bool Required { get; set; }
 
         /// <summary>
-        /// Gets or sets the mode in which weight is applied
-        /// </summary>
-        [XmlAttribute("weightMode")]
-        public MatchVectorWeightType WeightType { get; set; }
-
-        /// <summary>
         /// Gets or sets the rules
         /// </summary>
-        [XmlElement("rule")]
-        public List<MatchVectorRule> Rules { get; set; }
+        [XmlElement("assertion")]
+        public MatchVectorAssertion Assertion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the algorithm for partially measuring the value
+        /// </summary>
+        [XmlElement("partialWeight")]
+        public MatchTransform Measure { get; set; }
 
         /// <summary>
         /// Initializes the probability parameters on this class instance

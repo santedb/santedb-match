@@ -7,8 +7,8 @@ namespace SanteDB.Matcher.Model
     /// <summary>
     /// Match vector rule
     /// </summary>
-    [XmlType(nameof(MatchVectorRule), Namespace = "http://santedb.org/matcher")]
-    public class MatchVectorRule
+    [XmlType(nameof(MatchVectorAssertion), Namespace = "http://santedb.org/matcher")]
+    public class MatchVectorAssertion
     {
 
         /// <summary>
@@ -32,8 +32,8 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Rules in the vector rule
         /// </summary>
-        [XmlElement("rule")]
-        public List<MatchVectorRule> Rules { get; set; }
+        [XmlElement("assert")]
+        public List<MatchVectorAssertion> Assertions { get; set; }
 
     }
 }
