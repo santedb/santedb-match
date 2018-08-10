@@ -76,7 +76,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Gets or sets the rules
         /// </summary>
-        [XmlElement("assertion")]
+        [XmlElement("assert")]
         public MatchVectorAssertion Assertion { get; set; }
 
         /// <summary>

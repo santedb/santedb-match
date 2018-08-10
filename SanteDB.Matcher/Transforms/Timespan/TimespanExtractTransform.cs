@@ -14,7 +14,7 @@ namespace SanteDB.Matcher.Transforms.Timespan
         /// <summary>
         /// Gets the name of the transform
         /// </summary>
-        public string Name => "timespan.extract";
+        public string Name => "timespan_extract";
 
         /// <summary>
         /// Apply the transform

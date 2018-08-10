@@ -18,7 +18,7 @@ namespace SanteDB.Matcher.Test
             var loaded = MatchConfiguration.Load(typeof(MatchConfigurationTest).Assembly.GetManifestResourceStream("SanteDB.Matcher.Test.Resources.PatientMatchSample.xml"));
             Assert.IsNotNull(loaded);
             Assert.AreEqual(1, loaded.Classification.Count);
-            Assert.AreEqual(1, loaded.Classification.First().Assertions.Count);
+            Assert.IsNotNull(loaded.Classification.First().Assertion);
             Assert.AreEqual(1, loaded.Blocking.Count);
             Assert.AreEqual(3, loaded.Blocking.First().Filter.Count);
             Assert.AreEqual(typeof(Patient), loaded.Target.First().ResourceType);

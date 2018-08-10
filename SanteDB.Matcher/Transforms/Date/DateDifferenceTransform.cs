@@ -14,7 +14,7 @@ namespace SanteDB.Matcher.Transforms.Date
         /// <summary>
         /// Gets the name of the transform
         /// </summary>
-        public string Name => "date.diff";
+        public string Name => "date_diff";
 
         /// <summary>
         /// Difference between date a and date b

@@ -44,6 +44,8 @@
     <Compile Include="Filters\SoundsLikeFilter.cs" />
     <Compile Include="Filters\SoundexFilter.cs" />
     <Compile Include="Matchers\BaseRecordMatchingService.cs" />
+    <Compile Include="Matchers\DeterministicRecordMatchingService.cs" />
+    <Compile Include="Matchers\MatchResult.cs" />
     <Compile Include="Matchers\ProbabalisticRecordMatchingService.cs" />
     <Compile Include="MathExtensions.cs" />
     <Compile Include="Model\BinaryOperatorType.cs" />
@@ -61,6 +63,13 @@
     <Compile Include="Transforms\Date\DateDifferenceTransform.cs" />
     <Compile Include="Transforms\Date\DateExtractTransform.cs" />
     <Compile Include="Transforms\IDataTransformer.cs" />
+    <Compile Include="Transforms\Text\DoubleMetaphoneTransform.cs" />
+    <Compile Include="Transforms\Text\LengthTransform.cs" />
+    <Compile Include="Transforms\Text\LevenshteinDifferenceTransform.cs" />
+    <Compile Include="Transforms\Text\MetaphoneTransform.cs" />
+    <Compile Include="Transforms\Text\SimilarityTransform.cs" />
+    <Compile Include="Transforms\Text\SoundexTransform.cs" />
+    <Compile Include="Transforms\Text\SubstringTransform.cs" />
     <Compile Include="Transforms\Timespan\TimespanExtractTransform.cs" />
     <Compile Include="Transforms\TransformerFactory.cs" />
     <Compile Include="Util\StringDifference.cs" />
@@ -76,9 +85,7 @@
       <Version>1.1.0.9</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Transforms\String\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="Phonix">
       <HintPath>..\Solution Items\Phonix.dll</HintPath>

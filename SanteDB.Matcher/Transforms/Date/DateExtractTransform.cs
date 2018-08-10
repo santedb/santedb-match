@@ -15,7 +15,7 @@ namespace SanteDB.Matcher.Transforms.Date
         /// <summary>
         /// Get the name of the transform
         /// </summary>
-        public string Name => "date.extract";
+        public string Name => "date_extract";
 
         /// <summary>
         /// Apply the transform
