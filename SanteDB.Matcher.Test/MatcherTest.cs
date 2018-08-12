@@ -96,8 +96,10 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            var blocks = matchService.Block<Patient>(patient, "test.dob_and_gender_with_class");
-            Assert.AreEqual(1, blocks.Count());
+            var blocks = matchService.Block(patient, "test.dob_and_gender_with_class");
+            Assert.AreEqual(5, blocks.Count());
+            var output = matchService.Classify(patient, blocks, "test.dob_and_gender_with_class");
+            Assert.AreEqual(5, output.Count());
         }
     }
 }

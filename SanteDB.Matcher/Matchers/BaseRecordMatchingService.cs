@@ -12,34 +12,34 @@ using SanteDB.Core.Model.Interfaces;
 namespace SanteDB.Matcher.Matchers
 {
     /// <summary>
+    /// Identified comparator
+    /// </summary>
+    public class IdentifiedComparator<T> : IEqualityComparer<T>
+        where T : IdentifiedData
+    {
+        /// <summary>
+        /// Determine equality
+        /// </summary>
+        public bool Equals(T x, T y)
+        {
+            return x.Key == y.Key;
+        }
+
+        /// <summary>
+        /// Get hash code
+        /// </summary>
+        public int GetHashCode(T obj)
+        {
+            return obj.Key.GetHashCode();
+        }
+    }
+
+    /// <summary>
     /// Represents base record matching service for SanteDB Matcher
     /// </summary>
     public abstract class BaseRecordMatchingService : IRecordMatchingService
     {
-
-        /// <summary>
-        /// Identified comparator
-        /// </summary>
-        private class IdentifiedComparator<T> : IEqualityComparer<T>
-            where T : IdentifiedData
-        {
-            /// <summary>
-            /// Determine equality
-            /// </summary>
-            public bool Equals(T x, T y)
-            {
-                return x.Key == y.Key;
-            }
-
-            /// <summary>
-            /// Get hash code
-            /// </summary>
-            public int GetHashCode(T obj)
-            {
-                return obj.Key.GetHashCode();
-            }
-        }
-
+       
         /// <summary>
         /// Static CTOR
         /// </summary>

@@ -24,6 +24,12 @@ namespace SanteDB.Matcher.Model
         public double Value { get; set; }
 
         /// <summary>
+        /// Value specified
+        /// </summary>
+        [XmlIgnore]
+        public bool ValueSpecified { get; set; }
+
+        /// <summary>
         /// Gets or sets the transformations
         /// </summary>
         [XmlElement("transform")]
