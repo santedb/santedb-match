@@ -203,7 +203,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
         {
-            throw new NotImplementedException();
+            return this.Classify(input, base.Block(input, configurationName), configurationName);
         }
     }
 }

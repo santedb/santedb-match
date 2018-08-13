@@ -60,6 +60,7 @@
     <Compile Include="Model\MatchVectorAssertion.cs" />
     <Compile Include="Model\MatchVectorWeightType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AppletMatchConfigurationProvider.cs" />
     <Compile Include="Transforms\Date\DateDifferenceTransform.cs" />
     <Compile Include="Transforms\Date\DateExtractTransform.cs" />
     <Compile Include="Transforms\IDataTransformer.cs" />
