@@ -18,8 +18,15 @@ namespace SanteDB.Matcher.Matchers
     /// <summary>
     /// Represents a probabalistic record matching service
     /// </summary>
+    [ServiceProvider("SanteMatch Probabalistic Match Service")]
     public class ProbabalisticRecordMatchingService : BaseRecordMatchingService
     {
+
+        /// <summary>
+        /// Probabalistic matching service
+        /// </summary>
+        public override string ServiceName => "SanteMatch Probabalistic Matching Service";
+
         // Transforms loaded by this matcher
         static Dictionary<String, IDataTransformer> s_transforms = new Dictionary<string, IDataTransformer>();
 
@@ -43,7 +50,7 @@ namespace SanteDB.Matcher.Matchers
             if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
 
             // Get configuration if specified
-            var config = ApplicationServiceContext.Current.GetSerivce<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
+            var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
             config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
             if (config == null || !(config is MatchConfiguration))
                 throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");

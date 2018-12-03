@@ -1,7 +1,4 @@
-﻿using MARC.HI.EHRS.SVC.Core.Data;
-using MARC.HI.EHRS.SVC.Core.Event;
-using MARC.HI.EHRS.SVC.Core.Services;
-using SanteDB.Core.Applets.ViewModel.Null;
+﻿using SanteDB.Core.Applets.ViewModel.Null;
 using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Collection;
@@ -27,6 +24,8 @@ namespace SanteDB.Matcher.Test
     /// </summary>
     public class DummyPatientDataPersistenceService : IRepositoryService<Patient>, IAliasProvider
     {
+
+        public String ServiceName => "Fake Patient Repository";
 
         // Sample Patients
         private IEnumerable<Patient> m_patients;

@@ -16,7 +16,7 @@ namespace SanteDB.Matcher.Test
         [TestMethod]
         public void ShouldCreateTransformer()
         {
-            var instance = TransformerFactory.Current.CreateTransformer("date.extract");
+            var instance = TransformerFactory.Current.CreateTransformer("date_extract");
             Assert.IsInstanceOfType(instance, typeof(DateExtractTransform));
         }
 

@@ -8,6 +8,7 @@ using SanteDB.Core;
 using SanteDB.Matcher.Model;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Interfaces;
+using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -39,7 +40,11 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     public abstract class BaseRecordMatchingService : IRecordMatchingService
     {
-       
+        /// <summary>
+        /// Service name
+        /// </summary>
+        public abstract string ServiceName { get; }
+
         /// <summary>
         /// Static CTOR
         /// </summary>
@@ -62,7 +67,7 @@ namespace SanteDB.Matcher.Matchers
             if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
 
             // Get configuration if specified
-            var config = ApplicationServiceContext.Current.GetSerivce<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
+            var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
             config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
             if (config == null || !(config is MatchConfiguration))
                 throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
@@ -94,7 +99,7 @@ namespace SanteDB.Matcher.Matchers
         private IEnumerable<T> DoBlock<T>(T input, MatchBlock block) where T : IdentifiedData
         {
             // Load the persistence service
-            var persistenceService = ApplicationServiceContext.Current.GetSerivce<IRepositoryService<T>>();
+            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
             if (persistenceService == null)
                 throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
@@ -133,5 +138,10 @@ namespace SanteDB.Matcher.Matchers
         /// Performs a block and match operation in one call
         /// </summary>
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
+
+        public IRecordMatchResult<T> Score<T>(T input, Expression<Func<T, bool>> query, string configurationName) where T : IdentifiedData
+        {
+            throw new NotImplementedException();
+        }
     }
 }

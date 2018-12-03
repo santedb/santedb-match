@@ -1,15 +1,17 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using MARC.HI.EHRS.SVC.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SanteDB.Core;
+using SanteDB.Core.Data;
+using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.EntityLoader;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Matchers;
+using SanteDB.Persistence.ADO.Test.Core;
 
 namespace SanteDB.Matcher.Test
 {
@@ -27,21 +29,23 @@ namespace SanteDB.Matcher.Test
                "DataDirectory",
                Path.Combine(context.TestDeploymentDir, string.Empty));
 
-            EntitySource.Current = new EntitySource(new PersistenceServiceEntitySource());
+            EntitySource.Current = new EntitySource(new RepositoryEntitySource());
 
             // Register the AuditAdoPersistenceService
-            ApplicationContext.Current.AddServiceProvider(typeof(MARC.HI.EHRS.SVC.Core.Configuration.LocalConfigurationManager));
-            ApplicationContext.Current.AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
-            ApplicationContext.Current.AddServiceProvider(typeof(DummyConceptRepositoryService));
-            ApplicationContext.Current.AddServiceProvider(typeof(DummyPatientDataPersistenceService));
-            ApplicationContext.Current.AddServiceProvider(typeof(ProbabalisticRecordMatchingService));
+            TestApplicationContext.TestAssembly = typeof(MatcherTest).Assembly;
+            TestApplicationContext.Initialize(context.DeploymentDirectory);
+
+            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
+            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyConceptRepositoryService));
+            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyPatientDataPersistenceService));
+            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(ProbabalisticRecordMatchingService));
 
             // Start the daemon services
-            if (!ApplicationContext.Current.IsRunning)
+            if (!ApplicationServiceContext.Current.IsRunning)
             {
                 //adoPersistenceService.Start();
-                ApplicationContext.Current.Start();
-                ApplicationServiceContext.Current = ApplicationContext.Current;
+                TestApplicationContext.Current.Start();
+                ApplicationServiceContext.Current = ApplicationServiceContext.Current;
             }
         }
 
@@ -51,7 +55,7 @@ namespace SanteDB.Matcher.Test
         [TestMethod]
         public void ShouldBlockMatchingPatients()
         {
-            var matchService = ApplicationContext.Current.GetService<IRecordMatchingService>();
+            var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
 
             // We will block patients, there are no patients that match this record (last name doesn't sound like)
             var patient = new Patient()
@@ -79,7 +83,7 @@ namespace SanteDB.Matcher.Test
         [TestMethod]
         public void ShouldBlockFuzzyPatients()
         {
-            var matchService = ApplicationContext.Current.GetService<IRecordMatchingService>();
+            var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
 
             // We will block patients, there are no patients that match this record (last name doesn't sound like)
             var patient = new Patient()

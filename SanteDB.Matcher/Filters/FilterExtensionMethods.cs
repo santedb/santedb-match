@@ -57,7 +57,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static bool SoundsLike(this String me, String other)
         {
-            var alg = ApplicationServiceContext.Current.GetSerivce<IPhoneticAlgorithmHandler>();
+            var alg = ApplicationServiceContext.Current.GetService<IPhoneticAlgorithmHandler>();
             return alg?.GenerateCode(me) == alg?.GenerateCode(other);
         }
 
@@ -158,7 +158,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static double Alias(this String me, String other)
         {
-            return (ApplicationServiceContext.Current.GetSerivce<IAliasProvider>()?.GetAlias(me)?.FirstOrDefault(o => o.Alias.Equals(other, StringComparison.CurrentCultureIgnoreCase)).Relevance).GetValueOrDefault();
+            return (ApplicationServiceContext.Current.GetService<IAliasProvider>()?.GetAlias(me)?.FirstOrDefault(o => o.Alias.Equals(other, StringComparison.CurrentCultureIgnoreCase)).Relevance).GetValueOrDefault();
         }
     }
 }

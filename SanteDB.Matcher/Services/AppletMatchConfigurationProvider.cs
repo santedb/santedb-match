@@ -25,6 +25,11 @@ namespace SanteDB.Matcher.Services
         private readonly Tracer m_tracer = Tracer.GetTracer(typeof(AppletMatchConfigurationProvider));
 
         /// <summary>
+        /// Applet Based Match Configuration Provider
+        /// </summary>
+        public string ServiceName => "SanteMatch Applet XML Match Configuration";
+
+        /// <summary>
         /// Get the specified configuration name
         /// </summary>
         /// <param name="name">The configuratio name</param>
@@ -33,7 +38,7 @@ namespace SanteDB.Matcher.Services
         {
             if (this.m_configurationCache.TryGetValue(name, out IRecordMatchingConfiguration retVal))
             {
-                var amgr = ApplicationServiceContext.Current.GetSerivce<IAppletManagerService>()?.Applets.SelectMany(a => a.Assets).Where(o => o.Name == $"matching/{name}.xml").FirstOrDefault();
+                var amgr = ApplicationServiceContext.Current.GetService<IAppletManagerService>()?.Applets.SelectMany(a => a.Assets).Where(o => o.Name == $"matching/{name}.xml").FirstOrDefault();
 
                 try
                 {

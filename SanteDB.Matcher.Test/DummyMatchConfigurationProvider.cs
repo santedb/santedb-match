@@ -15,6 +15,7 @@ namespace SanteDB.Matcher.Test
     public class DummyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
 
+        public string ServiceName => "Fake News Record Matching";
         private List<IRecordMatchingConfiguration> m_configs = new List<IRecordMatchingConfiguration>();
 
         /// <summary>
@@ -22,8 +23,12 @@ namespace SanteDB.Matcher.Test
         /// </summary>
         public DummyMatchConfigurationProvider()
         {
-            foreach (var n in typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceNames().Where(o=>o.Contains(".xml")))
-                this.m_configs.Add(MatchConfiguration.Load(typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceStream(n)));
+            foreach (var n in typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceNames().Where(o => o.Contains(".xml")))
+                try
+                {
+                    this.m_configs.Add(MatchConfiguration.Load(typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceStream(n)));
+                }
+                catch { }
         }
 
         /// <summary>

@@ -1,6 +1,4 @@
-﻿using MARC.HI.EHRS.SVC.Core.Data;
-using MARC.HI.EHRS.SVC.Core.Event;
-using MARC.HI.EHRS.SVC.Core.Services;
+﻿using SanteDB.Core.Event;
 using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
@@ -42,32 +40,24 @@ namespace SanteDB.Matcher.Test
             {  EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Birthplace" } },
         };
 
+        public string ServiceName => throw new NotImplementedException();
+
         public event EventHandler<AuditDataEventArgs> DataCreated;
         public event EventHandler<AuditDataEventArgs> DataUpdated;
         public event EventHandler<AuditDataEventArgs> DataObsoleted;
         public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
-        public event EventHandler<PrePersistenceEventArgs<Concept>> Inserting;
-        public event EventHandler<PostPersistenceEventArgs<Concept>> Inserted;
-        public event EventHandler<PrePersistenceEventArgs<Concept>> Updating;
-        public event EventHandler<PostPersistenceEventArgs<Concept>> Updated;
-        public event EventHandler<PrePersistenceEventArgs<Concept>> Obsoleting;
-        public event EventHandler<PostPersistenceEventArgs<Concept>> Obsoleted;
-        public event EventHandler<PreRetrievalEventArgs> Retrieving;
-        public event EventHandler<PostRetrievalEventArgs<Concept>> Retrieved;
-        public event EventHandler<PreQueryEventArgs<Concept>> Querying;
-        public event EventHandler<PostQueryEventArgs<Concept>> Queried;
+        public event EventHandler<DataPersistingEventArgs<Concept>> Inserting;
+        public event EventHandler<DataPersistedEventArgs<Concept>> Inserted;
+        public event EventHandler<DataPersistingEventArgs<Concept>> Updating;
+        public event EventHandler<DataPersistedEventArgs<Concept>> Updated;
+        public event EventHandler<DataPersistingEventArgs<Concept>> Obsoleting;
+        public event EventHandler<DataPersistedEventArgs<Concept>> Obsoleted;
+        public event EventHandler<DataRetrievingEventArgs<Concept>> Retrieving;
+        public event EventHandler<DataRetrievedEventArgs<Concept>> Retrieved;
+        public event EventHandler<QueryRequestEventArgs<Concept>> Querying;
+        public event EventHandler<QueryResultEventArgs<Concept>> Queried;
 
-        public int Count(Expression<Func<Concept, bool>> query, IPrincipal authContext)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Concept> Find(Expression<Func<Concept, bool>> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Concept> Find(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults)
+        public long Count(Expression<Func<Concept, bool>> p, IPrincipal authContext = null)
         {
             throw new NotImplementedException();
         }
@@ -89,48 +79,33 @@ namespace SanteDB.Matcher.Test
             return this.Get(key);
         }
 
-        public Concept Get<TIdentifier>(MARC.HI.EHRS.SVC.Core.Data.Identifier<TIdentifier> containerId, IPrincipal principal, bool loadFast)
+        public Concept Get(Guid id, Guid? versionId, bool loadFast, IPrincipal principal)
         {
-            var id = containerId as Identifier<Guid>;
-            return this.Get(id.Id);
+            return this.Get(id);
         }
+        
 
-        public Concept Insert(Concept data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Concept Insert(Concept storageData, IPrincipal principal, TransactionMode mode)
+        public Concept Insert(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
-        public Concept Obsolete(Guid key)
+        public Concept Obsolete(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
-        public Concept Obsolete(Concept storageData, IPrincipal principal, TransactionMode mode)
+        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal authContext)
+        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, IPrincipal authContext, out int totalCount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Concept Save(Concept data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Concept Update(Concept storageData, IPrincipal principal, TransactionMode mode)
+        public Concept Update(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
