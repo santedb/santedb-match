@@ -102,6 +102,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <None Include="..\SanteDB.licenseheader">
+      <Link>SanteDB.licenseheader</Link>
+    </None>
     <None Include="SanteDB.Matcher.nuspec">
       <SubType>Designer</SubType>
     </None>
