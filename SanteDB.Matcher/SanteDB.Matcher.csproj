@@ -76,19 +76,35 @@
     <Compile Include="Transforms\TransformerFactory.cs" />
     <Compile Include="Util\StringDifference.cs" />
   </ItemGroup>
+  <Choose>
+    <When Condition="$(SolutionName.Contains('-ext'))">
+      <ItemGroup>
+        <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
+          <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
+          <Name>SanteDB.Core.Model</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\santedb-api\SanteDB.Core.Api\SanteDB.Core.Api.csproj">
+          <Project>{3A45F695-47A2-464C-ACE6-BDABBFA39FBC}</Project>
+          <Name>SanteDB.Core.Api</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\santedb-server\santedb-applets\SanteDB.Core.Applets\SanteDB.Core.Applets.csproj">
+          <Project>{39E61451-F4FE-493D-B754-5F06EB284AAC}</Project>
+          <Name>SanteDB.Core.Applets</Name>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="SanteDB.Core.Applets" Version="1.11.0.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="1.11.0.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="1.11.0.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
   <ItemGroup>
-    <PackageReference Include="SanteDB.Core.Api">
-      <Version>1.9.17</Version>
-    </PackageReference>
-    <PackageReference Include="SanteDB.Core.Applets">
-      <Version>1.9.17</Version>
-    </PackageReference>
-    <PackageReference Include="SanteDB.Core.Model">
-      <Version>1.9.17</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SanteDB.Matcher.nuspec" />
+    <None Include="SanteDB.Matcher.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Phonix">
