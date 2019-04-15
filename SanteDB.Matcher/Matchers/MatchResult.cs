@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -77,6 +79,9 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public List<VectorResult> Vectors { get; private set; }
 
+        /// <summary>
+        /// Represent this match as a string
+        /// </summary>
         public override string ToString()
         {
             return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, CONF: {this.Confidence}";
@@ -86,6 +91,7 @@ namespace SanteDB.Matcher.Matchers
     /// <summary>
     /// Represents an individual property that matched
     /// </summary>
+    [XmlType(Namespace = "http://santedb.org/matcher"), JsonObject]
     public class VectorResult
     {
 

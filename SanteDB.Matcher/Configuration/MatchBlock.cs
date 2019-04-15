@@ -19,31 +19,34 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Match transform configuration
+    /// Represents a block configuration which are IMSI expressions to send to the database
     /// </summary>
-    [XmlType(nameof(MatchTransform), Namespace = "http://santedb.org/matcher")]
-    public class MatchTransform
+    [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher")]
+    public class MatchBlock
     {
 
         /// <summary>
-        /// The registered name of the transformer
+        /// Gets or sets the binary operator
         /// </summary>
-        [XmlAttribute("name")]
-        public String Name { get; set; }
+        [XmlAttribute("op")]
+        public BinaryOperatorType Operator { get; set; }
 
         /// <summary>
-        /// Gets or sets the match transformation parameter
+        /// Gets or sets the block filters
         /// </summary>
-        [XmlArray("args")]
-        [XmlArrayItem("int", typeof(int))]
-        [XmlArrayItem("double", typeof(double))]
-        [XmlArrayItem("string", typeof(string))]
-        [XmlArrayItem("boolean", typeof(bool))]
-        public List<Object> Parameters { get; set; }
+        [XmlElement("imsiExpression")]
+        public List<String> Filter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum results for this filter
+        /// </summary>
+        [XmlAttribute("maxResults")]
+        public int MaxReuslts { get; set; }
     }
 }

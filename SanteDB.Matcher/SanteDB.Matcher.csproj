@@ -48,17 +48,19 @@
     <Compile Include="Matchers\MatchResult.cs" />
     <Compile Include="Matchers\ProbabalisticRecordMatchingService.cs" />
     <Compile Include="MathExtensions.cs" />
-    <Compile Include="Model\BinaryOperatorType.cs" />
-    <Compile Include="Model\MatchBlock.cs" />
-    <Compile Include="Model\MatchConfiguration.cs" />
-    <Compile Include="Model\MatchConfigurationCollection.cs" />
-    <Compile Include="Model\MatchTarget.cs" />
-    <Compile Include="Model\MatchTransform.cs" />
-    <Compile Include="Model\MatchTransformConfiguration.cs" />
-    <Compile Include="Model\MatchVector.cs" />
-    <Compile Include="Model\MatchVectorNullBehavior.cs" />
-    <Compile Include="Model\MatchVectorAssertion.cs" />
-    <Compile Include="Model\MatchVectorWeightType.cs" />
+    <Compile Include="Configuration\BinaryOperatorType.cs" />
+    <Compile Include="Configuration\MatchBlock.cs" />
+    <Compile Include="Configuration\MatchConfiguration.cs" />
+    <Compile Include="Configuration\MatchConfigurationCollection.cs" />
+    <Compile Include="Configuration\MatchTarget.cs" />
+    <Compile Include="Configuration\MatchTransform.cs" />
+    <Compile Include="Configuration\MatchTransformConfiguration.cs" />
+    <Compile Include="Configuration\MatchVector.cs" />
+    <Compile Include="Configuration\MatchVectorNullBehavior.cs" />
+    <Compile Include="Configuration\MatchVectorAssertion.cs" />
+    <Compile Include="Configuration\MatchVectorWeightType.cs" />
+    <Compile Include="Model\MatchResultReport.cs" />
+    <Compile Include="Model\VectorResultReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AppletMatchConfigurationProvider.cs" />
     <Compile Include="Transforms\Date\DateDifferenceTransform.cs" />
@@ -113,6 +115,11 @@
     <Reference Include="Phonix">
       <HintPath>..\Solution Items\Phonix.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>11.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

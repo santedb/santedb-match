@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
     /// Represents a collection of match configurations

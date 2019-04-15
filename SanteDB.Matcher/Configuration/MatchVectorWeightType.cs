@@ -17,36 +17,26 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Represents a block configuration which are IMSI expressions to send to the database
+    /// Weight types for match vectors
     /// </summary>
-    [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher")]
-    public class MatchBlock
+    [XmlType(nameof(MatchVectorWeightType), Namespace = "http://santedb.org/matcher")]
+    public enum MatchVectorWeightType
     {
-
         /// <summary>
-        /// Gets or sets the binary operator
+        /// Full weight - The weight is simply added
         /// </summary>
-        [XmlAttribute("op")]
-        public BinaryOperatorType Operator { get; set; }
-
+        [XmlEnum("full")]
+        Full,
         /// <summary>
-        /// Gets or sets the block filters
+        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
+        /// value is.
         /// </summary>
-        [XmlElement("imsiExpression")]
-        public List<String> Filter { get; set; }
-
-        /// <summary>
-        /// Gets or sets the maximum results for this filter
-        /// </summary>
-        [XmlAttribute("maxResults")]
-        public int MaxReuslts { get; set; }
+        [XmlEnum("partial")]
+        Partial
     }
 }

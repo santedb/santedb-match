@@ -21,7 +21,7 @@ using SanteDB.Core;
 using SanteDB.Core.Applets.Services;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Services;
-using SanteDB.Matcher.Model;
+using SanteDB.Matcher.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;

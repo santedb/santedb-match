@@ -17,26 +17,33 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Weight types for match vectors
+    /// Match transform configuration
     /// </summary>
-    [XmlType(nameof(MatchVectorWeightType), Namespace = "http://santedb.org/matcher")]
-    public enum MatchVectorWeightType
+    [XmlType(nameof(MatchTransform), Namespace = "http://santedb.org/matcher")]
+    public class MatchTransform
     {
+
         /// <summary>
-        /// Full weight - The weight is simply added
+        /// The registered name of the transformer
         /// </summary>
-        [XmlEnum("full")]
-        Full,
+        [XmlAttribute("name")]
+        public String Name { get; set; }
+
         /// <summary>
-        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
-        /// value is.
+        /// Gets or sets the match transformation parameter
         /// </summary>
-        [XmlEnum("partial")]
-        Partial
+        [XmlArray("args")]
+        [XmlArrayItem("int", typeof(int))]
+        [XmlArrayItem("double", typeof(double))]
+        [XmlArrayItem("string", typeof(string))]
+        [XmlArrayItem("boolean", typeof(bool))]
+        public List<Object> Parameters { get; set; }
     }
 }

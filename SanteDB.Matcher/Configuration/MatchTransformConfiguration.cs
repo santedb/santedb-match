@@ -20,7 +20,7 @@
 using System;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
     /// Represents a match transformer configuration

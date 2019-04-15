@@ -24,7 +24,7 @@ using System.Xml.Serialization;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
     /// Represents a target of a match (if applicable)

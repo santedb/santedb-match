@@ -22,7 +22,7 @@ using SanteDB.Core.Model;
 using SanteDB.Core.Model.Query;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
-using SanteDB.Matcher.Model;
+using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Transforms;
 using System;
 using System.Collections.Generic;

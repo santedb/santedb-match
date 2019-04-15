@@ -24,7 +24,7 @@ using System.Linq;
 using SanteDB.Core.Model.Query;
 using System;
 using SanteDB.Core;
-using SanteDB.Matcher.Model;
+using SanteDB.Matcher.Configuration;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Interfaces;
 using System.Linq.Expressions;

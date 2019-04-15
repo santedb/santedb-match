@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Model
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
     /// Match vector rule
