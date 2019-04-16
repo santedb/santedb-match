@@ -110,6 +110,9 @@
     <None Include="SanteDB.Matcher.nuspec">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Schema\MatcherDefinition.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Phonix">
