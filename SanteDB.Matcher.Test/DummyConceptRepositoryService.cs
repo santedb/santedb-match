@@ -2,6 +2,7 @@
 using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
+using SanteDB.Core.Model.Query;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -100,7 +101,7 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults, IPrincipal principal)
+        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults, IPrincipal principal, params ModelSort<Concept>[] order)
         {
             throw new NotImplementedException();
         }

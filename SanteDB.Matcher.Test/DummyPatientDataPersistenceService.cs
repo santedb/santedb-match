@@ -5,6 +5,7 @@ using SanteDB.Core.Model.Collection;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.Entities;
+using SanteDB.Core.Model.Query;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
 using System;
@@ -48,7 +49,7 @@ namespace SanteDB.Matcher.Test
             return this.m_patients.Where(query.Compile());
         }
 
-        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults)
+        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults, params ModelSort<Patient>[] order)
         {
             totalResults = this.m_patients.Count(query.Compile());
             return this.m_patients.Where(query.Compile()).Skip(offset).Take(count ?? 100);

@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SanteDB.Core.Model.Roles;
+using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Model;
 
 namespace SanteDB.Matcher.Test

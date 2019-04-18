@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using SanteDB.Matcher.Model;
+using SanteDB.Matcher.Configuration;
 
 namespace SanteDB.Matcher.Test
 {
