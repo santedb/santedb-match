@@ -15,7 +15,7 @@ namespace SanteDB.Matcher.Services
     /// <summary>
     /// File based match configuration provider
     /// </summary>
-    public class StreamMatchConfigurationProvider : IRecordMatchingConfigurationService
+    public sealed class StreamMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
 
         // Tracer
@@ -40,18 +40,26 @@ namespace SanteDB.Matcher.Services
                         if (asm == null)
                             throw new FileNotFoundException($"Assembly {config.StreamProvider} could not be found");
                         // Get embedded resource names
-                        foreach (var name in asm.GetManifestResourceNames())
+                        foreach (var name in asm.GetManifestResourceNames().Where(o=>o.EndsWith(".xml")))
                         {
                             this.m_tracer.TraceVerbose("Attempting load of {0}...", name);
                             using (var s = asm.GetManifestResourceStream(name))
                             {
                                 try
                                 {
-                                    var conf = MatchConfiguration.Load(s);
+                                    var conf = MatchConfigurationCollection.Load(s);
                                     this.m_configurations.Add(conf);
-                                    this.m_tracer.TraceInfo("Loaded match configuration {0}", conf.Name);
+                                    this.m_tracer.TraceInfo("Loaded match configuration collection {0}", conf.Name);
                                 }
-                                catch { }
+                                catch {
+                                    try
+                                    {
+                                        var conf = MatchConfiguration.Load(s);
+                                        this.m_configurations.Add(conf);
+                                        this.m_tracer.TraceInfo("Loaded match configuration {0}", conf.Name);
+                                    }
+                                    catch { }
+                                }
                             }
                         }
                         break;
