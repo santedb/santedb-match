@@ -49,6 +49,11 @@ namespace SanteDB.Matcher.Services
         public string ServiceName => "SanteMatch Applet XML Match Configuration";
 
         /// <summary>
+        /// Configurations
+        /// </summary>
+        public IEnumerable<string> Configurations => this.m_configurationCache.Keys;
+
+        /// <summary>
         /// Get the specified configuration name
         /// </summary>
         /// <param name="name">The configuratio name</param>
