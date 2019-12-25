@@ -23,6 +23,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace SanteDB.Matcher.Configuration
 {
@@ -30,6 +31,7 @@ namespace SanteDB.Matcher.Configuration
     /// Represents a target of a match (if applicable)
     /// </summary>
     [XmlType(nameof(MatchTarget), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchTarget))]
     public class MatchTarget
     {
 
@@ -39,7 +41,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the resource xml
         /// </summary>
-        [XmlAttribute("resource")]
+        [XmlAttribute("resource"), JsonProperty("resource")]
         public string ResourceXml { get; set; }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// The event on which the auto-matching should be triggered
         /// </summary>
-        [XmlElement("event")]
+        [XmlElement("event"), JsonProperty("event")]
         public List<String> Event { get; set; }
 
 

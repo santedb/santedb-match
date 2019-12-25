@@ -17,6 +17,7 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using Newtonsoft.Json;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace SanteDB.Matcher.Configuration
     /// </summary>
     [XmlType(nameof(MatchConfigurationCollection), Namespace = "http://santedb.org/matcher")]
     [XmlRoot(nameof(MatchConfigurationCollection), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchConfigurationCollection))]
     public class MatchConfigurationCollection : IRecordMatchingConfiguration
     {
         /// <summary>
@@ -47,7 +49,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets the name of the matching configuration collection
         /// </summary>
-        [XmlAttribute("id")]
+        [XmlAttribute("id"), JsonProperty("id")]
         public string Name { get; set; }
 
         /// <summary>
@@ -55,12 +57,13 @@ namespace SanteDB.Matcher.Configuration
         /// </summary>
         [XmlArray("transformers")]
         [XmlArrayItem("add")]
+        [JsonProperty("transformers")]
         public List<MatchTransformConfiguration> Transforms { get; set; }
 
         /// <summary>
         /// Gets or sets the configurations for the match collection
         /// </summary>
-        [XmlElement("configuration")]
+        [XmlElement("configuration"), JsonProperty("configuration")]
         public List<MatchConfiguration> Configurations { get; set; }
 
         /// <summary>

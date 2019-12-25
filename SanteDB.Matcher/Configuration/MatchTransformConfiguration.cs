@@ -17,6 +17,7 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using Newtonsoft.Json;
 using System;
 using System.Xml.Serialization;
 
@@ -26,19 +27,20 @@ namespace SanteDB.Matcher.Configuration
     /// Represents a match transformer configuration
     /// </summary>
     [XmlType(nameof(MatchTransformConfiguration), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchTransformConfiguration))]
     public class MatchTransformConfiguration
     {
 
         /// <summary>
         /// Gets the name of the transform
         /// </summary>
-        [XmlAttribute("name")]
+        [XmlAttribute("name"), JsonProperty("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets the type
         /// </summary>
-        [XmlAttribute("type")]
+        [XmlAttribute("type"), JsonProperty("type")]
         public string TypeXml { get; set; }
 
         /// <summary>

@@ -17,6 +17,7 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -28,6 +29,7 @@ namespace SanteDB.Matcher.Configuration
     /// Represents a configured match vector
     /// </summary>
     [XmlType(nameof(MatchVector), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchVector))]
     public class MatchVector
     {
 
@@ -39,7 +41,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the match weight
         /// </summary>
-        [XmlAttribute("m")]
+        [XmlAttribute("m"), JsonProperty("m")]
         public double M {
             get => this.m_m.GetValueOrDefault();
             set => this.m_m = value;
@@ -48,7 +50,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the unmatch weight (penalty)
         /// </summary>
-        [XmlAttribute("u")]
+        [XmlAttribute("u"), JsonProperty("u")]
         public double U {
             get => this.m_u.GetValueOrDefault();
             set => this.m_u = value;
@@ -57,7 +59,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the match weight
         /// </summary>
-        [XmlAttribute("matchWeight")]
+        [XmlAttribute("matchWeight"), JsonProperty("matchWeight")]
         public double MatchWeight
         {
             get => this.m_weightM.GetValueOrDefault();
@@ -67,7 +69,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the unmatch weight (penalty)
         /// </summary>
-        [XmlAttribute("nonMatchWeight")]
+        [XmlAttribute("nonMatchWeight"), JsonProperty("nonMatchWeight")]
         public double NonMatchWeight {
             get => this.m_weightN.GetValueOrDefault();
             set => this.m_weightN = value;
@@ -76,32 +78,32 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the property 
         /// </summary>
-        [XmlAttribute("property")]
+        [XmlAttribute("property"), JsonProperty("property")]
         public string Property { get; set; }
 
         /// <summary>
         /// When null what should happen?
         /// </summary>
-        [XmlAttribute("whenNull")]
+        [XmlAttribute("whenNull"), JsonProperty("whenNull")]
         public MatchVectorNullBehavior WhenNull { get; set; }
 
         /// <summary>
         /// The match has to be executed, if the inbound object does not have the property (is null)
         /// then the entire matching process stops.
         /// </summary>
-        [XmlAttribute("required")]
+        [XmlAttribute("required"), JsonProperty("required")]
         public bool Required { get; set; }
 
         /// <summary>
         /// Gets or sets the rules
         /// </summary>
-        [XmlElement("assert")]
+        [XmlElement("assert"), JsonProperty("assert")]
         public MatchVectorAssertion Assertion { get; set; }
 
         /// <summary>
         /// Gets or sets the algorithm for partially measuring the value
         /// </summary>
-        [XmlElement("partialWeight")]
+        [XmlElement("partialWeight"), JsonProperty("partialWeight")]
         public MatchTransform Measure { get; set; }
 
         /// <summary>

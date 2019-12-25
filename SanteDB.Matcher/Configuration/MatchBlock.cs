@@ -17,6 +17,7 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,26 +28,26 @@ namespace SanteDB.Matcher.Configuration
     /// <summary>
     /// Represents a block configuration which are IMSI expressions to send to the database
     /// </summary>
-    [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher")]
+    [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlock))]
     public class MatchBlock
     {
 
         /// <summary>
         /// Gets or sets the binary operator
         /// </summary>
-        [XmlAttribute("op")]
+        [XmlAttribute("op"), JsonProperty("op")]
         public BinaryOperatorType Operator { get; set; }
 
         /// <summary>
         /// Gets or sets the block filters
         /// </summary>
-        [XmlElement("imsiExpression")]
+        [XmlElement("expression"), JsonProperty("expression")]
         public List<String> Filter { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum results for this filter
         /// </summary>
-        [XmlAttribute("maxResults")]
+        [XmlAttribute("maxResults"), JsonProperty("maxResults")]
         public int MaxReuslts { get; set; }
     }
 }

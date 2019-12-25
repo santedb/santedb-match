@@ -17,6 +17,7 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
+using Newtonsoft.Json;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -31,37 +32,38 @@ namespace SanteDB.Matcher.Configuration
     /// </summary>
     [XmlType(nameof(MatchConfiguration), Namespace = "http://santedb.org/matcher")]
     [XmlRoot(nameof(MatchConfiguration), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchConfiguration))]
     public class MatchConfiguration : IRecordMatchingConfiguration
     {
 
         /// <summary>
         /// Gets or sets the name of the matching configuration
         /// </summary>
-        [XmlAttribute("id")]
+        [XmlAttribute("id"), JsonProperty("id")]
         public String Name { get; set; }
 
         /// <summary>
         /// Gets or sets the score at which a record is not a match
         /// </summary>
-        [XmlAttribute("nonmatchThreshold")]
+        [XmlAttribute("nonmatchThreshold"), JsonProperty("nonmatchThreshold")]
         public double NonMatchThreshold { get; set; }
 
         /// <summary>
         /// Gets or sets the score at which a match is considered so
         /// </summary>
-        [XmlAttribute("matchThreshold")]
+        [XmlAttribute("matchThreshold"), JsonProperty("matchThreshold")]
         public double MatchThreshold { get; set; }
 
         /// <summary>
         /// Gets or sets the targets this configuration applies to
         /// </summary>
-        [XmlElement("target")]
+        [XmlElement("target"), JsonProperty("target")]
         public List<MatchTarget> Target { get; set; }
 
         /// <summary>
         /// Gets or sets the blocking configuration
         /// </summary>
-        [XmlElement("blocking")]
+        [XmlElement("blocking"), JsonProperty("blocking")]
         public List<MatchBlock> Blocking { get; set; }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace SanteDB.Matcher.Configuration
         /// </summary>
         [XmlArray("classification")]
         [XmlArrayItem("vector")]
+        [JsonProperty("vectors")]
         public List<MatchVector> Classification { get; set; }
 
         /// <summary>
