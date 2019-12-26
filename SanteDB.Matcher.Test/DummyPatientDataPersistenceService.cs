@@ -39,10 +39,6 @@ namespace SanteDB.Matcher.Test
             this.LoadPatientData();
         }
 
-        public event EventHandler<AuditDataEventArgs> DataCreated;
-        public event EventHandler<AuditDataEventArgs> DataUpdated;
-        public event EventHandler<AuditDataEventArgs> DataObsoleted;
-        public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
 
         public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query)
         {

@@ -17,6 +17,12 @@ namespace SanteDB.Matcher.Test
     {
 
         public string ServiceName => "Fake News Record Matching";
+
+        /// <summary>
+        /// All configuration 
+        /// </summary>
+        public IEnumerable<string> Configurations => this.m_configs.Select(o => o.Name);
+
         private List<IRecordMatchingConfiguration> m_configs = new List<IRecordMatchingConfiguration>();
 
         /// <summary>

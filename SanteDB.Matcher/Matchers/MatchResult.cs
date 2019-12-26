@@ -56,7 +56,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets the confidence that this is a match (the number of vectors that were actually assessed)
         /// </summary>
-        public double Confidence
+        public double EvaluatedVectors
         {
             get
             {
@@ -84,7 +84,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override string ToString()
         {
-            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, CONF: {this.Confidence}";
+            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, CONF: {this.EvaluatedVectors}";
         }
     }
 

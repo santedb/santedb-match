@@ -1,20 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MatchConfiguration xmlns="http://santedb.org/matcher"
                     id="test.dob_and_gender_with_class"
-                    uThreshold="0.5"
-                    mThreshold="0.9">
+                    nonmatchThreshold="0.5"
+                    matchThreshold="0.9">
   <target resource="Patient">
-    <trigger>BeforeInsert</trigger>
-    <trigger>BeforeUpdate</trigger>
+    <event>BeforeInsert</event>
+    <event>BeforeUpdate</event>
   </target>
-  <blocking maxResults="1000">
-    <imsiExpression>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;4M</imsiExpression>
-    <imsiExpression>name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</imsiExpression>
-    <imsiExpression>name.component[Given].value=:(alias|$input.name.component[Given].value)&gt;0</imsiExpression>
+  <blocking op="and" maxResults="1000">
+    <filter>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;4M</filter>
+    <filter>
+      name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2
+    </filter>
+    <filter>name.component[Given].value=:(alias|$input.name.component[Given].value)&gt;0</filter>
   </blocking>
   <classification>
     <!-- Week of birth -->
-    <vector property="dateOfBirth" u="0.019" m="0.98" whenNull="nonmatch" required="true">
+    <vector property="dateOfBirth" u="0.019" m="0.98" whenNull="nonmatch" required="true" >
       <assert op="eq">
         <transform name="date_extract">
           <args>
@@ -27,7 +29,7 @@
     <vector property="relationship[Mother].target.name" whenNull="ignore" u="0.01" m="0.95">
       <assert op="and">
         <!-- Family name phonetics must be > 70% similar -->
-        <assert op="gte" value="0.7"> 
+        <assert op="gte" value="0.7">
           <transform name="namepart_extract">
             <args>
               <string>Family</string>

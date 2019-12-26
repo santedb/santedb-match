@@ -10,8 +10,8 @@ using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.EntityLoader;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
+using SanteDB.Core.TestFramework;
 using SanteDB.Matcher.Matchers;
-using SanteDB.Persistence.ADO.Test.Core;
 
 namespace SanteDB.Matcher.Test
 {

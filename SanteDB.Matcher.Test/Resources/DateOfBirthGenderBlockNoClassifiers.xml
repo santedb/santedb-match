@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MatchConfiguration xmlns="http://santedb.org/matcher"
                     id="test.dob_and_gender_no_class"
-                    uThreshold="0.5"
-                    mThreshold="0.9">
+                    nonmatchThreshold="0.5"
+                    matchThreshold="0.9">
   <target resource="Patient">
-    <trigger>BeforeInsert</trigger>
-    <trigger>BeforeUpdate</trigger>
+    <event>BeforeInsert</event>
+    <event>BeforeUpdate</event>
   </target>
   <blocking op="or" maxResults="1000">
-    <imsiExpression>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;1w</imsiExpression>
-    <imsiExpression>identifier[HIN].value=:(substr|0,6)$input.identifier[HIN].value</imsiExpression>
-    <imsiExpression>name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</imsiExpression>
+    <filter>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;1w</filter>
+      <filter>
+        identifier[HIN].value=:(substr|0,6)$input.identifier[HIN].value</filter>
+        <filter>name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</filter>
   </blocking>
   <classification>
     

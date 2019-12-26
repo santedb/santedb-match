@@ -41,7 +41,7 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the block filters
         /// </summary>
-        [XmlElement("expression"), JsonProperty("expression")]
+        [XmlElement("filter"), JsonProperty("filter")]
         public List<String> Filter { get; set; }
 
         /// <summary>

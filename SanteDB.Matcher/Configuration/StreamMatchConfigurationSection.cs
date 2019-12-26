@@ -42,5 +42,6 @@ namespace SanteDB.Matcher.Configuration
         [XmlElement("providerRef")]
         public String StreamProvider { get; set; }
 
+
     }
 }

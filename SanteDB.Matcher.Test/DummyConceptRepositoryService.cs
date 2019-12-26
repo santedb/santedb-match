@@ -43,10 +43,7 @@ namespace SanteDB.Matcher.Test
 
         public string ServiceName => throw new NotImplementedException();
 
-        public event EventHandler<AuditDataEventArgs> DataCreated;
-        public event EventHandler<AuditDataEventArgs> DataUpdated;
-        public event EventHandler<AuditDataEventArgs> DataObsoleted;
-        public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
+       
         public event EventHandler<DataPersistingEventArgs<Concept>> Inserting;
         public event EventHandler<DataPersistedEventArgs<Concept>> Inserted;
         public event EventHandler<DataPersistingEventArgs<Concept>> Updating;

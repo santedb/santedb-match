@@ -16,9 +16,9 @@ namespace SanteDB.Matcher.Test
         [TestMethod]
         public void ShouldLoadConfiguration()
         {
-            var loaded = MatchConfiguration.Load(typeof(MatchConfigurationTest).Assembly.GetManifestResourceStream("SanteDB.Matcher.Test.Resources.DateOfBirthGenderBlockNoClassifiers.xml"));
+            var loaded = MatchConfiguration.Load(typeof(MatchConfigurationTest).Assembly.GetManifestResourceStream("SanteDB.Matcher.Test.Resources.DateOfBirthGenderIdClassified.xml"));
             Assert.IsNotNull(loaded);
-            Assert.AreEqual(1, loaded.Classification.Count);
+            Assert.AreEqual(2, loaded.Classification.Count);
             Assert.IsNotNull(loaded.Classification.First().Assertion);
             Assert.AreEqual(1, loaded.Blocking.Count);
             Assert.AreEqual(3, loaded.Blocking.First().Filter.Count);

@@ -1,14 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://santedb.org/matcher" elementFormDefault="qualified" targetNamespace="http://santedb.org/matcher" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-   <xs:element name="BinaryOperatorType" type="tns:BinaryOperatorType" />
-  <xs:element name="MatchBlock" nillable="true" type="tns:MatchBlock" />
-  <xs:element name="MatchTarget" nillable="true" type="tns:MatchTarget" />
-  <xs:element name="MatchTransform" nillable="true" type="tns:MatchTransform" />
-  <xs:element name="MatchTransformConfiguration" nillable="true" type="tns:MatchTransformConfiguration" />
-  <xs:element name="MatchVector" nillable="true" type="tns:MatchVector" />
-  <xs:element name="MatchVectorNullBehavior" type="tns:MatchVectorNullBehavior" />
-  <xs:element name="MatchVectorAssertion" nillable="true" type="tns:MatchVectorAssertion" />
-  <xs:element name="MatchVectorWeightType" type="tns:MatchVectorWeightType" />
   <xs:simpleType name="BinaryOperatorType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="eq" />
@@ -26,7 +17,7 @@
   </xs:simpleType>
   <xs:complexType name="MatchBlock">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="imsiExpression" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="filter" type="xs:string" />
     </xs:sequence>
     <xs:attribute name="op" type="tns:BinaryOperatorType" use="required" />
     <xs:attribute name="maxResults" type="xs:int" use="required" />
@@ -60,11 +51,11 @@
     </xs:sequence>
     <xs:attribute name="m" type="xs:double" use="required" />
     <xs:attribute name="u" type="xs:double" use="required" />
-    <xs:attribute name="matchWeight" type="xs:double" use="required" />
-    <xs:attribute name="nonMatchWeight" type="xs:double" use="required" />
+    <xs:attribute name="matchWeight" type="xs:double" use="optional" />
+    <xs:attribute name="nonMatchWeight" type="xs:double" use="optional" />
     <xs:attribute name="property" type="xs:string" />
     <xs:attribute name="whenNull" type="tns:MatchVectorNullBehavior" use="required" />
-    <xs:attribute name="required" type="xs:boolean" use="required" />
+    <xs:attribute name="required" type="xs:boolean" use="optional" default="false" />
   </xs:complexType>
   <xs:complexType name="MatchVectorAssertion">
     <xs:sequence>
@@ -82,10 +73,10 @@
   </xs:complexType>
   <xs:complexType name="ArrayOfChoice1">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element minOccurs="1" maxOccurs="1" name="double" type="xs:double" />
-      <xs:element minOccurs="1" maxOccurs="1" name="string" nillable="true" type="xs:string" />
       <xs:element minOccurs="1" maxOccurs="1" name="boolean" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="int" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="string" nillable="true" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="double" type="xs:double" />
     </xs:choice>
   </xs:complexType>
   <xs:simpleType name="MatchVectorNullBehavior">
