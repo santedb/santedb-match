@@ -49,6 +49,14 @@ namespace SanteDB.Matcher.Services
         public string ServiceName => "SanteMatch Applet XML Match Configuration";
 
         /// <summary>
+        /// Save configuration to the source
+        /// </summary>
+        public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
+        {
+            throw new NotSupportedException("This service does not support saving match configurations");
+        }
+
+        /// <summary>
         /// Configurations
         /// </summary>
         public IEnumerable<string> Configurations => this.m_configurationCache.Keys;
@@ -62,23 +70,30 @@ namespace SanteDB.Matcher.Services
         {
             if (this.m_configurationCache.TryGetValue(name, out IRecordMatchingConfiguration retVal))
             {
-                var amgr = ApplicationServiceContext.Current.GetService<IAppletManagerService>()?.Applets.SelectMany(a => a.Assets).Where(o => o.Name == $"matching/{name}.xml").FirstOrDefault();
+                var solutions = ApplicationServiceContext.Current.GetService<IAppletSolutionManagerService>()?.Solutions.Select(o=>o.Meta.Id).ToList();
+                solutions.Add(String.Empty); // Include the default solution
 
-                try
+                // Solution 
+                foreach (var sln in solutions)
                 {
-                    this.m_tracer.TraceInfo("Will load {0}..", amgr.ToString());
+                    var amgr = ApplicationServiceContext.Current.GetService<IAppletSolutionManagerService>()?.GetApplets(sln).SelectMany(a => a.Assets).Where(o => o.Name == $"matching/{name}.xml").FirstOrDefault();
 
-                    using (var ms = new MemoryStream(amgr.Content as byte[]))
-                        retVal = MatchConfiguration.Load(ms);
+                    try
+                    {
+                        this.m_tracer.TraceInfo("Will load {0}..", amgr.ToString());
 
-                    lock (this.m_configurationCache)
-                        if (!this.m_configurationCache.ContainsKey(name))
-                            this.m_configurationCache.Add(name, retVal);
-                }
-                catch (Exception e)
-                {
-                    this.m_tracer.TraceError("Error loading match config {0} : {1}", name, e.ToString());
-                    throw;
+                        using (var ms = new MemoryStream(amgr.Content as byte[]))
+                            retVal = MatchConfiguration.Load(ms);
+
+                        lock (this.m_configurationCache)
+                            if (!this.m_configurationCache.ContainsKey(name))
+                                this.m_configurationCache.Add(name, retVal);
+                    }
+                    catch (Exception e)
+                    {
+                        this.m_tracer.TraceError("Error loading match config {0} : {1}", name, e.ToString());
+                        throw;
+                    }
                 }
             }
             return retVal;
