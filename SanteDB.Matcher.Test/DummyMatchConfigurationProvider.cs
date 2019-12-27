@@ -45,5 +45,10 @@ namespace SanteDB.Matcher.Test
         {
             return this.m_configs.FirstOrDefault(o => o.Name == name);
         }
+
+        public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
