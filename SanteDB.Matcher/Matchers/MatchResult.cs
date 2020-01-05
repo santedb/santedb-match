@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
+using SanteDB.Core.Model;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -33,6 +34,7 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     /// <typeparam name="T">The type of record matched</typeparam>
     public class MatchResult<T> : IRecordMatchResult<T>
+        where T: IdentifiedData
     {
         /// <summary>
         /// Creates a new match result
@@ -78,6 +80,11 @@ namespace SanteDB.Matcher.Matchers
         /// Gets or sets the properties that matched and their score
         /// </summary>
         public List<VectorResult> Vectors { get; private set; }
+
+        /// <summary>
+        /// Gets the record that matched
+        /// </summary>
+        IdentifiedData IRecordMatchResult.Record => this.Record;
 
         /// <summary>
         /// Represent this match as a string

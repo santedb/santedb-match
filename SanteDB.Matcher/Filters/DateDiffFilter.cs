@@ -55,6 +55,18 @@ namespace SanteDB.Matcher.Filters
             if (scope.Type.IsConstructedGenericType && scope.Type.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
                 scope = Expression.MakeMemberAccess(scope, scope.Type.GetRuntimeProperty("Value"));
 
+            // Convert value expression if it is a string
+            var constVal = valueExpression as ConstantExpression;
+            if (constVal != null && constVal.Value is String)
+                valueExpression = Expression.Constant(TimeSpan.Parse(constVal.Value.ToString()));
+            constVal = scope as ConstantExpression;
+            if (constVal != null && constVal.Value is String)
+                scope = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
+            constVal = parms[0] as ConstantExpression;
+            if (constVal != null && constVal.Value is String)
+                parms[0] = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
+
+
             if (scope.Type.StripNullable() == typeof(DateTimeOffset)) {
                 var exm = typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.Difference), new Type[] { typeof(DateTimeOffset), typeof(DateTimeOffset) });
                 return Expression.MakeBinary(comparison,

@@ -20,6 +20,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
@@ -48,5 +49,7 @@ namespace SanteDB.Matcher.Configuration
         [XmlArrayItem("boolean", typeof(bool))]
         [JsonProperty("args")]
         public List<Object> Parameters { get; set; }
+
+        public override string ToString() => $"XFRM: {this.Name}({String.Join(",", this.Parameters.Select(p => p.ToString()))})";
     }
 }
