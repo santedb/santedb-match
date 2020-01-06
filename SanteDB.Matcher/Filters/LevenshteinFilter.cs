@@ -42,7 +42,7 @@ namespace SanteDB.Matcher.Filters
         /// <summary>
         /// Gets the extension method
         /// </summary>
-        public MethodInfo ExtensionMethod => typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.Levenshtein), new Type[] { typeof(String) });
+        public MethodInfo ExtensionMethod => typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.Levenshtein), new Type[] { typeof(String), typeof(String) });
 
         /// <summary>
         /// Compose the function

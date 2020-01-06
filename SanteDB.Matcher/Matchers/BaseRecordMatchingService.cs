@@ -31,6 +31,7 @@ using System.Linq.Expressions;
 using SanteDB.Core.Attributes;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Exceptions;
+using SanteDB.Core.Security;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -154,7 +155,7 @@ namespace SanteDB.Matcher.Matchers
             try
             {
                 // Load the persistence service
-                var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
+                var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
                 if (persistenceService == null)
                     throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
@@ -178,7 +179,7 @@ namespace SanteDB.Matcher.Matchers
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
                 int tr = 0;
-                var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
+                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
 
                 if (tr > block.MaxReuslts)
                     throw new InvalidOperationException($"Returned results {tr} exceeds configured maximum of {block.MaxReuslts}");
