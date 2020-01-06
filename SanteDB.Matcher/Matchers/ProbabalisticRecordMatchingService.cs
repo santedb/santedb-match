@@ -23,6 +23,7 @@ using SanteDB.Core.Model.Query;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
+using SanteDB.Matcher.Exceptions;
 using SanteDB.Matcher.Transforms;
 using System;
 using System.Collections.Generic;
@@ -66,19 +67,28 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
         {
-            if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
+            try
+            {
 
-            // Get configuration if specified
-            var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-            config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
-            if (config == null || !(config is MatchConfiguration))
-                throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+                if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
 
-            var strongConfig = config as MatchConfiguration;
-            if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
-                throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
+                // Get configuration if specified
+                var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
+                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
+                if (config == null || !(config is MatchConfiguration))
+                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
 
-            return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold));
+                var strongConfig = config as MatchConfiguration;
+                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                    throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
+
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold));
+            }
+            catch (Exception e)
+            {
+                this.m_tracer.TraceError("Error classifying {0} with configuration {1} : {2}", input, configurationName, e.Message);
+                throw new MatchingException($"Error classifying {input} with configuration {configurationName}", e);
+            }
         }
 
         /// <summary>
@@ -91,56 +101,70 @@ namespace SanteDB.Matcher.Matchers
         /// <returns>The match classification</returns>
         private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchVector> vectors, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
         {
-            var vectorResult = vectors.Select(v =>
+            try
             {
-                // Initialize the weights and such for the vector
-                v.Initialize();
-                var vectorScore = 0.0d; // The score that this vector receives 
-
-                var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(v.Property) as LambdaExpression;
-                object aValue = selectorExpression.Compile().DynamicInvoke(input),
-                    bValue = selectorExpression.Compile().DynamicInvoke(block);
-                var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
-                    Activator.CreateInstance(selectorExpression.ReturnType) :
-                    null;
-
-                bool skip = aValue == null ||
-                    bValue == null ||
-                    (aValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true ||
-                    (bValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true;
-                // Either value null?
-                if (skip)
-                    switch (v.WhenNull)
-                    {
-                        case MatchVectorNullBehavior.Disqualify:
-                            vectorScore = -Int32.MaxValue;
-                            break;
-                        case MatchVectorNullBehavior.Ignore:
-                            vectorScore = 0.0;
-                            break;
-                        case MatchVectorNullBehavior.Match:
-                            vectorScore = v.MatchWeight;
-                            break;
-                        case MatchVectorNullBehavior.NonMatch:
-                            vectorScore = v.NonMatchWeight;
-                            break;
-                    }
-                else
+                var vectorResult = vectors.AsParallel().AsOrdered().Select(v =>
                 {
-                    vectorScore = this.ExecuteAssertion(v.Assertion, aValue, bValue) ? v.MatchWeight : v.NonMatchWeight;
+                    this.m_tracer.TraceVerbose("Initializing vector {0}", v);
+                    // Initialize the weights and such for the vector
+                    v.Initialize();
+                    var vectorScore = 0.0d; // The score that this vector receives 
 
-                    // Is there a measure applied?
-                    if (v.Measure != null)
-                        vectorScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
-                }
+                    var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(v.Property) as LambdaExpression;
+                    object aValue = selectorExpression.Compile().DynamicInvoke(input),
+                        bValue = selectorExpression.Compile().DynamicInvoke(block);
+                    var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
+                        Activator.CreateInstance(selectorExpression.ReturnType) :
+                        null;
 
-                return new VectorResult(v.Property, v.M, v.MatchWeight, vectorScore, !skip);
-            }).ToList();
+                    bool skip = aValue == null ||
+                        bValue == null ||
+                        (aValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true ||
+                        (bValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true;
+                    // Either value null?
+                    if (skip)
+                    {
+                        switch (v.WhenNull)
+                        {
+                            case MatchVectorNullBehavior.Disqualify:
+                                vectorScore = -Int32.MaxValue;
+                                break;
+                            case MatchVectorNullBehavior.Ignore:
+                                vectorScore = 0.0;
+                                break;
+                            case MatchVectorNullBehavior.Match:
+                                vectorScore = v.MatchWeight;
+                                break;
+                            case MatchVectorNullBehavior.NonMatch:
+                                vectorScore = v.NonMatchWeight;
+                                break;
+                        }
+                        this.m_tracer.TraceVerbose("Match vector ({0}) was determined null and assigned score of {1}", v, vectorScore);
+                    }
+                    else
+                    {
+                        vectorScore = this.ExecuteAssertion(v.Assertion, aValue, bValue) ? v.MatchWeight : v.NonMatchWeight;
 
-            var score = vectorResult.Sum(v => v.Score);
-            var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
-            retVal.Vectors.AddRange(vectorResult);
-            return retVal;
+                        // Is there a measure applied?
+                        if (v.Measure != null)
+                            vectorScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
+                        this.m_tracer.TraceVerbose("Match vector ({0}) was scored against input as {1}", v, vectorScore);
+
+                    }
+
+                    return new VectorResult(v.Property, v.M, v.MatchWeight, vectorScore, !skip);
+                }).ToList();
+
+                var score = vectorResult.Sum(v => v.Score);
+                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
+                retVal.Vectors.AddRange(vectorResult);
+                return retVal;
+            }
+            catch (Exception e)
+            {
+                this.m_tracer.TraceError("Error classifying result set (mt={0}, nmt={1}) - {2}", matchThreshold, nonMatchThreshold, e.Message);
+                throw new MatchingException($"Error classifying result set", e);
+            }
         }
 
         /// <summary>
@@ -152,48 +176,66 @@ namespace SanteDB.Matcher.Matchers
         /// <returns>True if the assertion passes, false if not</returns>
         private bool ExecuteAssertion(MatchVectorAssertion assertion, object aValue, object bValue)
         {
-            // Apply all transforms first
-            object a = aValue, b = bValue;
-            object scope = null;
-            foreach (var xform in assertion.Transforms)
-                scope = this.ExecuteTransform(xform, ref a, ref b) ?? scope;
-
-            switch (assertion.Operator)
+            try
             {
-                case BinaryOperatorType.AndAlso: // There are sub-assertions 
-                    {
-                        bool retVal = true;
-                        foreach (var asrt in assertion.Assertions)
-                            retVal &= this.ExecuteAssertion(asrt, a, b);
-                        return retVal;
-                    }
-                case BinaryOperatorType.OrElse:
-                    {
-                        bool retVal = false;
-                        foreach (var asrt in assertion.Assertions)
-                            retVal |= this.ExecuteAssertion(asrt, a, b);
-                        return retVal;
-                    }
-                case BinaryOperatorType.Equal:
-                    if (assertion.ValueSpecified)
-                        return scope.Equals(assertion.Value);
-                    else 
-                        return a.Equals(b);
-                case BinaryOperatorType.NotEqual:
-                    if (assertion.ValueSpecified)
-                        return !scope.Equals(assertion.Value);
-                    else
-                        return !a.Equals(b);
-                case BinaryOperatorType.GreaterThan:
-                    return (double)scope > assertion.Value;
-                case BinaryOperatorType.GreaterThanOrEqual:
-                    return (double)scope >= assertion.Value;
-                case BinaryOperatorType.LessThan:
-                    return (double)scope < assertion.Value;
-                case BinaryOperatorType.LessThanOrEqual:
-                    return (double)scope <= assertion.Value;
-                default:
-                    throw new InvalidOperationException($"Operator type {assertion.Operator} is not supported in this context");
+                // Apply all transforms first
+                object a = aValue, b = bValue;
+                object scope = null;
+                foreach (var xform in assertion.Transforms)
+                    scope = this.ExecuteTransform(xform, ref a, ref b) ?? scope;
+
+                var retVal = true;
+                switch (assertion.Operator)
+                {
+                    case BinaryOperatorType.AndAlso: // There are sub-assertions 
+                        {
+                            foreach (var asrt in assertion.Assertions)
+                                retVal &= this.ExecuteAssertion(asrt, a, b);
+                            break;
+                        }
+                    case BinaryOperatorType.OrElse:
+                        {
+                            foreach (var asrt in assertion.Assertions)
+                                retVal |= this.ExecuteAssertion(asrt, a, b);
+                            break;
+                        }
+                    case BinaryOperatorType.Equal:
+                        if (assertion.ValueSpecified)
+                            retVal = scope.Equals(assertion.Value);
+                        else
+                            retVal = a.Equals(b);
+                        break;
+                    case BinaryOperatorType.NotEqual:
+                        if (assertion.ValueSpecified)
+                            retVal = !scope.Equals(assertion.Value);
+                        else
+                            retVal = !a.Equals(b);
+                        break;
+                    case BinaryOperatorType.GreaterThan:
+                        retVal = (double)scope > assertion.Value;
+                        break;
+                    case BinaryOperatorType.GreaterThanOrEqual:
+                        retVal = (double)scope >= assertion.Value;
+                        break;
+                    case BinaryOperatorType.LessThan:
+                        retVal = (double)scope < assertion.Value;
+                        break;
+                    case BinaryOperatorType.LessThanOrEqual:
+                        retVal = (double)scope <= assertion.Value;
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Operator type {assertion.Operator} is not supported in this context");
+                }
+
+#if DEBUG
+                this.m_tracer.TraceVerbose("ASSERT - {0} {1} {2} => {3}", aValue, assertion.Operator, bValue, retVal);
+#endif
+                return retVal;
+            }
+            catch (Exception e)
+            {
+                this.m_tracer.TraceError("Error executing assertion {0} - {1}", e);
+                throw new MatchingException($"Error executing assertion {assertion}", e);
             }
         }
 
@@ -206,22 +248,41 @@ namespace SanteDB.Matcher.Matchers
         /// <returns>The result of the transform to be assigned back to the scope (or to the values in the case of unary transforms)</returns>
         private object ExecuteTransform(MatchTransform transform, ref object aValue, ref object bValue)
         {
-            IDataTransformer transformer = null;
-            if (s_transforms.TryGetValue(transform.Name, out transformer))
+            try
             {
-                if (transformer is IUnaryDataTransformer)
+                IDataTransformer transformer = null;
+                if (s_transforms.TryGetValue(transform.Name, out transformer))
                 {
-                    aValue = (transformer as IUnaryDataTransformer).Apply(aValue, transform.Parameters.ToArray());
-                    bValue = (transformer as IUnaryDataTransformer).Apply(bValue, transform.Parameters.ToArray());
-                    return null; // No result for unary transforms
+                    if (transformer is IUnaryDataTransformer)
+                    {
+#if DEBUG
+                        this.m_tracer.TraceVerbose("Will apply unary transform {0} on {1}", transform, aValue);
+#endif
+                        aValue = (transformer as IUnaryDataTransformer).Apply(aValue, transform.Parameters.ToArray());
+#if DEBUG
+                        this.m_tracer.TraceVerbose("Will apply unary transform {0} on {1}", transform, bValue);
+#endif
+                        bValue = (transformer as IUnaryDataTransformer).Apply(bValue, transform.Parameters.ToArray());
+                        return null; // No result for unary transforms
+                    }
+                    else if (transformer is IBinaryDataTransformer)
+                    {
+#if DEBUG
+                        this.m_tracer.TraceVerbose("Will apply binary transform {0} on {1} and {2}", transform, aValue, bValue);
+#endif
+                        return (transformer as IBinaryDataTransformer).Apply(aValue, bValue, transform.Parameters.ToArray());
+                    }
+                    else
+                        throw new InvalidOperationException("Invalid type of transform");
                 }
-                else if (transformer is IBinaryDataTransformer)
-                    return (transformer as IBinaryDataTransformer).Apply(aValue, bValue, transform.Parameters.ToArray());
                 else
-                    throw new InvalidOperationException("Invalid type of transform");
+                    throw new KeyNotFoundException($"Transform {transform.Name} is not registered");
             }
-            else
-                throw new KeyNotFoundException($"Transform {transform.Name} is not registered");
+            catch(Exception e)
+            {
+                this.m_tracer.TraceError("Error executing {0} on {1} and {2} - {3}", transform, aValue, bValue, e.Message);
+                throw new MatchingException($"Error executing {transform} on {aValue} and {bValue}", e);
+            }
         }
 
         /// <summary>

@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace SanteDB.Matcher.Configuration
 {
@@ -127,5 +128,10 @@ namespace SanteDB.Matcher.Configuration
                 this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
             }
         }
+
+        /// <summary>
+        /// Represent this vector as a string
+        /// </summary>
+        public override string ToString() => $"VECTOR: {this.Property} ({this.Assertion}) [match: {this.MatchWeight}, non: {this.NonMatchWeight}, u: {this.U}, m: {this.M}, measure: {this.Measure}]";
     }
 }

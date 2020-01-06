@@ -28,6 +28,10 @@ using SanteDB.Matcher.Configuration;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Interfaces;
 using System.Linq.Expressions;
+using SanteDB.Core.Attributes;
+using SanteDB.Core.Diagnostics;
+using SanteDB.Matcher.Exceptions;
+using SanteDB.Core.Security;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -59,6 +63,9 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     public abstract class BaseRecordMatchingService : IRecordMatchingService
     {
+
+        protected Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
+
         /// <summary>
         /// Service name
         /// </summary>
@@ -82,34 +89,62 @@ namespace SanteDB.Matcher.Matchers
         /// <returns>The blocked records</returns>
         public virtual IEnumerable<T> Block<T>(T input, string configurationName) where T : IdentifiedData
         {
+            this.m_tracer.TraceVerbose("Will block {0} on configuration {1}", input, configurationName);
 
-            if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
-
-            // Get configuration if specified
-            var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-            config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
-            if (config == null || !(config is MatchConfiguration))
-                throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
-
-            var strongConfig = config as MatchConfiguration;
-            if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
-                throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
-
-            // If the blocking algorithm for this type is AND then we can just use a single IMSI query
-            if (strongConfig.Blocking.Count > 0)
+            try
             {
-                IEnumerable<T> retVal = null;
-                foreach (var b in strongConfig.Blocking)
-                    if (retVal == null)
-                        retVal = this.DoBlock<T>(input, b);
-                    else if(b.Operator == BinaryOperatorType.AndAlso)
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
-                    else if (b.Operator == BinaryOperatorType.OrElse)
-                        retVal = retVal.Union(this.DoBlock<T>(input, b)).Distinct(new IdentifiedComparator<T>());
-                return retVal;
+                if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
+
+                // Get configuration if specified
+                var configService = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>();
+                if (configService == null)
+                    throw new InvalidOperationException("Cannot find configuration service for matching");
+                var config = configService.GetConfiguration(configurationName);
+                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
+                if (config == null || !(config is MatchConfiguration))
+                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+
+                var strongConfig = config as MatchConfiguration;
+                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                    throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
+
+                // If the blocking algorithm for this type is AND then we can just use a single IMSI query
+                if (strongConfig.Blocking.Count > 0)
+                {
+                    IEnumerable<T> retVal = null;
+                    foreach (var b in strongConfig.Blocking)
+                        if (retVal == null)
+                            retVal = this.DoBlock<T>(input, b);
+                        else if (b.Operator == BinaryOperatorType.AndAlso)
+                        {
+#if DEBUG
+                            this.m_tracer.TraceVerbose("INTERSECT {0} blocked records against filter {1}", retVal.Count(), b.Filter);
+#endif
+                            retVal = retVal.Intersect(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
+#if DEBUG
+                            this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
+#endif
+                        }
+                        else if (b.Operator == BinaryOperatorType.OrElse)
+                        {
+#if DEBUG
+                            this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
+#endif
+                            retVal = retVal.Union(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
+#if DEBUG
+                            this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
+#endif
+                        }
+                    return retVal;
+                }
+                else
+                    throw new InvalidOperationException($"Configuration {config.Name} contains no blocking instructions, cannot Block");
             }
-            else
-                throw new InvalidOperationException($"Configuration {config.Name} contains no blocking instructions, cannot Block");
+            catch(Exception e)
+            {
+                this.m_tracer.TraceError("Error blocking input {0} - {1}", input, e.Message);
+                throw new MatchingException($"Error blocking input {input}", e);
+            }
         }
 
         /// <summary>
@@ -117,35 +152,44 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         private IEnumerable<T> DoBlock<T>(T input, MatchBlock block) where T : IdentifiedData
         {
-            // Load the persistence service
-            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
-            if (persistenceService == null)
-                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
-            // Perpare filter
-            var filter = block.Filter;
-            NameValueCollection qfilter = new NameValueCollection();
-            foreach (var b in filter)
+            try
             {
-                var nvc = NameValueCollection.ParseQueryString(b);
-                foreach (var nv in nvc)
-                    foreach (var val in nv.Value)
-                        qfilter.Add(nv.Key, val);
-            }
+                // Load the persistence service
+                var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
+                if (persistenceService == null)
+                    throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
-            // Make LINQ query 
-            var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Delegate>()
+                // Perpare filter
+                var filter = block.Filter;
+                NameValueCollection qfilter = new NameValueCollection();
+                foreach (var b in filter)
+                {
+                    var nvc = NameValueCollection.ParseQueryString(b);
+                    foreach (var nv in nvc)
+                        foreach (var val in nv.Value)
+                            qfilter.Add(nv.Key, val);
+                }
+
+                // Make LINQ query 
+                var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Delegate>()
                 {
                     { "input", ((Func<T>)(() => input)) }
                 }, true);
 
-            // Total results
-            int tr = 0;
-            var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
+                this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
+                // Total results
+                int tr = 0;
+                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
 
-            if (tr > block.MaxReuslts)
-                throw new InvalidOperationException($"Returned results {tr} exceeds configured maximum of {block.MaxReuslts}");
-            return retVal;
+                if (tr > block.MaxReuslts)
+                    throw new InvalidOperationException($"Returned results {tr} exceeds configured maximum of {block.MaxReuslts}");
+                return retVal;
+            }
+            catch(Exception e)
+            {
+                this.m_tracer.TraceError("Could not execute block {0} against {1} on storage provider: {2}", block.Filter, input, e.Message);
+                throw new MatchingException($"Could not execute block {block.Filter} against {1}", e);
+            }
         }
 
         /// <summary>
@@ -157,6 +201,7 @@ namespace SanteDB.Matcher.Matchers
         /// Performs a block and match operation in one call
         /// </summary>
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
+
 
         public IRecordMatchResult<T> Score<T>(T input, Expression<Func<T, bool>> query, string configurationName) where T : IdentifiedData
         {

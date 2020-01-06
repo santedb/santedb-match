@@ -20,6 +20,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
@@ -62,5 +63,9 @@ namespace SanteDB.Matcher.Configuration
         [XmlElement("assert"), JsonProperty("assert")]
         public List<MatchVectorAssertion> Assertions { get; set; }
 
+        /// <summary>
+        /// Represent the assertion
+        /// </summary>
+        public override string ToString() => $"ASSERT: {this.Operator} {this.Value} [XFRM: {String.Join(",", this.Transforms.Select(o => o.ToString()))}";
     }
 }

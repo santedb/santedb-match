@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Configuration\AssemblyMatchConfigurationSection.cs" />
+    <Compile Include="Exceptions\MatchingException.cs" />
     <Compile Include="Filters\AliasFilter.cs" />
     <Compile Include="Filters\DateDiffFilter.cs" />
     <Compile Include="Filters\FilterExtensionMethods.cs" />
