@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SanteDB.Matcher.Matchers;
+using System;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Model
@@ -77,6 +78,26 @@ namespace SanteDB.Matcher.Model
         public double Score
         {
             get => this.m_result.Score;
+            set { }
+        }
+
+        /// <summary>
+        /// Gets the score assigned to this vector
+        /// </summary>
+        [XmlAttribute("a"), JsonProperty("a")]
+        public String A
+        {
+            get => this.m_result.A?.ToString();
+            set { }
+        }
+
+        /// <summary>
+        /// Gets the score assigned to this vector
+        /// </summary>
+        [XmlAttribute("b"), JsonProperty("b")]
+        public String B
+        {
+            get => this.m_result.B.ToString();
             set { }
         }
 

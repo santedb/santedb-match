@@ -152,7 +152,7 @@ namespace SanteDB.Matcher.Matchers
 
                     }
 
-                    return new VectorResult(v.Property, v.M, v.MatchWeight, vectorScore, !skip);
+                    return new VectorResult(v.Property, v.M, v.MatchWeight, vectorScore, !skip, aValue, bValue);
                 }).ToList();
 
                 var score = vectorResult.Sum(v => v.Score);

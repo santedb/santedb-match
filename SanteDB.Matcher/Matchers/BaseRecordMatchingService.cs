@@ -32,6 +32,7 @@ using SanteDB.Core.Attributes;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Core.Security;
+using SanteDB.Matcher.Model;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -61,7 +62,7 @@ namespace SanteDB.Matcher.Matchers
     /// <summary>
     /// Represents base record matching service for SanteDB Matcher
     /// </summary>
-    public abstract class BaseRecordMatchingService : IRecordMatchingService
+    public abstract class BaseRecordMatchingService : IRecordMatchingService, IMatchReportFactory
     {
 
         protected Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
@@ -202,10 +203,27 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
 
-
+        /// <summary>
+        /// Scores the specified input against the specified query
+        /// </summary>
         public IRecordMatchResult<T> Score<T>(T input, Expression<Func<T, bool>> query, string configurationName) where T : IdentifiedData
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create a match report 
+        /// </summary>
+        public object CreateMatchReport<T>(T input, IEnumerable<IRecordMatchResult<T>> matches) where T : IdentifiedData
+        {
+            return new MatchReport()
+            {
+                Input = input,
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification)
+                {
+                    Vectors = ((MatchResult<T>)o).Vectors,
+                })).ToList()
+            };
         }
     }
 }

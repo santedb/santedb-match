@@ -79,7 +79,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
-        public List<VectorResult> Vectors { get; private set; }
+        public List<VectorResult> Vectors { get; internal set; }
 
         /// <summary>
         /// Gets the record that matched
@@ -105,14 +105,26 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Creates a new vector result
         /// </summary>
-        public VectorResult(String name, double configuredProbability, double configuredWeight, double score, bool evaluated)
+        public VectorResult(String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
         {
             this.Name = name;
             this.ConfiguredProbability = configuredProbability;
             this.ConfiguredWeight = configuredWeight;
             this.Score = score;
             this.Evaluated = evaluated;
+            this.A = aValue;
+            this.B = bValue;
         }
+
+        /// <summary>
+        /// Gets the value of A
+        /// </summary>
+        public Object A { get; private set; }
+
+        /// <summary>
+        /// Gets the value of B
+        /// </summary>
+        public Object B { get; private set; }
 
         /// <summary>
         /// Gets the name of the property

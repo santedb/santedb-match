@@ -45,35 +45,50 @@ namespace SanteDB.Matcher.Transforms.Date
 
             // Get strong instances
             if(parms.Length == 0)
-                return ((DateTimeOffset)a - (DateTimeOffset)b);
+                return ((DateTime)a - (DateTime)b);
             else
             {
-                var data = ((DateTimeOffset)a - (DateTimeOffset)b);
+                var data = ((DateTime)a - (DateTime)b);
+                double retVal = 0;
                 switch (parms[0].ToString())
                 {
                     case "y":
-                        return ((DateTimeOffset)a).Year - ((DateTimeOffset)b).Year;
+                        retVal =((DateTime)a).Year - ((DateTime)b).Year;
+                        break;
                     case "M":
-                        return (((DateTimeOffset)a).Year * 12 + ((DateTimeOffset)a).Month) -
-                            (((DateTimeOffset)b).Year * 12 + ((DateTimeOffset)b).Month);
+                        retVal = (((DateTime)a).Year * 12 + ((DateTime)a).Month) -
+                            (((DateTime)b).Year * 12 + ((DateTime)b).Month);
+                        break;
                     case "d":
-                        return data.TotalDays;
+                        retVal = data.TotalDays;
+                        break;
                     case "w":
-                        return data.TotalDays / 7;
+                        retVal = data.TotalDays / 7;
+                        break;
                     case "q":
-                        return ((((DateTimeOffset)a).Year * 12 + ((DateTimeOffset)a).Month) -
-                            (((DateTimeOffset)b).Year * 12 + ((DateTimeOffset)b).Month)) / 4;
+                        retVal = ((((DateTime)a).Year * 12 + ((DateTime)a).Month) -
+                            (((DateTime)b).Year * 12 + ((DateTime)b).Month)) / 4;
+                        break;
                     case "h":
-                        return data.TotalHours;
+                        retVal = data.TotalHours;
+                        break;
                     case "m":
-                        return data.TotalMinutes;
+                        retVal = data.TotalMinutes;
+                        break;
                     case "s":
-                        return data.TotalSeconds;
+                        retVal = data.TotalSeconds;
+                        break;
                     case "t":
-                        return data.Ticks;
+                        retVal = data.Ticks;
+                        break;
                     default:
                         throw new InvalidOperationException($"Don't uderstand timespan part {parms[0]}");
                 }
+
+                if (parms.Length == 2 && parms[1].Equals(true))
+                    return Math.Abs(retVal);
+                else
+                    return retVal;
             }
         }
     }

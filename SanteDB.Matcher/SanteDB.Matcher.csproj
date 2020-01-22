@@ -61,6 +61,7 @@
     <Compile Include="Configuration\MatchVectorNullBehavior.cs" />
     <Compile Include="Configuration\MatchVectorAssertion.cs" />
     <Compile Include="Configuration\MatchVectorWeightType.cs" />
+    <Compile Include="Model\MatchReport.cs" />
     <Compile Include="Model\MatchResultReport.cs" />
     <Compile Include="Model\VectorResultReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Transforms\Date\DateExtractTransform.cs" />
     <Compile Include="Transforms\IDataTransformer.cs" />
     <Compile Include="Transforms\Names\NamePartExtractTransform.cs" />
+    <Compile Include="Transforms\Numeric\AbsoluteValueTransform.cs" />
     <Compile Include="Transforms\Text\DoubleMetaphoneTransform.cs" />
     <Compile Include="Transforms\Text\LengthTransform.cs" />
     <Compile Include="Transforms\Text\LevenshteinDifferenceTransform.cs" />
