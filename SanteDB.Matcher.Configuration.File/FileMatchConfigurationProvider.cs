@@ -51,29 +51,34 @@ namespace SanteDB.Matcher.Configuration.File
                 {
                     this.m_matchConfigurations = new ConcurrentDictionary<string, dynamic>();
                     this.m_tracer.TraceInfo("Loading match configurations...");
-                    foreach(var configDir in this.m_configuration.FilePath)
-                        foreach(var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
-                        {
-                            this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
-                            try
+                    foreach (var configDir in this.m_configuration.FilePath)
+                    {
+                        if (!Directory.Exists(configDir.Path))
+                            this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
+                        else
+                            foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
                             {
-                                using (var fs = System.IO.File.OpenRead(fileName))
+                                this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
+                                try
                                 {
-                                    var config = MatchConfiguration.Load(fs);
-                                    this.m_matchConfigurations.TryAdd(config.Name, new
+                                    using (var fs = System.IO.File.OpenRead(fileName))
                                     {
-                                        OriginalFilePath = fileName,
-                                        Configuration = config
-                                    });
+                                        var config = MatchConfiguration.Load(fs);
+                                        this.m_matchConfigurations.TryAdd(config.Name, new
+                                        {
+                                            OriginalFilePath = fileName,
+                                            Configuration = config
+                                        });
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.m_tracer.TraceInfo("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
                                 }
                             }
-                            catch(Exception ex)
-                            {
-                                this.m_tracer.TraceInfo("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
-                            }
-                        }
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     this.m_tracer.TraceError("Could not fully load configuration for matching : {0}", ex);
                 }
@@ -105,7 +110,7 @@ namespace SanteDB.Matcher.Configuration.File
         /// <returns>The updated configuration</returns>
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
-            if(!this.m_matchConfigurations.TryGetValue(configuration.Name, out dynamic configData))
+            if (!this.m_matchConfigurations.TryGetValue(configuration.Name, out dynamic configData))
             {
                 var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
                 if (savePath == null)
@@ -133,7 +138,7 @@ namespace SanteDB.Matcher.Configuration.File
                 }
                 return configData.Configuration;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception($"Error while saving match configuration {configuration.Name}", e);
             }
