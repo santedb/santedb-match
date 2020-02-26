@@ -18,6 +18,7 @@
  * Date: 2019-1-22
  */
 using Newtonsoft.Json;
+using SanteDB.Core.Model.Serialization;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ namespace SanteDB.Matcher.Configuration
         /// <returns>The loaded match configuration</returns>
         public static MatchConfigurationCollection Load(Stream s)
         {
-            var xs = new XmlSerializer(typeof(MatchConfigurationCollection));
+            var xs = XmlModelSerializerFactory.Current.CreateSerializer(typeof(MatchConfigurationCollection));
             return xs.Deserialize(s) as MatchConfigurationCollection;
         }
 
@@ -82,7 +83,7 @@ namespace SanteDB.Matcher.Configuration
         /// </summary>
         public void Save(Stream s)
         {
-            var xs = new XmlSerializer(typeof(MatchConfigurationCollection));
+            var xs = XmlModelSerializerFactory.Current.CreateSerializer(typeof(MatchConfigurationCollection));
             xs.Serialize(s, this);
         }
     }
