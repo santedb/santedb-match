@@ -46,7 +46,7 @@ using SanteDB.Core.Attributes;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.28.*")]
-[assembly: AssemblyVersion("1.122.0.0")]
-[assembly: AssemblyFileVersion("1.122.0.0")]
+[assembly: AssemblyVersion("1.123.0.0")]
+[assembly: AssemblyFileVersion("1.123.0.0")]
 [assembly: PluginTraceSource("SanteDB.Matcher.Engine")]
 [assembly: Plugin(EnableByDefault = false, Environment = PluginEnvironment.Server)]
