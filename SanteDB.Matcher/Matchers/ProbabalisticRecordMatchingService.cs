@@ -103,7 +103,7 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
-                var vectorResult = vectors.AsParallel().AsOrdered().Select(v =>
+                var vectorResult = vectors.AsParallel().AsOrdered().WithDegreeOfParallelism(2).Select(v =>
                 {
                     this.m_tracer.TraceVerbose("Initializing vector {0}", v);
                     // Initialize the weights and such for the vector
