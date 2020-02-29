@@ -91,7 +91,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override string ToString()
         {
-            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, CONF: {this.EvaluatedVectors}";
+            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, EVAL: {this.EvaluatedVectors}";
         }
     }
 

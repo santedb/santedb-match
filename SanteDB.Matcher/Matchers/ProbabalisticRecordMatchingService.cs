@@ -82,7 +82,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold));
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {
@@ -108,54 +108,64 @@ namespace SanteDB.Matcher.Matchers
                     this.m_tracer.TraceVerbose("Initializing vector {0}", v);
                     // Initialize the weights and such for the vector
                     v.Initialize();
-                    var vectorScore = 0.0d; // The score that this vector receives 
+                    List<dynamic> vectorScores = new List<dynamic>();
 
-                    var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(v.Property) as LambdaExpression;
-                    object aValue = selectorExpression.Compile().DynamicInvoke(input),
-                        bValue = selectorExpression.Compile().DynamicInvoke(block);
-                    var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
-                        Activator.CreateInstance(selectorExpression.ReturnType) :
-                        null;
-
-                    bool skip = aValue == null ||
-                        bValue == null ||
-                        (aValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true ||
-                        (bValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true;
-                    // Either value null?
-                    if (skip)
+                    foreach (var property in v.Property)
                     {
-                        switch (v.WhenNull)
+                        dynamic propertyScore = null;
+                        var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(property, true) as LambdaExpression;
+                        object aValue = selectorExpression.Compile().DynamicInvoke(input),
+                            bValue = selectorExpression.Compile().DynamicInvoke(block);
+                        var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
+                            Activator.CreateInstance(selectorExpression.ReturnType) :
+                            null;
+
+                        bool skip = aValue == null ||
+                            bValue == null ||
+                            (aValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true ||
+                            (bValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true;
+                        // Either value null?
+                        if (skip)
                         {
-                            case MatchVectorNullBehavior.Disqualify:
-                                vectorScore = -Int32.MaxValue;
-                                break;
-                            case MatchVectorNullBehavior.Ignore:
-                                vectorScore = 0.0;
-                                break;
-                            case MatchVectorNullBehavior.Match:
-                                vectorScore = v.MatchWeight;
-                                break;
-                            case MatchVectorNullBehavior.NonMatch:
-                                vectorScore = v.NonMatchWeight;
-                                break;
+                            switch (v.WhenNull)
+                            {
+                                case MatchVectorNullBehavior.Disqualify:
+                                    propertyScore = new { p = property, s = -Int32.MaxValue, e = false, a = aValue, b = bValue };
+                                    break;
+                                case MatchVectorNullBehavior.Ignore:
+                                    propertyScore = new { p = property, s = 0.0, e = false, a = aValue, b = bValue };
+                                    break;
+                                case MatchVectorNullBehavior.Match:
+                                    propertyScore = new { p = property, s = v.MatchWeight, e = false, a = aValue, b = bValue };
+                                    break;
+                                case MatchVectorNullBehavior.NonMatch:
+                                    propertyScore = new { p = property, s = v.NonMatchWeight, e = false, a = aValue, b = bValue };
+                                    break;
+                            }
+                            this.m_tracer.TraceVerbose("Match vector property ({0}) was determined null and assigned score of {1}", v, propertyScore);
                         }
-                        this.m_tracer.TraceVerbose("Match vector ({0}) was determined null and assigned score of {1}", v, vectorScore);
+                        else
+                        {
+                            var weightedScore = this.ExecuteAssertion(v.Assertion, aValue, bValue) ? v.MatchWeight : v.NonMatchWeight;
+
+                            // Is there a measure applied?
+                            if (v.Measure != null)
+                                weightedScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
+
+                            propertyScore = new { p = property, s = weightedScore, e = true, a = aValue, b = bValue };
+                            this.m_tracer.TraceVerbose("Match vector ({0}) was scored against input as {1}", v, propertyScore);
+                        }
+
+                        vectorScores.Add(propertyScore);
                     }
-                    else
-                    {
-                        vectorScore = this.ExecuteAssertion(v.Assertion, aValue, bValue) ? v.MatchWeight : v.NonMatchWeight;
 
-                        // Is there a measure applied?
-                        if (v.Measure != null)
-                            vectorScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
-                        this.m_tracer.TraceVerbose("Match vector ({0}) was scored against input as {1}", v, vectorScore);
+                    var bestScore = vectorScores.OrderByDescending(o => o.s).FirstOrDefault();
 
-                    }
-
-                    return new VectorResult(v.Property, v.M, v.MatchWeight, vectorScore, !skip, aValue, bValue);
+                    return new VectorResult(bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
                 }).ToList();
 
-                var score = vectorResult.Sum(v => v.Score);
+                var score = (float)vectorResult.Sum(v => v.Score) / (float)vectorResult.Sum(o=>o.ConfiguredWeight);
+
                 var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
                 retVal.Vectors.AddRange(vectorResult);
                 return retVal;

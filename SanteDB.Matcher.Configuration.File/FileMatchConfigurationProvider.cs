@@ -73,7 +73,7 @@ namespace SanteDB.Matcher.Configuration.File
                                 }
                                 catch (Exception ex)
                                 {
-                                    this.m_tracer.TraceInfo("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
+                                    this.m_tracer.TraceWarning("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
                                 }
                             }
                     }

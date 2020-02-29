@@ -80,7 +80,7 @@ namespace SanteDB.Matcher.Configuration
         /// Gets or sets the property 
         /// </summary>
         [XmlAttribute("property"), JsonProperty("property")]
-        public string Property { get; set; }
+        public List<string> Property { get; set; }
 
         /// <summary>
         /// When null what should happen?
