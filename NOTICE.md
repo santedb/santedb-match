@@ -4,7 +4,7 @@ The SanteDB leverages several third party artifacts to do its job. This file lis
 
 ## 1.1 Primary Copyright Notice
 
-SanteDB Enhanced Matcher, Copyright (C) 2018 - 2019 Fyfe Software Inc.
+SanteDB Enhanced Matcher, Copyright (C) 2019 - 2020 Fyfe Software Inc. and the SanteSuite Contributors
 
 This product includes software developed by Borland Software Corp.
 
