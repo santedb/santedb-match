@@ -172,7 +172,7 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 // Make LINQ query 
-                var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Delegate>()
+                var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
                 }, true);
