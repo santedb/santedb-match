@@ -1,20 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<!-- <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> -->
+  <!-- <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /> -->
+  <!-- <PropertyGroup> -->
+    <!-- <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion> -->
+    <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration> -->
+    <!-- <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
+    <!-- <ProjectGuid>{A37BB496-739D-440E-AB64-E2939A759898}</ProjectGuid> -->
+    <!-- <OutputType>Library</OutputType> -->
+    <!-- <RootNamespace>SanteDB.Matcher</RootNamespace> -->
+    <!-- <AssemblyName>SanteDB.Matcher</AssemblyName> -->
+    <!-- <DefaultLanguage>en-US</DefaultLanguage> -->
+    <!-- <FileAlignment>512</FileAlignment> -->
+    <!-- <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids> -->
+    <!-- <TargetFrameworkProfile>Profile7</TargetFrameworkProfile> -->
+    <!-- <TargetFrameworkVersion>v4.7</TargetFrameworkVersion> -->
+  <!-- </PropertyGroup> -->
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A37BB496-739D-440E-AB64-E2939A759898}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>SanteDB.Matcher</RootNamespace>
-    <AssemblyName>SanteDB.Matcher</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+    
+  <PropertyGroup>
+    <PackageId>SanteDB.Matcher</PackageId>
+    <Title>SanteDB.Matcher</Title>
+    <Version>2.0.0</Version>
+    <Description>SanteDB Clinical Decision Support</Description>
+    <Authors>SanteSuite Contributors</Authors>
+    <PackageTags>SanteDB</PackageTags>
+    <RepositoryUrl>https://github.com/santedb/santedb-match</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageLicenseFile>..\LICENSE</PackageLicenseFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	    <Product>SanteDB</Product>
+    <Copyright>Copyright (C) 2015-2020 SanteSuite Contributors (See: NOTICES)</Copyright>
+    <Company>SanteSuite Contributors</Company>
+  </PropertyGroup>  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>      
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -32,57 +58,57 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Configuration\AssemblyMatchConfigurationSection.cs" />
-    <Compile Include="Exceptions\MatchingException.cs" />
-    <Compile Include="Filters\AliasFilter.cs" />
-    <Compile Include="Filters\DateDiffFilter.cs" />
-    <Compile Include="Filters\FilterExtensionMethods.cs" />
-    <Compile Include="Filters\DoubleMetaphoneFilter.cs" />
-    <Compile Include="Filters\PhoneticDifferenceFilter.cs" />
-    <Compile Include="Filters\SubstringFilter.cs" />
-    <Compile Include="Filters\LevenshteinFilter.cs" />
-    <Compile Include="Filters\MetaphoneFilter.cs" />
-    <Compile Include="Filters\SoundsLikeFilter.cs" />
-    <Compile Include="Filters\SoundexFilter.cs" />
-    <Compile Include="Matchers\BaseRecordMatchingService.cs" />
-    <Compile Include="Matchers\DeterministicRecordMatchingService.cs" />
-    <Compile Include="Matchers\MatchResult.cs" />
-    <Compile Include="Matchers\ProbabalisticRecordMatchingService.cs" />
-    <Compile Include="MathExtensions.cs" />
-    <Compile Include="Configuration\BinaryOperatorType.cs" />
-    <Compile Include="Configuration\MatchBlock.cs" />
-    <Compile Include="Configuration\MatchConfiguration.cs" />
-    <Compile Include="Configuration\MatchConfigurationCollection.cs" />
-    <Compile Include="Configuration\MatchTarget.cs" />
-    <Compile Include="Configuration\MatchTransform.cs" />
-    <Compile Include="Configuration\MatchTransformConfiguration.cs" />
-    <Compile Include="Configuration\MatchVector.cs" />
-    <Compile Include="Configuration\MatchVectorNullBehavior.cs" />
-    <Compile Include="Configuration\MatchVectorAssertion.cs" />
-    <Compile Include="Configuration\MatchVectorWeightType.cs" />
-    <Compile Include="Model\MatchReport.cs" />
-    <Compile Include="Model\MatchResultReport.cs" />
-    <Compile Include="Model\VectorResultReport.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\AppletMatchConfigurationProvider.cs" />
-    <Compile Include="Services\AssemblyMatchConfigurationProvider.cs" />
-    <Compile Include="Transforms\Date\DateDifferenceTransform.cs" />
-    <Compile Include="Transforms\Date\DateExtractTransform.cs" />
-    <Compile Include="Transforms\IDataTransformer.cs" />
-    <Compile Include="Transforms\Names\NamePartExtractTransform.cs" />
-    <Compile Include="Transforms\Numeric\AbsoluteValueTransform.cs" />
-    <Compile Include="Transforms\Text\DoubleMetaphoneTransform.cs" />
-    <Compile Include="Transforms\Text\LengthTransform.cs" />
-    <Compile Include="Transforms\Text\LevenshteinDifferenceTransform.cs" />
-    <Compile Include="Transforms\Text\MetaphoneTransform.cs" />
-    <Compile Include="Transforms\Text\SimilarityTransform.cs" />
-    <Compile Include="Transforms\Text\SoundexTransform.cs" />
-    <Compile Include="Transforms\Text\SubstringTransform.cs" />
-    <Compile Include="Transforms\Timespan\TimespanExtractTransform.cs" />
-    <Compile Include="Transforms\TransformerFactory.cs" />
-    <Compile Include="Util\StringDifference.cs" />
-  </ItemGroup>
+  <!-- <ItemGroup> -->
+    <!-- <Compile Include="Configuration\AssemblyMatchConfigurationSection.cs" /> -->
+    <!-- <Compile Include="Exceptions\MatchingException.cs" /> -->
+    <!-- <Compile Include="Filters\AliasFilter.cs" /> -->
+    <!-- <Compile Include="Filters\DateDiffFilter.cs" /> -->
+    <!-- <Compile Include="Filters\FilterExtensionMethods.cs" /> -->
+    <!-- <Compile Include="Filters\DoubleMetaphoneFilter.cs" /> -->
+    <!-- <Compile Include="Filters\PhoneticDifferenceFilter.cs" /> -->
+    <!-- <Compile Include="Filters\SubstringFilter.cs" /> -->
+    <!-- <Compile Include="Filters\LevenshteinFilter.cs" /> -->
+    <!-- <Compile Include="Filters\MetaphoneFilter.cs" /> -->
+    <!-- <Compile Include="Filters\SoundsLikeFilter.cs" /> -->
+    <!-- <Compile Include="Filters\SoundexFilter.cs" /> -->
+    <!-- <Compile Include="Matchers\BaseRecordMatchingService.cs" /> -->
+    <!-- <Compile Include="Matchers\DeterministicRecordMatchingService.cs" /> -->
+    <!-- <Compile Include="Matchers\MatchResult.cs" /> -->
+    <!-- <Compile Include="Matchers\ProbabalisticRecordMatchingService.cs" /> -->
+    <!-- <Compile Include="MathExtensions.cs" /> -->
+    <!-- <Compile Include="Configuration\BinaryOperatorType.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchBlock.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchConfiguration.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchConfigurationCollection.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchTarget.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchTransform.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchTransformConfiguration.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchVector.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchVectorNullBehavior.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchVectorAssertion.cs" /> -->
+    <!-- <Compile Include="Configuration\MatchVectorWeightType.cs" /> -->
+    <!-- <Compile Include="Model\MatchReport.cs" /> -->
+    <!-- <Compile Include="Model\MatchResultReport.cs" /> -->
+    <!-- <Compile Include="Model\VectorResultReport.cs" /> -->
+    <!-- <Compile Include="Properties\AssemblyInfo.cs" /> -->
+    <!-- <Compile Include="Services\AppletMatchConfigurationProvider.cs" /> -->
+    <!-- <Compile Include="Services\AssemblyMatchConfigurationProvider.cs" /> -->
+    <!-- <Compile Include="Transforms\Date\DateDifferenceTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Date\DateExtractTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\IDataTransformer.cs" /> -->
+    <!-- <Compile Include="Transforms\Names\NamePartExtractTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Numeric\AbsoluteValueTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\DoubleMetaphoneTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\LengthTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\LevenshteinDifferenceTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\MetaphoneTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\SimilarityTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\SoundexTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Text\SubstringTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\Timespan\TimespanExtractTransform.cs" /> -->
+    <!-- <Compile Include="Transforms\TransformerFactory.cs" /> -->
+    <!-- <Compile Include="Util\StringDifference.cs" /> -->
+  <!-- </ItemGroup> -->
   <Choose>
     <When Condition="$(SolutionName.Contains('-ext'))">
       <ItemGroup>
@@ -102,9 +128,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="1.129.0.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="1.129.0.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="1.129.0.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.0.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.0.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.0.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -129,5 +155,5 @@
       <Version>11.0.2</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" /> -->
 </Project>

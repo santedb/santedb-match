@@ -17,24 +17,8 @@
  * User: JustinFyfe
  * Date: 2019-1-22
  */
-using System.Resources;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using SanteDB.Core.Attributes;
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("SanteMatch")]
-[assembly: AssemblyDescription("Deterministic and probabalistic matchers for SanteDB")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Fyfe Software Inc.")]
-[assembly: AssemblyProduct("SanteMatch")]
-[assembly: AssemblyCopyright("Copyright (C) 2018 - 2020")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -46,7 +30,5 @@ using SanteDB.Core.Attributes;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.28.*")]
-[assembly: AssemblyVersion("1.129.0.0")]
-[assembly: AssemblyFileVersion("1.129.0.0")]
 [assembly: PluginTraceSource("SanteDB.Matcher.Engine")]
 [assembly: Plugin(EnableByDefault = false, Environment = PluginEnvironment.Server)]
