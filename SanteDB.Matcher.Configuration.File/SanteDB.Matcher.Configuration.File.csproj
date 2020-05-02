@@ -23,7 +23,7 @@
     <PackageId>SanteDB.Matcher.Configuration.File</PackageId>
     <Title>SanteDB.Matcher.Configuration.File</Title>
     <Version>2.0.0</Version>
-    <Description>SanteDB Matcher File Configuration Source</Description>
+    <Description>Allows the SanteDB Matcher plugin to be configured using files rather than configuration within an assembly or database.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
     <RepositoryUrl>https://github.com/santedb/santedb-match</RepositoryUrl>

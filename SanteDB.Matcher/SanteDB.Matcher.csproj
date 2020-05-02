@@ -24,7 +24,7 @@
     <PackageId>SanteDB.Matcher</PackageId>
     <Title>SanteDB.Matcher</Title>
     <Version>2.0.0</Version>
-    <Description>SanteDB Clinical Decision Support</Description>
+    <Description>SanteDB Matching Plugin. Provides deterministic and probabalistic matching algorithms for the SanteDB persistence engine.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
     <RepositoryUrl>https://github.com/santedb/santedb-match</RepositoryUrl>
@@ -36,6 +36,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	    <Product>SanteDB</Product>
     <Copyright>Copyright (C) 2015-2020 SanteSuite Contributors (See: NOTICES)</Copyright>
+    <PackageIconUrl>http://santesuite.org/assets/img/logo.png</PackageIconUrl>
+    <PackageProjectUrl>http://santesuite.org</PackageProjectUrl>
     <Company>SanteSuite Contributors</Company>
   </PropertyGroup>  
   <ItemGroup>
