@@ -1,19 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<!-- <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> -->
+  <!-- <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /> -->
+  <!-- <PropertyGroup> -->
+    <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration> -->
+    <!-- <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
+    <!-- <ProjectGuid>{34C6A8FA-D3DD-4AB9-9D0D-24F355690CEC}</ProjectGuid> -->
+    <!-- <OutputType>Library</OutputType> -->
+    <!-- <AppDesignerFolder>Properties</AppDesignerFolder> -->
+    <!-- <RootNamespace>SanteDB.Matcher.Configuration.File</RootNamespace> -->
+    <!-- <AssemblyName>SanteDB.Matcher.Configuration.File</AssemblyName> -->
+    <!-- <TargetFrameworkVersion>v4.7</TargetFrameworkVersion> -->
+    <!-- <FileAlignment>512</FileAlignment> -->
+    <!-- <Deterministic>true</Deterministic> -->
+    <!-- <TargetFrameworkProfile /> -->
+  <!-- </PropertyGroup> -->
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{34C6A8FA-D3DD-4AB9-9D0D-24F355690CEC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SanteDB.Matcher.Configuration.File</RootNamespace>
-    <AssemblyName>SanteDB.Matcher.Configuration.File</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+    
+  <PropertyGroup>
+    <PackageId>SanteDB.Matcher.Configuration.File</PackageId>
+    <Title>SanteDB.Matcher.Configuration.File</Title>
+    <Version>2.0.0</Version>
+    <Description>SanteDB Matcher File Configuration Source</Description>
+    <Authors>SanteSuite Contributors</Authors>
+    <PackageTags>SanteDB</PackageTags>
+    <RepositoryUrl>https://github.com/santedb/santedb-match</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	    <Product>SanteDB</Product>
+    <Copyright>Copyright (C) 2015-2020 SanteSuite Contributors (See: NOTICES)</Copyright>
+    <Company>SanteSuite Contributors</Company>
+  </PropertyGroup>  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>          
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -66,26 +92,24 @@
       <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="11.0.2.0" />
 		</ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="FileMatchConfigurationProvider.cs" />
-    <Compile Include="FileMatchConfigurationSection.cs" />
-    <Compile Include="FilePathConfiguration.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SanteDB.Matcher.Configuration.File.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+      <ItemGroup>
+        <Folder Include="Properties\" />
+      </ItemGroup>
+  <!-- <ItemGroup> -->
+    <!-- <Reference Include="System" /> -->
+    <!-- <Reference Include="System.Core" /> -->
+    <!-- <Reference Include="System.Xml.Linq" /> -->
+    <!-- <Reference Include="System.Data.DataSetExtensions" /> -->
+    <!-- <Reference Include="Microsoft.CSharp" /> -->
+    <!-- <Reference Include="System.Data" /> -->
+    <!-- <Reference Include="System.Net.Http" /> -->
+    <!-- <Reference Include="System.Xml" /> -->
+  <!-- </ItemGroup> -->
+  <!-- <ItemGroup> -->
+    <!-- <Compile Include="FileMatchConfigurationProvider.cs" /> -->
+    <!-- <Compile Include="FileMatchConfigurationSection.cs" /> -->
+    <!-- <Compile Include="FilePathConfiguration.cs" /> -->
+    <!-- <Compile Include="Properties\AssemblyInfo.cs" /> -->
+  <!-- </ItemGroup> -->
+  <!-- <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /> -->
 </Project>
