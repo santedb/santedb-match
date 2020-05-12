@@ -22,7 +22,7 @@
   <PropertyGroup>
     <PackageId>SanteDB.Matcher.Configuration.File</PackageId>
     <Title>SanteDB.Matcher.Configuration.File</Title>
-    <Version>2.0.7</Version>
+    <Version>2.0.8</Version>
     <Description>Allows the SanteDB Matcher plugin to be configured using files rather than configuration within an assembly or database.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
@@ -83,9 +83,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.7.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.0.7.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.0.7.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.8.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.8.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.8.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
