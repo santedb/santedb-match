@@ -13,7 +13,7 @@
         identifier[HIN].value=:(substr|0,6)$input.identifier[HIN].value</filter>
         <filter>name.component[Family].value=:(phonetic_diff|$input.name.component[Family].value)&lt;2</filter>
   </blocking>
-  <classification>
+  <scoring>
     
-  </classification>
+  </scoring>
 </MatchConfiguration>

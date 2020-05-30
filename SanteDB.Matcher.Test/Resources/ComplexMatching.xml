@@ -7,6 +7,7 @@
     <event>BeforeInsert</event>
     <event>BeforeUpdate</event>
   </target>
+  
   <!-- Patient which have same MRN -->
   <blocking op="or" maxResults="100">
     <filter>identifier[MRN].value=$input.identifier[MRN].value</filter>
@@ -21,7 +22,9 @@
     <filter>name.component[Given].value=:(levenshtein|$input.name.component[Given].value)&lt;2</filter>
     <filter>address.component[State].value=$input.address.component[State].value</filter>
   </blocking>
-  <classification>
+  
+  
+  <scoring>
     <!-- Same YOB = 75% conf-->
     <attribute property="dateOfBirth" u="0.25" m="0.75" whenNull="nonmatch" required="true" >
       <assert op="eq">
@@ -31,6 +34,7 @@
           </args>
         </transform>
       </assert>
+     
     </attribute>
     <!-- Same Gender = 50/50 -->
     <attribute property="genderConcept" u="0.5" m="0.75" whenNull="nonmatch" required="true">
@@ -80,5 +84,5 @@
     <attribute property="identifier[MRN].value" u="0.15" m="0.75" whenNull="nonmatch">
       <assert op="eq"/>
     </attribute>
-  </classification>
+  </scoring>
 </MatchConfiguration>

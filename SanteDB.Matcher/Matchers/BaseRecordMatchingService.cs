@@ -198,8 +198,8 @@ namespace SanteDB.Matcher.Matchers
             }
             catch(Exception e)
             {
-                this.m_tracer.TraceError("Could not execute block {0} against {1} on storage provider: {2}", block.Filter, input, e.Message);
-                throw new MatchingException($"Could not execute block {block.Filter} against {1}", e);
+                this.m_tracer.TraceError("Could not execute block {0} against {1} on storage provider: {2}", String.Join(" / ", block.Filter), input, e.Message);
+                throw new MatchingException($"Could not execute block {String.Join(" / ", block.Filter)} against {input}", e);
             }
         }
 

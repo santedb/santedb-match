@@ -70,9 +70,9 @@ namespace SanteDB.Matcher.Configuration
         /// <summary>
         /// Gets or sets the classifications
         /// </summary>
-        [XmlArray("classification")]
+        [XmlArray("scoring")]
         [XmlArrayItem("attribute")]
-        [JsonProperty("classification")]
+        [JsonProperty("scoring")]
         public List<MatchAttribute> Classification { get; set; }
 
         /// <summary>
