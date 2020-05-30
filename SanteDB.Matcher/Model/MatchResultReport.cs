@@ -69,7 +69,7 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Gets the confidence that this is a match (the number of vectors that were actually assessed)
+        /// Gets the confidence that this is a match (the number of assertions that were actually assessed)
         /// </summary>
         [XmlElement("evaluated"), JsonProperty("evaluated")]
         public double EvaluatedVectors

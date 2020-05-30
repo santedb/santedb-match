@@ -16,7 +16,7 @@
   </blocking>
   <classification>
     <!-- Week of birth -->
-    <vector property="dateOfBirth" u="0.019" m="0.98" whenNull="nonmatch" required="true" >
+    <attribute property="dateOfBirth" u="0.019" m="0.98" whenNull="nonmatch" required="true" >
       <assert op="eq">
         <transform name="date_extract">
           <args>
@@ -24,9 +24,9 @@
           </args>
         </transform>
       </assert>
-    </vector>
+    </attribute>
     <!-- Mother's Name is similar -->
-    <vector property="relationship[Mother].target.name" whenNull="ignore" u="0.01" m="0.95">
+    <attribute property="relationship[Mother].target.name" whenNull="ignore" u="0.01" m="0.95">
       <assert op="and">
         <!-- Family name phonetics must be > 70% similar -->
         <assert op="gte" value="0.7">
@@ -54,6 +54,6 @@
           </assert>
         </assert>
       </assert>
-    </vector>
+    </attribute>
   </classification>
 </MatchConfiguration>

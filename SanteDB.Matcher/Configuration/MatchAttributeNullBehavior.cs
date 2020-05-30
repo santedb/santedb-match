@@ -17,26 +17,39 @@
  * User: fyfej
  * Date: 2019-11-27
  */
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Weight types for match vectors
+    /// Represents behaviors when a attribute property is null
     /// </summary>
-    [XmlType(nameof(MatchVectorWeightType), Namespace = "http://santedb.org/matcher")]
-    public enum MatchVectorWeightType
+    [XmlType(nameof(MatchAttributeNullBehavior), Namespace = "http://santedb.org/matcher")]
+    public enum MatchAttributeNullBehavior
     {
         /// <summary>
-        /// Full weight - The weight is simply added
+        /// When the field is null on the queried record apply the mWeight
         /// </summary>
-        [XmlEnum("full")]
-        Full,
+        [XmlEnum("match")]
+        Match,
         /// <summary>
-        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
-        /// value is.
+        /// When the property is null on the queried record apply the uWeight
         /// </summary>
-        [XmlEnum("partial")]
-        Partial
+        [XmlEnum("nonmatch")]
+        NonMatch,
+        /// <summary>
+        /// When the property is null on the queried record ignore the rule
+        /// </summary>
+        [XmlEnum("ignore")]
+        Ignore,
+        /// <summary>
+        /// When the property is null on the queried record, disqualify the match entirely
+        /// </summary>
+        [XmlEnum("disqualify")]
+        Disqualify
+
     }
 }

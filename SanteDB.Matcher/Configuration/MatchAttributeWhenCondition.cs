@@ -17,39 +17,35 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Represents behaviors when a vector property is null
+    /// Vector when condition
     /// </summary>
-    [XmlType(nameof(MatchVectorNullBehavior), Namespace = "http://santedb.org/matcher")]
-    public enum MatchVectorNullBehavior
+    [XmlType(nameof(MatchAttributeWhenCondition), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchAttributeWhenCondition))]
+    public class MatchAttributeWhenCondition
     {
-        /// <summary>
-        /// When the field is null on the queried record apply the mWeight
-        /// </summary>
-        [XmlEnum("match")]
-        Match,
-        /// <summary>
-        /// When the property is null on the queried record apply the uWeight
-        /// </summary>
-        [XmlEnum("nonmatch")]
-        NonMatch,
-        /// <summary>
-        /// When the property is null on the queried record ignore the rule
-        /// </summary>
-        [XmlEnum("ignore")]
-        Ignore,
-        /// <summary>
-        /// When the property is null on the queried record, disqualify the match entirely
-        /// </summary>
-        [XmlEnum("disqualify")]
-        Disqualify
 
+        /// <summary>
+        /// The referenced attribute
+        /// </summary>
+        [XmlAttribute("ref"), JsonProperty("ref")]
+        public string AttributeRef { get; set; }
+
+        /// <summary>
+        /// Operator for classifier
+        /// </summary>
+        [XmlAttribute("op"), JsonProperty("op")]
+        public BinaryOperatorType Operator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value of the comparator
+        /// </summary>
+        [XmlAttribute("value"), JsonProperty("value")]
+        public bool Value { get; set; }
     }
 }

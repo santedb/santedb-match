@@ -38,7 +38,7 @@ namespace SanteDB.Matcher.Test
             { EntityClassKeys.Person, new Concept() { Mnemonic = "Person"} },
             { DeterminerKeys.Specific, new Concept() { Mnemonic = "Specific" } },
             {  EntityRelationshipTypeKeys.Birthplace, new Concept() { Mnemonic = "Birthplace" } },
-            {  EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Birthplace" } },
+            {  EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Mother" } },
         };
 
         public string ServiceName => throw new NotImplementedException();

@@ -17,35 +17,26 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using Newtonsoft.Json;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Vector when condition
+    /// Weight types for match attributes
     /// </summary>
-    [XmlType(nameof(MatchVectorWhenCondition), Namespace = "http://santedb.org/matcher")]
-    [JsonObject(nameof(MatchVectorWhenCondition))]
-    public class MatchVectorWhenCondition
+    [XmlType(nameof(MatchAttributeWeightType), Namespace = "http://santedb.org/matcher")]
+    public enum MatchAttributeWeightType
     {
-
         /// <summary>
-        /// The referenced vector
+        /// Full weight - The weight is simply added
         /// </summary>
-        [XmlAttribute("ref"), JsonProperty("ref")]
-        public string VectorRef { get; set; }
-
+        [XmlEnum("full")]
+        Full,
         /// <summary>
-        /// Operator for classifier
+        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
+        /// value is.
         /// </summary>
-        [XmlAttribute("op"), JsonProperty("op")]
-        public BinaryOperatorType Operator { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value of the comparator
-        /// </summary>
-        [XmlAttribute("value"), JsonProperty("value")]
-        public bool Value { get; set; }
+        [XmlEnum("partial")]
+        Partial
     }
 }

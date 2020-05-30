@@ -27,11 +27,11 @@ namespace SanteDB.Matcher.Configuration
 {
 
     /// <summary>
-    /// Represents a configured match vector
+    /// Represents a configured match attribute
     /// </summary>
-    [XmlType(nameof(MatchVector), Namespace = "http://santedb.org/matcher")]
-    [JsonObject(nameof(MatchVector))]
-    public class MatchVector
+    [XmlType(nameof(MatchAttribute), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchAttribute))]
+    public class MatchAttribute
     {
 
         private double? m_m = null;
@@ -40,16 +40,16 @@ namespace SanteDB.Matcher.Configuration
         private double? m_weightN = null;
 
         /// <summary>
-        /// The identifier for the vector
+        /// The identifier for the attribute
         /// </summary>
         [XmlAttribute("id"), JsonProperty("id")]
         public string Id { get; set; }
 
         /// <summary>
-        /// When condition on a match vector
+        /// When condition on a match attribute
         /// </summary>
-        [XmlArray("when"), XmlArrayItem("vector"), JsonProperty("when")]
-        public List<MatchVectorWhenCondition> When { get; set; }
+        [XmlArray("when"), XmlArrayItem("attribute"), JsonProperty("when")]
+        public List<MatchAttributeWhenCondition> When { get; set; }
 
         /// <summary>
         /// Gets or sets the match weight
@@ -98,7 +98,7 @@ namespace SanteDB.Matcher.Configuration
         /// When null what should happen?
         /// </summary>
         [XmlAttribute("whenNull"), JsonProperty("whenNull")]
-        public MatchVectorNullBehavior WhenNull { get; set; }
+        public MatchAttributeNullBehavior WhenNull { get; set; }
 
         /// <summary>
         /// The match has to be executed, if the inbound object does not have the property (is null)
@@ -111,7 +111,7 @@ namespace SanteDB.Matcher.Configuration
         /// Gets or sets the rules
         /// </summary>
         [XmlElement("assert"), JsonProperty("assert")]
-        public MatchVectorAssertion Assertion { get; set; }
+        public MatchAttributeAssertion Assertion { get; set; }
 
         /// <summary>
         /// Gets or sets the algorithm for partially measuring the value
@@ -142,7 +142,7 @@ namespace SanteDB.Matcher.Configuration
         }
 
         /// <summary>
-        /// Represent this vector as a string
+        /// Represent this attribute as a string
         /// </summary>
         public override string ToString() => $"VECTOR: {this.Property} ({this.Assertion}) [match: {this.MatchWeight}, non: {this.NonMatchWeight}, u: {this.U}, m: {this.M}, measure: {this.Measure}]";
     }

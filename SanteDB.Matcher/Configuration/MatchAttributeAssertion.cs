@@ -26,11 +26,11 @@ using System.Xml.Serialization;
 namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Match vector rule
+    /// Match attribute rule
     /// </summary>
-    [XmlType(nameof(MatchVectorAssertion), Namespace = "http://santedb.org/matcher")]
-    [JsonObject(nameof(MatchVectorAssertion))]
-    public class MatchVectorAssertion
+    [XmlType(nameof(MatchAttributeAssertion), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchAttributeAssertion))]
+    public class MatchAttributeAssertion
     {
 
         /// <summary>
@@ -58,10 +58,10 @@ namespace SanteDB.Matcher.Configuration
         public List<MatchTransform> Transforms { get; set; }
 
         /// <summary>
-        /// Rules in the vector rule
+        /// Rules in the attribute rule
         /// </summary>
         [XmlElement("assert"), JsonProperty("assert")]
-        public List<MatchVectorAssertion> Assertions { get; set; }
+        public List<MatchAttributeAssertion> Assertions { get; set; }
 
         /// <summary>
         /// Represent the assertion

@@ -138,6 +138,7 @@ namespace SanteDB.Matcher.Test
             Assert.AreEqual(113, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(1, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
+            
         }
 
         /// <summary>
@@ -164,13 +165,24 @@ namespace SanteDB.Matcher.Test
                 Addresses = new System.Collections.Generic.List<Core.Model.Entities.EntityAddress>()
                 {
                     new Core.Model.Entities.EntityAddress(AddressUseKeys.Direct, "483 Some Different Street", "Hamilton", "ON", "CA", "L8K5NN")
+                },
+                Relationships = new System.Collections.Generic.List<Core.Model.Entities.EntityRelationship>()
+                {
+                    new Core.Model.Entities.EntityRelationship(EntityRelationshipTypeKeys.Mother, new Core.Model.Entities.Entity()
+                    {
+                        Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
+                        {
+                            new Core.Model.Entities.EntityName(NameUseKeys.OfficialRecord, "Morphy", "Monique")
+                        }
+                    }),
+                    new Core.Model.Entities.EntityRelationship(EntityRelationshipTypeKeys.Birthplace, Guid.Parse("8f4c9122-7661-4c7c-9069-4a572a965b3f"))
                 }
             };
             patient = patient.LoadConcepts();
             var blocks = matchService.Block(patient, "test.complex");
-            Assert.AreEqual(5, blocks.Count());
+            Assert.AreEqual(140, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(5, output.Count());
+            Assert.AreEqual(1, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
         }
     }
 }

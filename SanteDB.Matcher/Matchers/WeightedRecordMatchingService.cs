@@ -98,19 +98,19 @@ namespace SanteDB.Matcher.Matchers
         /// <typeparam name="T">The type of record being classified</typeparam>
         /// <param name="input">The input being classified</param>
         /// <param name="block">The block which is being classified</param>
-        /// <param name="vectors">The match vectors to classify on</param>
+        /// <param name="attributes">The match attributes to classify on</param>
         /// <returns>The match classification</returns>
-        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchVector> vectors, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
+        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
         {
             try
             {
 
-                var vectorResult = vectors.Select(v =>
+                var attributeResult = attributes.Select(v =>
                 {
-                    this.m_tracer.TraceVerbose("Initializing vector {0}", v);
-                    // Initialize the weights and such for the vector
+                    this.m_tracer.TraceVerbose("Initializing attribute {0}", v);
+                    // Initialize the weights and such for the attribute
                     v.Initialize();
-                    List<dynamic> vectorScores = new List<dynamic>();
+                    List<dynamic> attributeScores = new List<dynamic>();
 
                     foreach (var property in v.Property)
                     {
@@ -131,20 +131,20 @@ namespace SanteDB.Matcher.Matchers
                         {
                             switch (v.WhenNull)
                             {
-                                case MatchVectorNullBehavior.Disqualify:
+                                case MatchAttributeNullBehavior.Disqualify:
                                     propertyScore = new { p = property, s = -Int32.MaxValue, e = false, a = aValue, b = bValue };
                                     break;
-                                case MatchVectorNullBehavior.Ignore:
+                                case MatchAttributeNullBehavior.Ignore:
                                     propertyScore = new { p = property, s = 0.0, e = false, a = aValue, b = bValue };
                                     break;
-                                case MatchVectorNullBehavior.Match:
+                                case MatchAttributeNullBehavior.Match:
                                     propertyScore = new { p = property, s = v.MatchWeight, e = false, a = aValue, b = bValue };
                                     break;
-                                case MatchVectorNullBehavior.NonMatch:
+                                case MatchAttributeNullBehavior.NonMatch:
                                     propertyScore = new { p = property, s = v.NonMatchWeight, e = false, a = aValue, b = bValue };
                                     break;
                             }
-                            this.m_tracer.TraceVerbose("Match vector property ({0}) was determined null and assigned score of {1}", v, propertyScore);
+                            this.m_tracer.TraceVerbose("Match attribute property ({0}) was determined null and assigned score of {1}", v, propertyScore);
                         }
                         else
                         {
@@ -155,23 +155,26 @@ namespace SanteDB.Matcher.Matchers
                                 weightedScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
 
                             propertyScore = new { p = property, s = weightedScore, e = true, a = aValue, b = bValue };
-                            this.m_tracer.TraceVerbose("Match vector ({0}) was scored against input as {1}", v, propertyScore);
+                            this.m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", v, propertyScore);
                         }
 
-                        vectorScores.Add(propertyScore);
+                        attributeScores.Add(propertyScore);
                     }
 
-                    var bestScore = vectorScores.OrderByDescending(o => o.s).FirstOrDefault();
+                    var bestScore = attributeScores.OrderByDescending(o => o.s).FirstOrDefault();
 
-                    return new VectorResult(v, bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
-                }).ToList();
+                    if (bestScore == null)
+                        return null;
+                    else 
+                        return new MatchVector(v, bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
+                }).OfType<MatchVector>().ToList();
 
-                // Throw out vectors which are dependent however the dependent vector was unsuccessful
-                vectorResult.RemoveAll(o => o.Vector.When.Any(w => vectorResult.First(r => r.Vector.Id == w.VectorRef).Score < 0)); // Remove all failed vectors
-                var score = (float)vectorResult.Sum(v => v.Score) / (float)vectorResult.Sum(o=>o.ConfiguredWeight);
+                // Throw out attributes which are dependent however the dependent attribute was unsuccessful
+                attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
+                var score = (float)attributeResult.Sum(v => v.Score);
 
                 var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
-                retVal.Vectors.AddRange(vectorResult);
+                retVal.Vectors.AddRange(attributeResult);
                 return retVal;
             }
             catch (Exception e)
@@ -188,7 +191,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="aValue">The value of the A value</param>
         /// <param name="bValue">The value of the B value</param>
         /// <returns>True if the assertion passes, false if not</returns>
-        private bool ExecuteAssertion(MatchVectorAssertion assertion, object aValue, object bValue)
+        private bool ExecuteAssertion(MatchAttributeAssertion assertion, object aValue, object bValue)
         {
             try
             {

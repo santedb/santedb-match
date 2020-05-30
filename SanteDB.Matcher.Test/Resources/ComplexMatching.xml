@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MatchConfiguration xmlns="http://santedb.org/matcher"
                     id="test.complex"
-                    nonmatchThreshold="0.6"
-                    matchThreshold="0.8">
+                    nonmatchThreshold="1"
+                    matchThreshold="3.4">
   <target resource="Patient">
     <event>BeforeInsert</event>
     <event>BeforeUpdate</event>
@@ -23,7 +23,7 @@
   </blocking>
   <classification>
     <!-- Same YOB = 75% conf-->
-    <vector property="dateOfBirth" u="0.25" m="0.75" whenNull="nonmatch" required="true" >
+    <attribute property="dateOfBirth" u="0.25" m="0.75" whenNull="nonmatch" required="true" >
       <assert op="eq">
         <transform name="date_extract">
           <args>
@@ -31,44 +31,54 @@
           </args>
         </transform>
       </assert>
-    </vector>
+    </attribute>
     <!-- Same Gender = 50/50 -->
-    <vector property="genderConcept" u="0.5" m="0.5" whenNull="nonmatch" required="true">
+    <attribute property="genderConcept" u="0.5" m="0.75" whenNull="nonmatch" required="true">
       <assert op="eq"/>
-    </vector>
+    </attribute>
     <!-- Same state - If there are 20 states the u would be 0.05 -->
-    <vector id="address.state" property="address" u="0.05" m="0.75" whenNull="nonmatch" required="true">
-      <assert op="and">
+    <attribute id="address.state" property="address" u="0.05" m="0.75" whenNull="nonmatch" required="true">
+      <assert op="eq">
         <transform name="addresspart_extract">
           <args>
             <string>State</string>
           </args>
         </transform>
-        <assert op="eq" />
       </assert>
-    </vector>
+    </attribute>
     <!-- Same County - If on average a state has 30 counties the u = 0.033   -->
-    <vector id="address.county" property="address" u="0.033" m="0.8" whenNull="nonmatch" required="true">
+    <attribute id="address.county" property="address" u="0.033" m="0.8" whenNull="nonmatch" required="true">
       <when>
-        <vector ref="address.state" op="eq" value="true"/>
+        <attribute ref="address.state" op="eq" value="true"/>
       </when>
-      <assert op="and">
+      <assert op="eq">
         <transform name="addresspart_extract">
           <args>
-            <string>County</string>
+            <string>City</string>
           </args>
         </transform>
-        <assert op="eq" />
       </assert>
-    </vector>
+    </attribute>
+    <attribute property="relationship[Mother].target.name" u="0.15" m="0.6" whenNull="ignore" required="false">
+      <assert op="lte" value="2">
+        <transform name="namepart_extract">
+          <args>
+            <string>Given</string>
+          </args>
+        </transform>
+        <transform name="levenshtein"/>
+      </assert>
+    </attribute>
     <!-- Same Birthplace -->
-    <vector id="reference[Birthplace].target" u="0.166" m="0.6" whenNull="ignore" required="false">
+    <attribute property="relationship[Birthplace].target" u="0.166" m="0.6" whenNull="ignore" required="false">
       <assert op="eq"/>
-    </vector>
+    </attribute>
     <!-- Identifier -->
-    <vector property="identifier[HIN].value identifier[MRN].value" u="0.01" m="0.98" whenNull="nonmatch" >
+    <attribute property="identifier[HIN].value" u="0.01" m="0.98" whenNull="nonmatch" >
       <assert op="eq" />
-    </vector>
-
+    </attribute>
+    <attribute property="identifier[MRN].value" u="0.15" m="0.75" whenNull="nonmatch">
+      <assert op="eq"/>
+    </attribute>
   </classification>
 </MatchConfiguration>

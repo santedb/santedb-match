@@ -71,9 +71,9 @@ namespace SanteDB.Matcher.Configuration
         /// Gets or sets the classifications
         /// </summary>
         [XmlArray("classification")]
-        [XmlArrayItem("vector")]
-        [JsonProperty("vectors")]
-        public List<MatchVector> Classification { get; set; }
+        [XmlArrayItem("attribute")]
+        [JsonProperty("classification")]
+        public List<MatchAttribute> Classification { get; set; }
 
         /// <summary>
         /// Load match configuration from the specified stream

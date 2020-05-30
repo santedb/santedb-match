@@ -25,14 +25,14 @@ using System.Xml.Serialization;
 namespace SanteDB.Matcher.Model
 {
     /// <summary>
-    /// Represents a match vector
+    /// Represents a match assertion
     /// </summary>
     [XmlType(nameof(VectorResultReport), Namespace = "http://santedb.org/matcher"), JsonObject]
     public class VectorResultReport
     {
 
         // Vector result
-        private VectorResult m_result;
+        private MatchVector m_result;
 
         /// <summary>
         /// Default ctor for serializer
@@ -44,7 +44,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Creates a new result report from the specified result
         /// </summary>
-        public VectorResultReport(VectorResult result)
+        public VectorResultReport(MatchVector result)
         {
             this.m_result = result;
         }
@@ -60,7 +60,7 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// True if the vector was evaluated
+        /// True if the assertion was evaluated
         /// </summary>
         [XmlAttribute("evaluated"), JsonProperty("evaluated")]
         public bool Evaluated
@@ -91,7 +91,7 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Gets the score assigned to this vector
+        /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("score"), JsonProperty("score")]
         public double Score
@@ -101,7 +101,7 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Gets the score assigned to this vector
+        /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("a"), JsonProperty("a")]
         public String A
@@ -111,7 +111,7 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Gets the score assigned to this vector
+        /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("b"), JsonProperty("b")]
         public String B

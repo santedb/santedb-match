@@ -47,7 +47,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="target" type="tns:MatchTarget" />
       <xs:element minOccurs="0" maxOccurs="unbounded" name="blocking" type="tns:MatchBlock" />
-      <xs:element minOccurs="0" maxOccurs="1" name="classification" type="tns:ArrayOfMatchVector" />
+      <xs:element minOccurs="0" maxOccurs="1" name="classification" type="tns:ArrayOfMatchAttribute" />
     </xs:sequence>
     <xs:attribute name="id" type="xs:string" />
     <xs:attribute name="nonmatchThreshold" type="xs:double" use="required" />
@@ -59,14 +59,14 @@
     </xs:sequence>
     <xs:attribute name="resource" type="xs:string" />
   </xs:complexType>
-  <xs:complexType name="ArrayOfMatchVector">
+  <xs:complexType name="ArrayOfMatchAttribute">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="vector" nillable="true" type="tns:MatchVector" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="attribute" nillable="true" type="tns:MatchAttribute" />
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="MatchVector">
+  <xs:complexType name="MatchAttribute">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="assert" type="tns:MatchVectorAssertion" />
+      <xs:element minOccurs="0" maxOccurs="1" name="assert" type="tns:MatchAttributeAssertion" />
       <xs:element minOccurs="0" maxOccurs="1" name="partialWeight" type="tns:MatchTransform" />
     </xs:sequence>
     <xs:attribute name="m" type="xs:double" use="required" />
@@ -74,13 +74,13 @@
     <xs:attribute name="matchWeight" type="xs:double" use="optional" />
     <xs:attribute name="nonMatchWeight" type="xs:double" use="optional" />
     <xs:attribute name="property" type="xs:string" />
-    <xs:attribute name="whenNull" type="tns:MatchVectorNullBehavior" use="required" />
+    <xs:attribute name="whenNull" type="tns:MatchAttributeNullBehavior" use="required" />
     <xs:attribute name="required" type="xs:boolean" use="optional" default="false" />
   </xs:complexType>
-  <xs:complexType name="MatchVectorAssertion">
+  <xs:complexType name="MatchAttributeAssertion">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="transform" type="tns:MatchTransform" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="assert" type="tns:MatchVectorAssertion" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="assert" type="tns:MatchAttributeAssertion" />
     </xs:sequence>
     <xs:attribute name="op" type="tns:BinaryOperatorType" use="required" />
     <xs:attribute name="value" type="xs:double" />
@@ -99,7 +99,7 @@
       <xs:element minOccurs="1" maxOccurs="1" name="double" type="xs:double" />
     </xs:choice>
   </xs:complexType>
-  <xs:simpleType name="MatchVectorNullBehavior">
+  <xs:simpleType name="MatchAttributeNullBehavior">
     <xs:restriction base="xs:string">
       <xs:enumeration value="match" />
       <xs:enumeration value="nonmatch" />
@@ -124,7 +124,7 @@
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="type" type="xs:string" />
   </xs:complexType>
-  <xs:simpleType name="MatchVectorWeightType">
+  <xs:simpleType name="MatchAttributeWeightType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="full" />
       <xs:enumeration value="partial" />

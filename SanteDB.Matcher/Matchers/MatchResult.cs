@@ -48,7 +48,7 @@ namespace SanteDB.Matcher.Matchers
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
-            this.Vectors = new List<VectorResult>();
+            this.Vectors = new List<MatchVector>();
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace SanteDB.Matcher.Matchers
         public double Score { get; private set; }
 
         /// <summary>
-        /// Gets the confidence that this is a match (the number of vectors that were actually assessed)
+        /// Gets the confidence that this is a match (the number of assertions that were actually assessed)
         /// </summary>
         public double EvaluatedVectors
         {
@@ -80,7 +80,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
-        public List<VectorResult> Vectors { get; internal set; }
+        public List<MatchVector> Vectors { get; internal set; }
 
         /// <summary>
         /// Gets the record that matched
@@ -100,15 +100,15 @@ namespace SanteDB.Matcher.Matchers
     /// Represents an individual property that matched
     /// </summary>
     [XmlType(Namespace = "http://santedb.org/matcher"), JsonObject]
-    public class VectorResult
+    public class MatchVector
     {
 
         /// <summary>
-        /// Creates a new vector result
+        /// Creates a new assertion result
         /// </summary>
-        public VectorResult(MatchVector vector, String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
+        public MatchVector(MatchAttribute attribute, String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
         {
-            this.Vector = vector;
+            this.Attribute = attribute;
             this.Name = name;
             this.ConfiguredProbability = configuredProbability;
             this.ConfiguredWeight = configuredWeight;
@@ -136,10 +136,10 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// 
         /// </summary>
-        public MatchVector Vector { get; set; }
+        public MatchAttribute Attribute { get; set; }
 
         /// <summary>
-        /// True if the vector was evaluated
+        /// True if the assertion was evaluated
         /// </summary>
         public bool Evaluated { get; set; }
 
@@ -154,7 +154,7 @@ namespace SanteDB.Matcher.Matchers
         public double ConfiguredWeight { get; private set; }
 
         /// <summary>
-        /// Gets the score assigned to this vector
+        /// Gets the score assigned to this assertion
         /// </summary>
         public double Score { get; private set; }
 
