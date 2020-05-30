@@ -26,6 +26,7 @@ using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Matcher.Transforms;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -39,7 +40,7 @@ namespace SanteDB.Matcher.Matchers
     /// Represents a probabalistic record matching service
     /// </summary>
     [ServiceProvider("SanteMatch Probabalistic Match Service")]
-    public class ProbabalisticRecordMatchingService : BaseRecordMatchingService
+    public class WeightedRecordMatchingService : BaseRecordMatchingService
     {
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Initializes the transform filters 
         /// </summary>
-        static ProbabalisticRecordMatchingService()
+        static WeightedRecordMatchingService()
         {
             foreach (var t in typeof(BaseRecordMatchingService).GetTypeInfo().Assembly.ExportedTypes.Where(t => typeof(IDataTransformer).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract))
             {
@@ -82,7 +83,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.AsParallel().AsOrdered().WithDegreeOfParallelism(2).Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {
@@ -103,7 +104,8 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
-                var vectorResult = vectors.AsParallel().AsOrdered().WithDegreeOfParallelism(2).Select(v =>
+
+                var vectorResult = vectors.Select(v =>
                 {
                     this.m_tracer.TraceVerbose("Initializing vector {0}", v);
                     // Initialize the weights and such for the vector
@@ -161,9 +163,11 @@ namespace SanteDB.Matcher.Matchers
 
                     var bestScore = vectorScores.OrderByDescending(o => o.s).FirstOrDefault();
 
-                    return new VectorResult(bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
+                    return new VectorResult(v, bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
                 }).ToList();
 
+                // Throw out vectors which are dependent however the dependent vector was unsuccessful
+                vectorResult.RemoveAll(o => o.Vector.When.Any(w => vectorResult.First(r => r.Vector.Id == w.VectorRef).Score < 0)); // Remove all failed vectors
                 var score = (float)vectorResult.Sum(v => v.Score) / (float)vectorResult.Sum(o=>o.ConfiguredWeight);
 
                 var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
@@ -194,6 +198,9 @@ namespace SanteDB.Matcher.Matchers
                 foreach (var xform in assertion.Transforms)
                     scope = this.ExecuteTransform(xform, ref a, ref b) ?? scope;
 
+                if (scope is IEnumerable enumScope)
+                    scope = enumScope.OfType<Object>().Max();
+
                 var retVal = true;
                 switch (assertion.Operator)
                 {
@@ -213,13 +220,27 @@ namespace SanteDB.Matcher.Matchers
                         if (assertion.ValueSpecified)
                             retVal = scope.Equals(assertion.Value);
                         else
-                            retVal = a.Equals(b);
+                        {
+                            if (a == b) // reference equality
+                                retVal = true;
+                            else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                                retVal = aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            else
+                                retVal = a.Equals(b);
+                        }
                         break;
                     case BinaryOperatorType.NotEqual:
                         if (assertion.ValueSpecified)
                             retVal = !scope.Equals(assertion.Value);
                         else
-                            retVal = !a.Equals(b);
+                        {
+                            if (a == null)
+                                retVal = b != null;
+                            else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                                retVal = !aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            else
+                                retVal = !a.Equals(b);
+                        }
                         break;
                     case BinaryOperatorType.GreaterThan:
                         retVal = (double)scope > assertion.Value;

@@ -49,7 +49,7 @@ namespace SanteDB.Matcher.Transforms.Names
             try
             {
                 var partUuid = (Guid)(typeof(NameComponentKeys).GetRuntimeField(parms[0].ToString())?.GetValue(null));
-                return en.Component.FirstOrDefault(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString());
+                return en.Component.Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o=>o.Value);
             }
             catch
             {

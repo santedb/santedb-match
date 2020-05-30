@@ -40,6 +40,18 @@ namespace SanteDB.Matcher.Configuration
         private double? m_weightN = null;
 
         /// <summary>
+        /// The identifier for the vector
+        /// </summary>
+        [XmlAttribute("id"), JsonProperty("id")]
+        public string Id { get; set; }
+
+        /// <summary>
+        /// When condition on a match vector
+        /// </summary>
+        [XmlArray("when"), XmlArrayItem("vector"), JsonProperty("when")]
+        public List<MatchVectorWhenCondition> When { get; set; }
+
+        /// <summary>
         /// Gets or sets the match weight
         /// </summary>
         [XmlAttribute("m"), JsonProperty("m")]

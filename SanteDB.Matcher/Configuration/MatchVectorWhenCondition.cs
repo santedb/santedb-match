@@ -17,37 +17,35 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using SanteDB.Matcher.Filters;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Transforms.Text
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Represents the metaphone transform
+    /// Vector when condition
     /// </summary>
-    public class MetaphoneTransform : IUnaryDataTransformer
+    [XmlType(nameof(MatchVectorWhenCondition), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchVectorWhenCondition))]
+    public class MatchVectorWhenCondition
     {
-        /// <summary>
-        /// Gets the name of the transform
-        /// </summary>
-        public string Name => "metaphone";
 
         /// <summary>
-        /// Returns the metaphone code
+        /// The referenced vector
         /// </summary>
-        public object Apply(object input, params object[] parms)
-        {
-            if (input is String inputString)
-                return inputString.Metaphone();
-            else if (input is IEnumerable inputEnum)
-                return inputEnum.OfType<String>().Select(o => o.Metaphone());
-            else
-                throw new InvalidOperationException("Cannot process this transformation on this type of input");
-        }
+        [XmlAttribute("ref"), JsonProperty("ref")]
+        public string VectorRef { get; set; }
+
+        /// <summary>
+        /// Operator for classifier
+        /// </summary>
+        [XmlAttribute("op"), JsonProperty("op")]
+        public BinaryOperatorType Operator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value of the comparator
+        /// </summary>
+        [XmlAttribute("value"), JsonProperty("value")]
+        public bool Value { get; set; }
     }
 }

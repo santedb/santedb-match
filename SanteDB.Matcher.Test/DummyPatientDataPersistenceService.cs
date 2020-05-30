@@ -1,5 +1,4 @@
-﻿using SanteDB.Core.Applets.ViewModel.Null;
-using SanteDB.Core.Interfaces;
+﻿using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Collection;
 using SanteDB.Core.Model.Constants;

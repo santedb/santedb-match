@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MatchConfiguration xmlns="http://santedb.org/matcher"
+                    id="test.complex"
+                    nonmatchThreshold="0.6"
+                    matchThreshold="0.8">
+  <target resource="Patient">
+    <event>BeforeInsert</event>
+    <event>BeforeUpdate</event>
+  </target>
+  <!-- Patient which have same MRN -->
+  <blocking op="or" maxResults="100">
+    <filter>identifier[MRN].value=$input.identifier[MRN].value</filter>
+  </blocking>
+  <!-- Patient which have same HIN-->
+  <blocking op="or" maxResults="100">
+    <filter>identifier[HIN].value=$input.identifier[HIN].value</filter>
+  </blocking>
+  <!-- Patients with same name and born within 2 y and name is within 2 corrections of one another -->
+  <blocking op="or" maxResults="100">
+    <filter>dateOfBirth=:(date_diff|$input.dateOfBirth)&lt;2y</filter>
+    <filter>name.component[Given].value=:(levenshtein|$input.name.component[Given].value)&lt;2</filter>
+    <filter>address.component[State].value=$input.address.component[State].value</filter>
+  </blocking>
+  <classification>
+    <!-- Same YOB = 75% conf-->
+    <vector property="dateOfBirth" u="0.25" m="0.75" whenNull="nonmatch" required="true" >
+      <assert op="eq">
+        <transform name="date_extract">
+          <args>
+            <string>y</string>
+          </args>
+        </transform>
+      </assert>
+    </vector>
+    <!-- Same Gender = 50/50 -->
+    <vector property="genderConcept" u="0.5" m="0.5" whenNull="nonmatch" required="true">
+      <assert op="eq"/>
+    </vector>
+    <!-- Same state - If there are 20 states the u would be 0.05 -->
+    <vector id="address.state" property="address" u="0.05" m="0.75" whenNull="nonmatch" required="true">
+      <assert op="and">
+        <transform name="addresspart_extract">
+          <args>
+            <string>State</string>
+          </args>
+        </transform>
+        <assert op="eq" />
+      </assert>
+    </vector>
+    <!-- Same County - If on average a state has 30 counties the u = 0.033   -->
+    <vector id="address.county" property="address" u="0.033" m="0.8" whenNull="nonmatch" required="true">
+      <when>
+        <vector ref="address.state" op="eq" value="true"/>
+      </when>
+      <assert op="and">
+        <transform name="addresspart_extract">
+          <args>
+            <string>County</string>
+          </args>
+        </transform>
+        <assert op="eq" />
+      </assert>
+    </vector>
+    <!-- Same Birthplace -->
+    <vector id="reference[Birthplace].target" u="0.166" m="0.6" whenNull="ignore" required="false">
+      <assert op="eq"/>
+    </vector>
+    <!-- Identifier -->
+    <vector property="identifier[HIN].value identifier[MRN].value" u="0.01" m="0.98" whenNull="nonmatch" >
+      <assert op="eq" />
+    </vector>
+
+  </classification>
+</MatchConfiguration>

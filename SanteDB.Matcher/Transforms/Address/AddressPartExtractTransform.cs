@@ -17,37 +17,44 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using SanteDB.Matcher.Filters;
+using SanteDB.Core.Model.Constants;
+using SanteDB.Core.Model.Entities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SanteDB.Matcher.Transforms.Text
+namespace SanteDB.Matcher.Transforms.Names
 {
     /// <summary>
-    /// Represents the metaphone transform
+    /// Extracts a name part from the specified input
     /// </summary>
-    public class MetaphoneTransform : IUnaryDataTransformer
+    public class AddressPartExtractTransform : IUnaryDataTransformer
     {
         /// <summary>
-        /// Gets the name of the transform
+        /// Get the name
         /// </summary>
-        public string Name => "metaphone";
+        public string Name => "addresspart_extract";
 
         /// <summary>
-        /// Returns the metaphone code
+        /// Apply the transform
         /// </summary>
         public object Apply(object input, params object[] parms)
         {
-            if (input is String inputString)
-                return inputString.Metaphone();
-            else if (input is IEnumerable inputEnum)
-                return inputEnum.OfType<String>().Select(o => o.Metaphone());
-            else
-                throw new InvalidOperationException("Cannot process this transformation on this type of input");
+            var en = input as EntityAddress;
+            if (en == null) throw new ArgumentOutOfRangeException(nameof(input), "This transform requires an EntityAddress to be in scope");
+            if (parms.Length != 1) throw new ArgumentNullException("partname", "Exactly one name part type must be specified");
+            try
+            {
+                var partUuid = (Guid)(typeof(AddressComponentKeys).GetRuntimeField(parms[0].ToString())?.GetValue(null));
+                return en.Component.Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o=>o.Value);
+            }
+            catch
+            {
+                throw new InvalidOperationException($"Cannot extract address part {parms[0]}");
+            }
         }
     }
 }

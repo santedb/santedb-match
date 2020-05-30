@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using SanteDB.Core.Model;
+using SanteDB.Matcher.Configuration;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -105,8 +106,9 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Creates a new vector result
         /// </summary>
-        public VectorResult(String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
+        public VectorResult(MatchVector vector, String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
         {
+            this.Vector = vector;
             this.Name = name;
             this.ConfiguredProbability = configuredProbability;
             this.ConfiguredWeight = configuredWeight;
@@ -130,6 +132,11 @@ namespace SanteDB.Matcher.Matchers
         /// Gets the name of the property
         /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public MatchVector Vector { get; set; }
 
         /// <summary>
         /// True if the vector was evaluated

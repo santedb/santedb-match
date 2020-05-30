@@ -38,7 +38,7 @@ namespace SanteDB.Matcher.Test
             (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
             (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyConceptRepositoryService));
             (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyPatientDataPersistenceService));
-            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(ProbabalisticRecordMatchingService));
+            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(WeightedRecordMatchingService));
 
             // Start the daemon services
             if (!ApplicationServiceContext.Current.IsRunning)
@@ -103,6 +103,73 @@ namespace SanteDB.Matcher.Test
             var blocks = matchService.Block(patient, "test.dob_and_gender_with_class");
             Assert.AreEqual(5, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.dob_and_gender_with_class");
+            Assert.AreEqual(5, output.Count());
+        }
+
+
+        /// <summary>
+        /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
+        /// </summary>
+        [TestMethod]
+        public void ComplexByHINShouldResultInMatch()
+        {
+            var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
+
+            // We will block patients, there are no patients that match this record (last name doesn't sound like)
+            var patient = new Patient()
+            {
+                DateOfBirth = DateTime.Parse("1985-02-06"),
+                GenderConceptKey = Guid.Parse("f4e3a6bb-612e-46b2-9f77-ff844d971198"),
+                Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
+                {
+                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985S")
+                },
+                Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
+                {
+                    new Core.Model.Entities.EntityName(NameUseKeys.OfficialRecord, "Smith", "Lucas")
+                },
+                Addresses = new System.Collections.Generic.List<Core.Model.Entities.EntityAddress>()
+                {
+                    new Core.Model.Entities.EntityAddress(AddressUseKeys.Direct, "483 Some Different Street", "Hamilton", "ON", "CA", "L8K5NN")
+                }
+            };
+            patient = patient.LoadConcepts();
+            var blocks = matchService.Block(patient, "test.complex");
+            Assert.AreEqual(113, blocks.Count());
+            var output = matchService.Classify(patient, blocks, "test.complex");
+            Assert.AreEqual(1, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
+        }
+
+        /// <summary>
+        /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
+        /// </summary>
+        [TestMethod]
+        public void ComplexByNameOnlyShouldMatch()
+        {
+            var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
+
+            // We will block patients, there are no patients that match this record (last name doesn't sound like)
+            var patient = new Patient()
+            {
+                DateOfBirth = DateTime.Parse("1985-02-06"),
+                GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
+                Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
+                {
+                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985D")
+                },
+                Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
+                {
+                    new Core.Model.Entities.EntityName(NameUseKeys.OfficialRecord, "Murphy", "Savannah")
+                },
+                Addresses = new System.Collections.Generic.List<Core.Model.Entities.EntityAddress>()
+                {
+                    new Core.Model.Entities.EntityAddress(AddressUseKeys.Direct, "483 Some Different Street", "Hamilton", "ON", "CA", "L8K5NN")
+                }
+            };
+            patient = patient.LoadConcepts();
+            var blocks = matchService.Block(patient, "test.complex");
+            Assert.AreEqual(5, blocks.Count());
+            var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(5, output.Count());
         }
     }

@@ -18,6 +18,7 @@
  * Date: 2019-11-27
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,12 @@ namespace SanteDB.Matcher.Transforms.Text
         /// </summary>
         public object Apply(object input, params object[] parms)
         {
-            return ((String)input).Length;
+            if (input is String inputString)
+                return inputString.Length;
+            else if (input is IEnumerable inputEnum)
+                return inputEnum.OfType<String>().Select(o => o.Length);
+            else
+                throw new InvalidOperationException("Cannot process this transformation on this type of input");
         }
     }
 }

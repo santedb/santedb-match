@@ -19,6 +19,7 @@
  */
 using SanteDB.Matcher.Filters;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,11 +43,29 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object input, params object[] parms)
         {
             if (parms.Length == 1)
-                return ((String)input).Substr((int)parms[0]);
+            {
+                if (input is String inputString)
+                    return (inputString).Substr((int)parms[0]);
+                else if (input is IEnumerable inputEnum)
+                    return inputEnum.OfType<string>().Select(o => o.Substr((int)parms[0]));
+                else
+                    throw new InvalidOperationException("Cannot process this transformation on this type of input");
+
+            }
             else if (parms.Length == 2)
-                return ((String)input).Substr((int)parms[0], (int)parms[1]);
+            {
+                if (input is String inputString)
+                    return (inputString).Substr((int)parms[0], (int)parms[1]);
+                else if (input is IEnumerable inputEnum)
+                    return inputEnum.OfType<string>().Select(o => o.Substr((int)parms[0], (int)parms[1]));
+                else
+                    throw new InvalidOperationException("Cannot process this transformation on this type of input");
+
+            }
             else
                 throw new ArgumentOutOfRangeException("substr transform only supports one or two parameters");
+            
         }
     }
 }
+

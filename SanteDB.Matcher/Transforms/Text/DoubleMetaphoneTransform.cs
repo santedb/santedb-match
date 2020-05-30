@@ -19,6 +19,7 @@
  */
 using SanteDB.Matcher.Filters;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +42,12 @@ namespace SanteDB.Matcher.Transforms.Text
         /// </summary>
         public object Apply(object input, params object[] parms)
         {
-            return ((String)input).DoubleMetaphone();
+            if (input is String inputString)
+                return inputString.DoubleMetaphone();
+            else if (input is IEnumerable inputEnum)
+                return inputEnum.OfType<String>().Select(o => o.DoubleMetaphone());
+            else
+                throw new InvalidOperationException("Cannot process this transformation on this type of input");
         }
     }
 }

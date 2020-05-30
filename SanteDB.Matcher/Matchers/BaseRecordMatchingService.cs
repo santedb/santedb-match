@@ -184,7 +184,16 @@ namespace SanteDB.Matcher.Matchers
 //                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
 
                 if (tr > block.MaxReuslts)
-                    throw new InvalidOperationException($"Returned results {tr} exceeds configured maximum of {block.MaxReuslts}");
+                {
+                    this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
+                    var ofs = block.MaxReuslts;
+                    while(ofs < tr)
+                    {
+                        retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
+                        ofs += block.MaxReuslts;
+                    }
+
+                }
                 return retVal;
             }
             catch(Exception e)

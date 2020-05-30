@@ -30,13 +30,13 @@ namespace SanteDB.Matcher.Matchers
     /// Represents a deterministic record matching service
     /// </summary>
     [ServiceProvider("SanteMatch Deterministic Matcher")]
-    public class DeterministicRecordMatchingService : BaseRecordMatchingService
+    public class SimpleRecordMatchingService : BaseRecordMatchingService
     {
 
         /// <summary>
         /// Gets the service name
         /// </summary>
-        public override string ServiceName => "SanteMatch Deterministic Matcher";
+        public override string ServiceName => "SanteMatch Simple Matcher";
 
         /// <summary>
         /// Classify the specified inputs
