@@ -175,6 +175,8 @@ namespace SanteDB.Matcher.Matchers
 
                 var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
                 retVal.Vectors.AddRange(attributeResult);
+
+
                 return retVal;
             }
             catch (Exception e)
@@ -324,7 +326,12 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
         {
-            return this.Classify(input, base.Block(input, configurationName), configurationName);
+            var result = this.Classify(input, base.Block(input, configurationName), configurationName);
+
+#if DEBUG
+            this.m_tracer.TraceInfo("Match against input {0} -> Results : {1}", input, String.Join(";", result.OfType<Object>().ToArray()));
+#endif
+            return result;
         }
     }
 }
