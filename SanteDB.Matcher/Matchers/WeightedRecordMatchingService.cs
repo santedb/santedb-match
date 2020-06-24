@@ -83,7 +83,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.AsParallel().AsOrdered().WithDegreeOfParallelism(2).Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {

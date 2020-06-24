@@ -175,7 +175,7 @@ namespace SanteDB.Matcher.Matchers
                 var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
-                }, true);
+                }, safeNullable: true, lazyExpandVariables: false);
 
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
