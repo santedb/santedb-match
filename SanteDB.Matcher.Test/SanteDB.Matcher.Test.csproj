@@ -91,6 +91,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
+<<<<<<< HEAD
         <PackageReference Include="SanteDB.Core.Applets" Version="2.0.25.0" />
         <PackageReference Include="SanteDB.Core.Api" Version="2.0.25.0" />
         <PackageReference Include="SanteDB.Core.Model" Version="2.0.25.0" />
@@ -105,6 +106,22 @@
         </PackageReference>
         <PackageReference Include="SanteDB.Server.TestFramework">
           <Version>2.0.25</Version>
+=======
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.24.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.24.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.24.0" />
+        <PackageReference Include="SanteDB.OrmLite">
+          <Version>2.0.24</Version>
+        </PackageReference>
+        <PackageReference Include="SanteDB.Server.Plugin">
+          <Version>2.0.24</Version>
+        </PackageReference>
+        <PackageReference Include="SanteDB.Server.Plugin.Data">
+          <Version>2.0.24</Version>
+        </PackageReference>
+        <PackageReference Include="SanteDB.Server.TestFramework">
+          <Version>2.0.24</Version>
+>>>>>>> f88ae6b0463aa3012c411d0a6df53d15d060dbe6
         </PackageReference>
       </ItemGroup>
     </Otherwise>
