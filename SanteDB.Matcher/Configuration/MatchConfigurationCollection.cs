@@ -54,6 +54,11 @@ namespace SanteDB.Matcher.Configuration
         public string Name { get; set; }
 
         /// <summary>
+        /// Applies to
+        /// </summary>
+        public Type[] AppliesTo => this.Configurations.SelectMany(o => o.AppliesTo).ToArray();
+
+        /// <summary>
         /// Adds a transformer to the collection
         /// </summary>
         [XmlArray("transformers")]

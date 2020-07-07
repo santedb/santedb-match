@@ -23,6 +23,7 @@ using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -54,6 +55,11 @@ namespace SanteDB.Matcher.Configuration
         /// </summary>
         [XmlAttribute("matchThreshold"), JsonProperty("matchThreshold")]
         public double MatchThreshold { get; set; }
+
+        /// <summary>
+        /// Applies to
+        /// </summary>
+        public Type[] AppliesTo => this.Target.Select(o => o.ResourceType).ToArray();
 
         /// <summary>
         /// Gets or sets the targets this configuration applies to

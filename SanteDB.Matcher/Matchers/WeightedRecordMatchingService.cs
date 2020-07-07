@@ -166,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
                     if (bestScore == null)
                         return null;
                     else 
-                        return new MatchVector(v, bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
+                        return new MatchVector(v, v.Id ?? bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
@@ -327,10 +327,6 @@ namespace SanteDB.Matcher.Matchers
         public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
         {
             var result = this.Classify(input, base.Block(input, configurationName), configurationName);
-
-#if DEBUG
-            this.m_tracer.TraceInfo("Match against input {0} -> Results : {1}", input, String.Join(";", result.OfType<Object>().ToArray()));
-#endif
             return result;
         }
     }
