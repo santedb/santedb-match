@@ -18,29 +18,28 @@
  * Date: 2020-1-1
  */
 using Newtonsoft.Json;
-using SanteDB.Core.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration.File
+namespace SanteDB.Matcher.Configuration
 {
     /// <summary>
-    /// Configures the file matching configuration
+    /// Represents a file path configuration
     /// </summary>
-    [XmlType(nameof(FileMatchConfigurationSection), Namespace = "http://santedb.org/configuration")]
-    [JsonObject(nameof(FileMatchConfigurationSection))]
-    public class FileMatchConfigurationSection : IConfigurationSection
+    [XmlType(nameof(FilePathConfiguration), Namespace = "http://santedb.org/configuration")]
+    [JsonObject(nameof(FilePathConfiguration))]
+    public class FilePathConfiguration
     {
 
         /// <summary>
-        /// File path
+        /// True if the path should be treated as readonly
         /// </summary>
-        [XmlArray("basePath"), XmlArrayItem("add"), JsonProperty("basePath")]
-        public List<FilePathConfiguration> FilePath { get; set; }
+        [XmlAttribute("readonly")]
+        public bool ReadOnly { get; set; }
 
+        /// <summary>
+        /// Gets or sets the path
+        /// </summary>
+        [XmlText, JsonProperty("value")]
+        public string Path { get; set; }
     }
 }
