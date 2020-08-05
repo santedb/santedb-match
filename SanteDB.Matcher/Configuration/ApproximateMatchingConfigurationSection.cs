@@ -10,6 +10,8 @@ namespace SanteDB.Matcher.Configuration
     /// <summary>
     /// Approximate matching configuration section
     /// </summary>
+    [XmlType(nameof(ApproximateMatchingConfigurationSection), Namespace = "http://santedb.org/configuration")]
+    [JsonObject(nameof(ApproximateMatchingConfigurationSection))]
     public class ApproximateMatchingConfigurationSection : IConfigurationSection
     {
 
