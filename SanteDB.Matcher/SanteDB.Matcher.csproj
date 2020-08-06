@@ -23,7 +23,7 @@
   <PropertyGroup>
     <PackageId>SanteDB.Matcher</PackageId>
     <Title>SanteDB.Matcher</Title>
-    <Version>2.0.28</Version>
+    <Version>2.0.29</Version>
     <Description>SanteDB Matching Plugin. Provides deterministic and probabalistic matching algorithms for the SanteDB persistence engine.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
@@ -130,9 +130,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.28.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.0.28.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.0.28.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.29.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.29.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.29.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
