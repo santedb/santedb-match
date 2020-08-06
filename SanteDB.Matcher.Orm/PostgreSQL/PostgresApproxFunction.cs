@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using SanteDB.Core;
+using SanteDB.Core.Services;
+using SanteDB.Matcher.Configuration;
+using SanteDB.OrmLite;
+using SanteDB.OrmLite.Providers;
+using SanteDB.OrmLite.Providers.Postgres;
+
+namespace SanteDB.Matcher.Orm.PostgreSQL
+{
+    /// <summary>
+    /// Represents the PostgreSQL approx function driven by the server configuration
+    /// </summary>
+    /// <example>
+    /// ?name.component.value=:(approx|Betty)
+    /// </example>
+    public class PostgresApproxlikeFunction : IDbFilterFunction
+    {
+        /// <summary>
+        /// Gets the name of the function
+        /// </summary>
+        public string Name => "approx";
+
+        /// <summary>
+        /// Provider 
+        /// </summary>
+        public string Provider => "pgsql";
+
+        /// <summary>
+        /// Creates the SQL statement
+        /// </summary>
+        public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
+        {
+            if (parms.Length != 1)
+                throw new ArgumentException("Approx requires at least one parameter");
+
+            var config = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<ApproximateMatchingConfigurationSection>();
+            if (config == null)
+                config = new ApproximateMatchingConfigurationSection()
+                {
+                    ApproxSearchOptions = new List<ApproxSearchOption>()
+                    {
+                        new ApproxPatternOption() { Enabled = true, IgnoreCase = true }
+                    }
+                };
+
+            var filter = new SqlStatement(new PostgreSQLProvider());
+            foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
+            {
+                if (alg is ApproxDifferenceOption difference )
+                    filter.Or($"(length(trim({filterColumn})) > {difference.MaxDifference * 2} AND  levenshtein(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) <= {difference.MaxDifference})", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                else if (alg is ApproxPhoneticOption phonetic)
+                {
+                    var min = phonetic.MinSimilarity;
+                    if (!phonetic.MinSimilaritySpecified) min = 1.0f;
+                    if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Soundex)
+                        filter.Or($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone)
+                        filter.Or($"metaphone({filterColumn},6) = metaphone(?,6)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone)
+                        filter.Or($"dmetaphone({filterColumn}) = dmetaphone(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    else
+                        throw new InvalidOperationException($"Phonetic algorithm {phonetic.Algorithm} is not valid");
+                }
+                else if (alg is ApproxPatternOption pattern)
+                {
+                    if(pattern.IgnoreCase)
+                        filter.Or($"{filterColumn} ilike ?", parms[0].Replace("*", "%").Replace("?", "_"));
+                    else
+                        filter.Or($"{filterColumn} like ?", parms[0].Replace("*", "%").Replace("?", "_"));
+
+                }
+            }
+
+            return current.Append("(").Append(filter).Append(")");
+
+        }
+    }
+
+}

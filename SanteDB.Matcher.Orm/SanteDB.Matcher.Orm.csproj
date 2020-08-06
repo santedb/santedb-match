@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> -->
+  <!-- <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /> -->
+  <!-- <PropertyGroup> -->
+    <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration> -->
+    <!-- <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
+    <!-- <ProjectGuid>{407C87E6-A1F3-45E6-B883-A8176B350817}</ProjectGuid> -->
+    <!-- <OutputType>Library</OutputType> -->
+    <!-- <AppDesignerFolder>Properties</AppDesignerFolder> -->
+    <!-- <RootNamespace>SanteDB.OrmLite</RootNamespace> -->
+    <!-- <AssemblyName>SanteDB.OrmLite</AssemblyName> -->
+    <!-- <TargetFrameworkVersion>v4.7</TargetFrameworkVersion> -->
+    <!-- <FileAlignment>512</FileAlignment> -->
+    <!-- <TargetFrameworkProfile /> -->
+  <!-- </PropertyGroup> -->
+  <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+    
+  <PropertyGroup>
+    <PackageId>SanteDB.Matcher.Orm</PackageId>
+    <Title>SanteDB.Matcher.Orm</Title>
+    <Version>2.0.28</Version>
+    <Description>SanteDB Matcher ORM Mapper Extensions</Description>
+    <Authors>SanteSuite Contributors</Authors>
+    <PackageTags>SanteDB</PackageTags>
+    <RepositoryUrl>https://github.com/santedb/santedb-match</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	    <Product>SanteDB</Product>
+    <Copyright>Copyright (C) 2015-2020 SanteSuite Contributors (See: NOTICES)</Copyright>
+    <Company>SanteSuite Contributors</Company>
+    <PackageIconUrl>http://santesuite.org/assets/img/logo.png</PackageIconUrl>
+    <PackageProjectUrl>http://santesuite.org</PackageProjectUrl>
+  </PropertyGroup>  
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="$(SolutionName.Contains('-ext'))">
+      <ItemGroup>
+        <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
+          <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
+          <Name>SanteDB.Core.Model</Name>
+        </ProjectReference>
+		<ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj">
+          <Name>SanteDB.Orm</Name>
+        </ProjectReference>
+		<ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj"/>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.28.0" />
+        <PackageReference Include="SanteDB.OrmLite" Version="2.0.28.0" />
+        <PackageReference Include="SanteDB.Matcher" Version="2.0.28.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Compile Remove="DataProviders\**" />
+    <EmbeddedResource Remove="DataProviders\**" />
+    <None Remove="DataProviders\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+   
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <None Include="..\SanteDB.licenseheader">
+      <Link>SanteDB.licenseheader</Link>
+    </None>
+  </ItemGroup>
+  <Choose>
+    <When Condition="$(SolutionName.Contains('-ext'))">
+      <ItemGroup>
+        <ProjectReference Include="..\..\santedb-api\SanteDB.Core.Api\SanteDB.Core.Api.csproj">
+          <Project>{3a45f695-47a2-464c-ace6-bdabbfa39fbc}</Project>
+          <Name>SanteDB.Core.Api</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\santedb-bis\SanteDB.BI\SanteDB.BI.csproj">
+          <Project>{030666AA-FC71-449E-9DFC-270F1C23C5DA}</Project>
+          <Name>SanteDB.BI</Name>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.28.0" />
+        <PackageReference Include="SanteDB.BI" Version="2.0.28.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <!-- <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /> -->
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
