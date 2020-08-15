@@ -85,9 +85,6 @@ namespace SanteDB.Matcher.Filters
                         switch (phonetic.Algorithm)
                         {
                             case ApproxPhoneticOption.PhoneticAlgorithmType.Auto:
-                                var alg = ApplicationServiceContext.Current.GetService<IPhoneticAlgorithmHandler>();
-                                isApprox &= alg?.GenerateCode(me).Levenshtein(alg?.GenerateCode(other)) >= minSpec;
-                                break;
                             case ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone:
                                 isApprox &= me.DoubleMetaphone().Levenshtein(other.DoubleMetaphone()) >= minSpec;
                                 break;
@@ -124,8 +121,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static bool SoundsLike(this String me, String other)
         {
-            var alg = ApplicationServiceContext.Current.GetService<IPhoneticAlgorithmHandler>();
-            return alg?.GenerateCode(me) == alg?.GenerateCode(other);
+            return me.SoundsLike(other, "metaphone");
         }
 
         /// <summary>

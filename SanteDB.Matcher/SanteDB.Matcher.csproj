@@ -126,6 +126,7 @@
           <Project>{39E61451-F4FE-493D-B754-5F06EB284AAC}</Project>
           <Name>SanteDB.Core.Applets</Name>
         </ProjectReference>
+        <ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj"/>
       </ItemGroup>
     </When>
     <Otherwise>
@@ -133,6 +134,7 @@
         <PackageReference Include="SanteDB.Core.Applets" Version="2.0.29.0" />
         <PackageReference Include="SanteDB.Core.Api" Version="2.0.29.0" />
         <PackageReference Include="SanteDB.Core.Model" Version="2.0.29.0" />
+        <PackageReference Include="SanteDB.OrmLite" Version="2.0.29.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
