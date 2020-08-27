@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SanteDB.Core;
+using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.OrmLite;
@@ -19,6 +20,12 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// </example>
     public class PostgresApproxlikeFunction : IDbFilterFunction
     {
+
+        /// <summary>
+        /// Tracer to trace the approx function
+        /// </summary>
+        private Tracer m_tracer = Tracer.GetTracer(typeof(PostgresApproxlikeFunction));
+
         /// <summary>
         /// Gets the name of the function
         /// </summary>
@@ -59,7 +66,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                     if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Soundex)
                         filter.Or($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
                     else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone)
-                        filter.Or($"metaphone({filterColumn},6) = metaphone(?,6)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                        filter.Or($"metaphone({filterColumn},4) = metaphone(?,4)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
                     else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone)
                         filter.Or($"dmetaphone({filterColumn}) = dmetaphone(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
                     else
@@ -68,9 +75,9 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                 else if (alg is ApproxPatternOption pattern)
                 {
                     if(pattern.IgnoreCase)
-                        filter.Or($"{filterColumn} ilike ?", parms[0].Replace("*", "%").Replace("?", "_"));
+                        filter.Or($"{filterColumn} ilike ?",  QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
                     else
-                        filter.Or($"{filterColumn} like ?", parms[0].Replace("*", "%").Replace("?", "_"));
+                        filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
 
                 }
             }
