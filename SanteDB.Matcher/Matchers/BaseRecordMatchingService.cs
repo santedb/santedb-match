@@ -64,7 +64,7 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     public abstract class BaseRecordMatchingService : IRecordMatchingService, IMatchReportFactory
     {
-
+        // Tracer
         protected Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace SanteDB.Matcher.Matchers
                 var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
-                }, true);
+                }, safeNullable: true, lazyExpandVariables: false);
 
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
@@ -213,14 +213,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
 
-        /// <summary>
-        /// Scores the specified input against the specified query
-        /// </summary>
-        public IRecordMatchResult<T> Score<T>(T input, Expression<Func<T, bool>> query, string configurationName) where T : IdentifiedData
-        {
-            throw new NotImplementedException();
-        }
-
+    
         /// <summary>
         /// Create a match report 
         /// </summary>
@@ -228,7 +221,7 @@ namespace SanteDB.Matcher.Matchers
         {
             return new MatchReport()
             {
-                Input = input,
+                Input = input.Key.Value,
                 Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification)
                 {
                     Vectors = ((MatchResult<T>)o).Vectors,

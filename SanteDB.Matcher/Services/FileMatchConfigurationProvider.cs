@@ -28,8 +28,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using SanteDB.Matcher.Configuration;
 
-namespace SanteDB.Matcher.Configuration.File
+namespace SanteDB.Matcher.Services
 {
     /// <summary>
     /// Represents a configuration provider which is for matching

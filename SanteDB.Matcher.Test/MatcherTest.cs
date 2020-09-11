@@ -182,7 +182,7 @@ namespace SanteDB.Matcher.Test
             var blocks = matchService.Block(patient, "test.complex");
             Assert.AreEqual(140, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(1, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
+            Assert.AreEqual(3, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
         }
     }
 }

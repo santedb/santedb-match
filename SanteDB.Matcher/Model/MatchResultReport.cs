@@ -82,9 +82,9 @@ namespace SanteDB.Matcher.Model
         /// Gets the record
         /// </summary>
         [XmlElement("record"), JsonProperty("record")]
-        public IdentifiedData Record
+        public Guid Record
         {
-            get => this.m_match.Record;
+            get => this.m_match.Record.Key.Value;
             set { }
         }
 

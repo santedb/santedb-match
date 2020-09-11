@@ -21,11 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Phonix;
 using SanteDB.Core;
 using SanteDB.Core.Interfaces;
 using SanteDB.Core.Services;
+using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Util;
 
 namespace SanteDB.Matcher.Filters
@@ -66,6 +68,49 @@ namespace SanteDB.Matcher.Filters
         /// <summary>
         /// Returns a soundex code
         /// </summary>
+        public static bool Approx(this String me, String other)
+        {
+            var config = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<ApproximateMatchingConfigurationSection>();
+            var isApprox = false;
+
+            if (config != null)
+                foreach (var m in config.ApproxSearchOptions)
+                {
+                    if (m is ApproxPhoneticOption phonetic && m.Enabled)
+                    {
+                        var minSpec = phonetic.MinSimilarity;
+                        if (!phonetic.MinSimilaritySpecified)
+                            minSpec = 1.0f;
+
+                        switch (phonetic.Algorithm)
+                        {
+                            case ApproxPhoneticOption.PhoneticAlgorithmType.Auto:
+                            case ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone:
+                                isApprox &= me.DoubleMetaphone().Levenshtein(other.DoubleMetaphone()) >= minSpec;
+                                break;
+                            case ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone:
+                                isApprox = me.Metaphone().Levenshtein(other.Metaphone()) >= minSpec;
+                                break;
+                            case ApproxPhoneticOption.PhoneticAlgorithmType.Soundex:
+                                isApprox = me.Soundex().Levenshtein(other.Soundex()) >= minSpec;
+                                break;
+                        }
+                    }
+                    else if (m is ApproxDifferenceOption difference && m.Enabled)
+                        isApprox &= me.Levenshtein(other) < difference.MaxDifference;
+                    else if (m is ApproxPatternOption pattern && m.Enabled)
+                    {
+                        var regex = new Regex(other.Replace("?", ".?").Replace("*", ".*?"), pattern.IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+                        isApprox &= regex.IsMatch(me);
+                    }
+                }
+
+            return isApprox;
+        }
+
+        /// <summary>
+        /// Returns a soundex code
+        /// </summary>
         public static string Soundex(this String me)
         {
             return new Soundex(true).BuildKey(me);
@@ -76,8 +121,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static bool SoundsLike(this String me, String other)
         {
-            var alg = ApplicationServiceContext.Current.GetService<IPhoneticAlgorithmHandler>();
-            return alg?.GenerateCode(me) == alg?.GenerateCode(other);
+            return me.SoundsLike(other, "metaphone");
         }
 
         /// <summary>

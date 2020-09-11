@@ -83,7 +83,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.AsParallel().AsOrdered().WithDegreeOfParallelism(2).Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Classification, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {
@@ -166,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
                     if (bestScore == null)
                         return null;
                     else 
-                        return new MatchVector(v, bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
+                        return new MatchVector(v, v.Id ?? bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
@@ -175,6 +175,8 @@ namespace SanteDB.Matcher.Matchers
 
                 var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
                 retVal.Vectors.AddRange(attributeResult);
+
+
                 return retVal;
             }
             catch (Exception e)
@@ -324,7 +326,8 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
         {
-            return this.Classify(input, base.Block(input, configurationName), configurationName);
+            var result = this.Classify(input, base.Block(input, configurationName), configurationName);
+            return result;
         }
     }
 }

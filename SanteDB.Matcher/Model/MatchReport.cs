@@ -59,7 +59,7 @@ namespace SanteDB.Matcher.Model
         /// The input
         /// </summary>
         [XmlElement("input"), JsonProperty("input")]
-        public IdentifiedData Input { get; set; }
+        public Guid Input { get; set; }
 
         /// <summary>
         /// The results for the matches
