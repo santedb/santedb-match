@@ -9,8 +9,9 @@
   </target>
   
   <!-- Patient which have same MRN -->
-  <blocking op="or" maxResults="100">
+  <blocking maxResults="100">
     <filter>identifier[MRN].value=$input.identifier[MRN].value</filter>
+    <filter>extension[http://santedb.org/extensions/core/detectedIssue]=[]</filter>
   </blocking>
   <!-- Patient which have same HIN-->
   <blocking op="or" maxResults="100">

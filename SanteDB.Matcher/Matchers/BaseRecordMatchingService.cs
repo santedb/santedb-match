@@ -103,7 +103,7 @@ namespace SanteDB.Matcher.Matchers
                 var config = configService.GetConfiguration(configurationName);
                 config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
-                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this match provider or is not registered");
 
                 var strongConfig = config as MatchConfiguration;
                 if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
