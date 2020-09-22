@@ -122,12 +122,10 @@ namespace SanteDB.Matcher.Matchers
                             Activator.CreateInstance(selectorExpression.ReturnType) :
                             null;
 
-                        bool skip = aValue == null ||
-                            bValue == null ||
-                            (aValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true ||
-                            (bValue as IdentifiedData)?.SemanticEquals(defaultInstance) == true;
-                        // Either value null?
-                        if (skip)
+                        var assertionResult = this.ExecuteAssertion(v.Assertion, aValue, bValue);
+
+                        // Had to skip assertion
+                        if (!assertionResult.HasValue)
                         {
                             switch (v.WhenNull)
                             {
@@ -144,11 +142,10 @@ namespace SanteDB.Matcher.Matchers
                                     propertyScore = new { p = property, s = v.NonMatchWeight, e = false, a = aValue, b = bValue };
                                     break;
                             }
-                            this.m_tracer.TraceVerbose("Match attribute property ({0}) was determined null and assigned score of {1}", v, propertyScore);
                         }
                         else
                         {
-                            var weightedScore = this.ExecuteAssertion(v.Assertion, aValue, bValue) ? v.MatchWeight : v.NonMatchWeight;
+                            var weightedScore = assertionResult.Value ? v.MatchWeight : v.NonMatchWeight;
 
                             // Is there a measure applied?
                             if (v.Measure != null)
@@ -162,7 +159,6 @@ namespace SanteDB.Matcher.Matchers
                             propertyScore = new { p = property, s = weightedScore, e = true, a = aValue, b = bValue };
                             this.m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", v, propertyScore);
                         }
-
                         attributeScores.Add(propertyScore);
                     }
 
@@ -170,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
 
                     if (bestScore == null)
                         return null;
-                    else 
+                    else
                         return new MatchVector(v, v.Id ?? bestScore.p, v.M, v.MatchWeight, bestScore.s, bestScore.e, bestScore.a, bestScore.b);
                 }).OfType<MatchVector>().ToList();
 
@@ -197,8 +193,8 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="assertion">The assertion to execute</param>
         /// <param name="aValue">The value of the A value</param>
         /// <param name="bValue">The value of the B value</param>
-        /// <returns>True if the assertion passes, false if not</returns>
-        private bool ExecuteAssertion(MatchAttributeAssertion assertion, object aValue, object bValue)
+        /// <returns>True if the assertion passes, false if not, null if the execution was skipped</returns>
+        private bool? ExecuteAssertion(MatchAttributeAssertion assertion, object aValue, object bValue)
         {
             try
             {
@@ -206,10 +202,21 @@ namespace SanteDB.Matcher.Matchers
                 object a = aValue, b = bValue;
                 object scope = null;
                 foreach (var xform in assertion.Transforms)
+                {
+                    if (a == null || b == null)
+                        return null;
                     scope = this.ExecuteTransform(xform, ref a, ref b) ?? scope;
+                }
+                if (a == null || b == null)
+                    return null;
 
                 if (scope is IEnumerable enumScope)
-                    scope = enumScope.OfType<Object>().Max();
+                {
+                    if (!enumScope.OfType<Object>().Any()) // No results - cannot evaluate
+                        return null;
+                    else
+                        scope = enumScope.OfType<Object>().Max();
+                }
 
                 var retVal = true;
                 switch (assertion.Operator)
@@ -217,13 +224,25 @@ namespace SanteDB.Matcher.Matchers
                     case BinaryOperatorType.AndAlso: // There are sub-assertions 
                         {
                             foreach (var asrt in assertion.Assertions)
-                                retVal &= this.ExecuteAssertion(asrt, a, b);
+                            {
+                                var subVal = this.ExecuteAssertion(asrt, a, b);
+                                if (subVal.HasValue)
+                                    retVal &= subVal.Value;
+                                else
+                                    return null;
+                            }
                             break;
                         }
                     case BinaryOperatorType.OrElse:
                         {
                             foreach (var asrt in assertion.Assertions)
-                                retVal |= this.ExecuteAssertion(asrt, a, b);
+                            {
+                                var subVal = this.ExecuteAssertion(asrt, a, b);
+                                if (subVal.HasValue)
+                                    retVal |= subVal.Value;
+                                else
+                                    return null;
+                            }
                             break;
                         }
                     case BinaryOperatorType.Equal:
@@ -319,7 +338,7 @@ namespace SanteDB.Matcher.Matchers
                 else
                     throw new KeyNotFoundException($"Transform {transform.Name} is not registered");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 this.m_tracer.TraceError("Error executing {0} on {1} and {2} - {3}", transform, aValue, bValue, e.Message);
                 throw new MatchingException($"Error executing {transform} on {aValue} and {bValue}", e);
