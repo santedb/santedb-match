@@ -152,7 +152,12 @@ namespace SanteDB.Matcher.Matchers
 
                             // Is there a measure applied?
                             if (v.Measure != null)
-                                weightedScore *= (double)this.ExecuteTransform(v.Measure, ref aValue, ref bValue);
+                            {
+                                object a = aValue, b = bValue;
+                                foreach (var xform in v.Measure.Transforms)
+                                    this.ExecuteTransform(xform, ref a, ref b);
+                                weightedScore *= (double)this.ExecuteTransform(v.Measure, ref a, ref b);
+                            }
 
                             propertyScore = new { p = property, s = weightedScore, e = true, a = aValue, b = bValue };
                             this.m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", v, propertyScore);
