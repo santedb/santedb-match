@@ -101,6 +101,8 @@ namespace SanteDB.Matcher.Matchers
                 if (configService == null)
                     throw new InvalidOperationException("Cannot find configuration service for matching");
                 var config = configService.GetConfiguration(configurationName);
+                if (config == null)
+                    throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
                 config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
