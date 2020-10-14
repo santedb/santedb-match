@@ -33,6 +33,7 @@ using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Core.Security;
 using SanteDB.Matcher.Model;
+using SanteDB.Core.Model.Serialization;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -79,6 +80,7 @@ namespace SanteDB.Matcher.Matchers
         {
             foreach (var t in typeof(BaseRecordMatchingService).GetTypeInfo().Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract))
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
+            ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
 
         /// <summary>
