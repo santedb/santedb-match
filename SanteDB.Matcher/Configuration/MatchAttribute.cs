@@ -117,7 +117,7 @@ namespace SanteDB.Matcher.Configuration
         /// Gets or sets the algorithm for partially measuring the value
         /// </summary>
         [XmlElement("partialWeight"), JsonProperty("partialWeight")]
-        public MatchTransform Measure { get; set; }
+        public MatchMeasureTransform Measure { get; set; }
 
         /// <summary>
         /// Initializes the probability parameters on this class instance
