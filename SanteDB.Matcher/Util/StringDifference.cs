@@ -71,6 +71,22 @@ namespace SanteDB.Matcher.Util
         }
 
         /// <summary>
+        /// Calculates the sorensen dice coefficient between two strings
+        /// </summary>
+        public static double SorensenDice(this String source, String target)
+        {
+            // First we want to turn the source and target into bigrams
+            string[] sourceBigram = Enumerable.Range(0, source.Length - 1).Select(o => source.Substring(o, 2)).Distinct().ToArray(),
+                targetBigram = Enumerable.Range(0, target.Length - 1).Select(o => target.Substring(o, 2)).Distinct().ToArray();
+
+            // Insertsect the bigram sets
+            var intersect = sourceBigram.Intersect(targetBigram);
+            return (2.0 * intersect.Count()) / (sourceBigram.Length + targetBigram.Length);
+
+
+        }
+
+        /// <summary>
         /// Returns the Jaro-Winkler proximity of two strings 
         /// </summary>
         public static double JaroWinkler(this String source, String target)

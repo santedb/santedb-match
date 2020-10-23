@@ -9,14 +9,14 @@ using System.Text;
 namespace SanteDB.Matcher.Filters
 {
     /// <summary>
-    /// Represents a jaro-winkler query extension
+    /// Represents a sorensen-dice extended query filter
     /// </summary>
-    public class JaroWinklerFilter : IQueryFilterExtension
+    public class SorensenDiceFilter : IQueryFilterExtension
     {
         /// <summary>
         /// Gets the name of the filter 
         /// </summary>
-        public string Name => "jaro_winkler";
+        public string Name => "sorensen_dice";
 
         /// <summary>
         /// Gets the extension method

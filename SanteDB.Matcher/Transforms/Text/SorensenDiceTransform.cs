@@ -8,24 +8,23 @@ using System.Text;
 namespace SanteDB.Matcher.Transforms.Text
 {
     /// <summary>
-    /// Jaro-Winkler text transformation 
+    /// Calculates the sorensen dice difference
     /// </summary>
-    public class JaroWinklerTransform : IBinaryDataTransformer
+    public class SorensenDiceTransform : IBinaryDataTransformer
     {
         /// <summary>
         /// Gets the name of the transform
         /// </summary>
-        public String Name => "jaro_winkler";
-
+        public string Name => "sorensen_dice";
         /// <summary>
-        /// Applies the transform the to specified object
+        /// Apply the transform
         /// </summary>
         public object Apply(object a, object b, params object[] parms)
         {
             if (a is String)
-                return ((String)a).JaroWinkler((String)b);
+                return ((String)a).SorensenDice((String)b);
             else if (a is IEnumerable aEnum && b is IEnumerable bEnum)
-                return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.JaroWinkler(sb)));
+                return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.SorensenDice(sb)));
             else
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
 
