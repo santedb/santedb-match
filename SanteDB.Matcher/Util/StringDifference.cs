@@ -70,6 +70,83 @@ namespace SanteDB.Matcher.Util
 
         }
 
+        /// <summary>
+        /// Calculates the sorensen dice coefficient between two strings
+        /// </summary>
+        public static double SorensenDice(this String source, String target)
+        {
+            // First we want to turn the source and target into bigrams
+            string[] sourceBigram = Enumerable.Range(0, source.Length - 1).Select(o => source.Substring(o, 2)).Distinct().ToArray(),
+                targetBigram = Enumerable.Range(0, target.Length - 1).Select(o => target.Substring(o, 2)).Distinct().ToArray();
+
+            // Insertsect the bigram sets
+            var intersect = sourceBigram.Intersect(targetBigram);
+            return (2.0 * intersect.Count()) / (sourceBigram.Length + targetBigram.Length);
+
+
+        }
+
+        /// <summary>
+        /// Returns the Jaro-Winkler proximity of two strings 
+        /// </summary>
+        public static double JaroWinkler(this String source, String target)
+        {
+            int lLen1 = source.Length;
+            int lLen2 = target.Length;
+            if (lLen1 == 0)
+                return lLen2 == 0 ? 1.0 : 0.0;
+
+            int lSearchRange = Math.Max(0, Math.Max(lLen1, lLen2) / 2 - 1);
+
+            // default initialized to false
+            bool[] lMatched1 = new bool[lLen1];
+            bool[] lMatched2 = new bool[lLen2];
+
+            int lNumCommon = 0;
+            for (int i = 0; i < lLen1; ++i)
+            {
+                int lStart = Math.Max(0, i - lSearchRange);
+                int lEnd = Math.Min(i + lSearchRange + 1, lLen2);
+                for (int j = lStart; j < lEnd; ++j)
+                {
+                    if (lMatched2[j]) continue;
+                    if (source[i] != target[j])
+                        continue;
+                    lMatched1[i] = true;
+                    lMatched2[j] = true;
+                    ++lNumCommon;
+                    break;
+                }
+            }
+            if (lNumCommon == 0) return 0.0;
+
+            int lNumHalfTransposed = 0;
+            int k = 0;
+            for (int i = 0; i < lLen1; ++i)
+            {
+                if (!lMatched1[i]) continue;
+                while (!lMatched2[k]) ++k;
+                if (source[i] != target[k])
+                    ++lNumHalfTransposed;
+                ++k;
+            }
+            // System.Diagnostics.Debug.WriteLine("numHalfTransposed=" + numHalfTransposed);
+            int lNumTransposed = lNumHalfTransposed / 2;
+
+            // System.Diagnostics.Debug.WriteLine("numCommon=" + numCommon + " numTransposed=" + numTransposed);
+            double lNumCommonD = lNumCommon;
+            double lWeight = (lNumCommonD / lLen1
+                             + lNumCommonD / lLen2
+                             + (lNumCommon - lNumTransposed) / lNumCommonD) / 3.0;
+
+            if (lWeight <= 0.7d) return lWeight;
+            int lMax = Math.Min(4, Math.Min(target.Length, source.Length));
+            int lPos = 0;
+            while (lPos < lMax && source[lPos] == target[lPos])
+                ++lPos;
+            if (lPos == 0) return lWeight;
+            return lWeight + 0.1 * lPos * (1.0 - lWeight);
+        }
 
         /// <summary>
         /// Returns the similarty to 
@@ -78,7 +155,6 @@ namespace SanteDB.Matcher.Util
         {
 
             return (1.0 - (source.Levenshtein(target) / (double)Math.Max(source.Length, target.Length) + 0.000001));
-
         }
     }
 }

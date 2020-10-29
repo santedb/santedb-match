@@ -33,6 +33,7 @@ using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Core.Security;
 using SanteDB.Matcher.Model;
+using SanteDB.Core.Model.Serialization;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -79,6 +80,7 @@ namespace SanteDB.Matcher.Matchers
         {
             foreach (var t in typeof(BaseRecordMatchingService).GetTypeInfo().Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract))
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
+            ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
 
         /// <summary>
@@ -101,6 +103,8 @@ namespace SanteDB.Matcher.Matchers
                 if (configService == null)
                     throw new InvalidOperationException("Cannot find configuration service for matching");
                 var config = configService.GetConfiguration(configurationName);
+                if (config == null)
+                    throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
                 config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this match provider or is not registered");

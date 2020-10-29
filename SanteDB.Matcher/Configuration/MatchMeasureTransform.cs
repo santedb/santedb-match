@@ -39,7 +39,7 @@ namespace SanteDB.Matcher.Configuration
     /// <summary>
     /// Match measurement transform
     /// </summary>
-    [XmlType(nameof(MatchTransform), Namespace = "http://santedb.org/matcher")]
+    [XmlType(nameof(MatchMeasureTransform), Namespace = "http://santedb.org/matcher")]
     public class MatchMeasureTransform : MatchTransform
     {
 
