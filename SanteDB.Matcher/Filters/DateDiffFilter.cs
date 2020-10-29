@@ -63,7 +63,10 @@ namespace SanteDB.Matcher.Filters
             if (constVal != null && constVal.Value is String)
                 scope = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
             constVal = parms[0] as ConstantExpression;
-            if (constVal != null && constVal.Value is String)
+
+            if (constVal == null || "null".Equals(constVal.Value.ToString()))
+                parms[0] = Expression.Constant(default(DateTime));
+            else if (constVal != null && constVal.Value is String)
                 parms[0] = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
 
 
