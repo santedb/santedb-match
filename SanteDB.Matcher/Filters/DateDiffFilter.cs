@@ -66,8 +66,8 @@ namespace SanteDB.Matcher.Filters
 
             if (constVal == null || "null".Equals(constVal.Value.ToString()))
                 parms[0] = Expression.Constant(default(DateTime));
-            else if (constVal != null && constVal.Value is String)
-                parms[0] = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
+            else if (constVal != null && constVal.Value is String && DateTime.TryParseExact(constVal.Value.ToString(), new string[] { "o", "yyyy", "yyyy-MM", "yyyy-MM-dd" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime val)) 
+                parms[0] = Expression.Constant(val);
 
 
             if (scope.Type.StripNullable() == typeof(DateTimeOffset)) {
