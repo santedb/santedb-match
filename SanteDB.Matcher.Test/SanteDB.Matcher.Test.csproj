@@ -52,6 +52,9 @@
     <Compile Include="MatcherTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\SanteDB.licenseheader">
+      <Link>SanteDB.licenseheader</Link>
+    </None>
     <None Include="app.config" />
     <EmbeddedResource Include="Resources\Patients.csv" />
   </ItemGroup>
@@ -83,28 +86,28 @@
           <Project>{db9bc05e-45f1-4f96-a161-f36bdecaf566}</Project>
           <Name>SanteDB.Core</Name>
         </ProjectReference>
-		    <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
-      <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
-      <Name>SanteDB.Core.Model</Name>
-    </ProjectReference>
+        <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
+          <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
+          <Name>SanteDB.Core.Model</Name>
+        </ProjectReference>
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.50.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.0.50.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.0.50.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.51.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.51.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.51.0" />
         <PackageReference Include="SanteDB.OrmLite">
-          <Version>2.0.50</Version>
+          <Version>2.0.51</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin">
-          <Version>2.0.50</Version>
+          <Version>2.0.51</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin.Data">
-          <Version>2.0.50</Version>
+          <Version>2.0.51</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.TestFramework">
-          <Version>2.0.50</Version>
+          <Version>2.0.51</Version>
         </PackageReference>
       </ItemGroup>
     </Otherwise>
@@ -140,7 +143,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-
     <ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj">
       <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
       <Name>SanteDB.Matcher</Name>
