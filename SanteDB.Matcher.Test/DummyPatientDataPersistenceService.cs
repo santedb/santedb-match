@@ -169,5 +169,20 @@ namespace SanteDB.Matcher.Test
 
 
         }
+
+        public void AddAlias(string name, string alias, double weight)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAlias(string name, string alias)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDictionary<string, IEnumerable<ComponentAlias>> GetAllAliases(Expression<Func<string, bool>> filter, int offset, int? count, out int totalResults)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
