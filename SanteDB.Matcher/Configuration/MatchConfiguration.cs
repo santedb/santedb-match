@@ -79,7 +79,7 @@ namespace SanteDB.Matcher.Configuration
         [XmlArray("scoring")]
         [XmlArrayItem("attribute")]
         [JsonProperty("scoring")]
-        public List<MatchAttribute> Classification { get; set; }
+        public List<MatchAttribute> Scoring { get; set; }
 
         /// <summary>
         /// Load match configuration from the specified stream
