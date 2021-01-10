@@ -94,20 +94,20 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.60.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.0.60.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.0.60.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.62.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.62.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.62.0" />
         <PackageReference Include="SanteDB.OrmLite">
-          <Version>2.0.60</Version>
+          <Version>2.0.62</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin">
-          <Version>2.0.60</Version>
+          <Version>2.0.62</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin.Data">
-          <Version>2.0.60</Version>
+          <Version>2.0.62</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.TestFramework">
-          <Version>2.0.60</Version>
+          <Version>2.0.62</Version>
         </PackageReference>
       </ItemGroup>
     </Otherwise>
