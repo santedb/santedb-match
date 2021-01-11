@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using SanteDB.Core.Services;
@@ -54,5 +55,6 @@ namespace SanteDB.Matcher.Matchers
         {
             return this.Classify(input, this.Block(input, configurationName), configurationName);
         }
+
     }
 }
