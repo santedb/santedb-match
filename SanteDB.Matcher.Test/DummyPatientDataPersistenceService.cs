@@ -180,7 +180,7 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public IDictionary<string, IEnumerable<ComponentAlias>> GetAllAliases(Expression<Func<string, bool>> filter, int offset, int? count, out int totalResults)
+        public IDictionary<string, IEnumerable<ComponentAlias>> GetAllAliases(String filter, int offset, int? count, out int totalResults)
         {
             throw new NotImplementedException();
         }
