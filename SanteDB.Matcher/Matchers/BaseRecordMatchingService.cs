@@ -181,6 +181,10 @@ namespace SanteDB.Matcher.Matchers
                     { "input", ((Func<T>)(() => input)) }
                 }, safeNullable: true, lazyExpandVariables: false);
 
+                // If the resolved query variables are all null we want to ignore the query
+                qfilter = new NameValueCollection(QueryExpressionBuilder.BuildQuery(linq).ToArray());
+                if (block.SkipIfNull && qfilter.All(o => o.Value.All(v => "null".Equals(v))))
+                    return new List<T>();
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
                 int tr = 0;

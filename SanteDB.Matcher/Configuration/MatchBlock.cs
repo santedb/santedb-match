@@ -49,5 +49,11 @@ namespace SanteDB.Matcher.Configuration
         /// </summary>
         [XmlAttribute("maxResults"), JsonProperty("maxResults")]
         public int MaxReuslts { get; set; }
+
+        /// <summary>
+        /// When true, skip this blocking filter if all the values are null
+        /// </summary>
+        [XmlAttribute("skipWhenNullInput"), JsonProperty("skipWhenNullInput")]
+        public bool SkipIfNull { get; set; }
     }
 }
