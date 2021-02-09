@@ -35,10 +35,10 @@ namespace SanteDB.Matcher.Test
             TestApplicationContext.TestAssembly = typeof(MatcherTest).Assembly;
             TestApplicationContext.Initialize(context.DeploymentDirectory);
 
-            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
-            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyConceptRepositoryService));
-            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(DummyPatientDataPersistenceService));
-            (ApplicationServiceContext.Current as IServiceManager).AddServiceProvider(typeof(WeightedRecordMatchingService));
+            ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
+            ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyConceptRepositoryService));
+            ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyPatientDataPersistenceService));
+            ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(WeightedRecordMatchingService));
 
             // Start the daemon services
             if (!ApplicationServiceContext.Current.IsRunning)
@@ -137,8 +137,8 @@ namespace SanteDB.Matcher.Test
             var blocks = matchService.Block(patient, "test.complex");
             Assert.AreEqual(113, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(1, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
-            
+            Assert.AreEqual(1, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
+
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace SanteDB.Matcher.Test
             var blocks = matchService.Block(patient, "test.complex");
             Assert.AreEqual(140, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(3, output.Where(o=>o.Classification == RecordMatchClassification.Match).Count());
+            Assert.AreEqual(3, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
         }
     }
 }
