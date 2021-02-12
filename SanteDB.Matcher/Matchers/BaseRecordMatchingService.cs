@@ -34,6 +34,7 @@ using SanteDB.Matcher.Exceptions;
 using SanteDB.Core.Security;
 using SanteDB.Matcher.Model;
 using SanteDB.Core.Model.Serialization;
+using SanteDB.Matcher.Definition;
 
 namespace SanteDB.Matcher.Matchers
 {

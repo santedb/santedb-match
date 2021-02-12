@@ -15,28 +15,31 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2020-1-1
  */
+using Newtonsoft.Json;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Weight types for match attributes
+    /// Represents a file path configuration
     /// </summary>
-    [XmlType(nameof(MatchAttributeWeightType), Namespace = "http://santedb.org/matcher")]
-    public enum MatchAttributeWeightType
+    [XmlType(nameof(FilePathConfiguration), Namespace = "http://santedb.org/configuration")]
+    [JsonObject(nameof(FilePathConfiguration))]
+    public class FilePathConfiguration
     {
+
         /// <summary>
-        /// Full weight - The weight is simply added
+        /// True if the path should be treated as readonly
         /// </summary>
-        [XmlEnum("full")]
-        Full,
+        [XmlAttribute("readonly")]
+        public bool ReadOnly { get; set; }
+
         /// <summary>
-        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
-        /// value is.
+        /// Gets or sets the path
         /// </summary>
-        [XmlEnum("partial")]
-        Partial
+        [XmlText, JsonProperty("value")]
+        public string Path { get; set; }
     }
 }

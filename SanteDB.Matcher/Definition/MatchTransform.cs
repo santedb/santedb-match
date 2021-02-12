@@ -17,39 +17,39 @@
  * User: fyfej
  * Date: 2019-11-27
  */
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Represents behaviors when a attribute property is null
+    /// Match transform configuration
     /// </summary>
-    [XmlType(nameof(MatchAttributeNullBehavior), Namespace = "http://santedb.org/matcher")]
-    public enum MatchAttributeNullBehavior
+    [XmlType(nameof(MatchTransform), Namespace = "http://santedb.org/matcher")]
+    [JsonObject(nameof(MatchTransform))]
+    public class MatchTransform
     {
-        /// <summary>
-        /// When the field is null on the queried record apply the mWeight
-        /// </summary>
-        [XmlEnum("match")]
-        Match,
-        /// <summary>
-        /// When the property is null on the queried record apply the uWeight
-        /// </summary>
-        [XmlEnum("nonmatch")]
-        NonMatch,
-        /// <summary>
-        /// When the property is null on the queried record ignore the rule
-        /// </summary>
-        [XmlEnum("ignore")]
-        Ignore,
-        /// <summary>
-        /// When the property is null on the queried record, disqualify the match entirely
-        /// </summary>
-        [XmlEnum("disqualify")]
-        Disqualify
 
+        /// <summary>
+        /// The registered name of the transformer
+        /// </summary>
+        [XmlAttribute("name"), JsonProperty("name")]
+        public String Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the match transformation parameter
+        /// </summary>
+        [XmlArray("args")]
+        [XmlArrayItem("int", typeof(int))]
+        [XmlArrayItem("double", typeof(double))]
+        [XmlArrayItem("string", typeof(string))]
+        [XmlArrayItem("boolean", typeof(bool))]
+        [JsonProperty("args")]
+        public List<Object> Parameters { get; set; }
+
+        public override string ToString() => $"XFRM: {this.Name}({String.Join(",", this.Parameters.Select(p => p.ToString()))})";
     }
 }

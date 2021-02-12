@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
 
     /// <summary>

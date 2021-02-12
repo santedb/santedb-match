@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using SanteDB.Matcher.Model;
 using SanteDB.Matcher.Configuration;
+using SanteDB.Matcher.Definition;
 
 namespace SanteDB.Matcher.Test
 {

@@ -94,20 +94,20 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.76.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.0.76.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.0.76.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="2.0.80.0" />
+        <PackageReference Include="SanteDB.Core.Api" Version="2.0.80.0" />
+        <PackageReference Include="SanteDB.Core.Model" Version="2.0.80.0" />
         <PackageReference Include="SanteDB.OrmLite">
-          <Version>2.0.76</Version>
+          <Version>2.0.80</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin">
-          <Version>2.0.76</Version>
+          <Version>2.0.80</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.Plugin.Data">
-          <Version>2.0.76</Version>
+          <Version>2.0.80</Version>
         </PackageReference>
         <PackageReference Include="SanteDB.Server.TestFramework">
-          <Version>2.0.76</Version>
+          <Version>2.0.80</Version>
         </PackageReference>
       </ItemGroup>
     </Otherwise>
@@ -147,6 +147,11 @@
       <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
       <Name>SanteDB.Matcher</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Matching\example.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

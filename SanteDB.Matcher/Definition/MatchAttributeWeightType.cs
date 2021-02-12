@@ -17,40 +17,26 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Gets or sets the binary expression operator
+    /// Weight types for match attributes
     /// </summary>
-    [XmlType(nameof(BinaryOperatorType), Namespace = "http://santedb.org/matcher")]
-    public enum BinaryOperatorType
+    [XmlType(nameof(MatchAttributeWeightType), Namespace = "http://santedb.org/matcher")]
+    public enum MatchAttributeWeightType
     {
-        [XmlEnum("eq")]
-        Equal,
-        [XmlEnum("lt")]
-        LessThan,
-        [XmlEnum("lte")]
-        LessThanOrEqual,
-        [XmlEnum("gt")]
-        GreaterThan,
-        [XmlEnum("gte")]
-        GreaterThanOrEqual,
-        [XmlEnum("ne")]
-        NotEqual,
-        [XmlEnum("and")]
-        AndAlso,
-        [XmlEnum("or")]
-        OrElse,
-        [XmlEnum("add")]
-        Add,
-        [XmlEnum("sub")]
-        Subtract,
-        [XmlEnum("is")]
-        TypeIs
+        /// <summary>
+        /// Full weight - The weight is simply added
+        /// </summary>
+        [XmlEnum("full")]
+        Full,
+        /// <summary>
+        /// Partial weight - The weight is multiplied by how different or how far from the other value the 
+        /// value is.
+        /// </summary>
+        [XmlEnum("partial")]
+        Partial
     }
 }

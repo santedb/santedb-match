@@ -27,7 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
     /// Gets the matching configuration
