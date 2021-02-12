@@ -1,5 +1,6 @@
 ﻿using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Configuration;
+using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Matcher.Transforms;
 using System;

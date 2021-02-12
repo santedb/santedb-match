@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using SanteDB.Matcher.Configuration;
+using SanteDB.Matcher.Definition;
 
 namespace SanteDB.Matcher.Services
 {

@@ -20,7 +20,7 @@
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
     /// Vector when condition

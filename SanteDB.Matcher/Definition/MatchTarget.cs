@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
     /// Represents a target of a match (if applicable)

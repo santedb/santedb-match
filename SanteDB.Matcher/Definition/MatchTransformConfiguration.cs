@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 using System;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
     /// Represents a match transformer configuration

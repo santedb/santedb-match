@@ -148,6 +148,11 @@
       <Name>SanteDB.Matcher</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Matching\example.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

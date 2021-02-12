@@ -19,6 +19,7 @@
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Configuration;
+using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.Linq;

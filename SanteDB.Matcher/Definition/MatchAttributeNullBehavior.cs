@@ -17,39 +17,39 @@
  * User: fyfej
  * Date: 2019-11-27
  */
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Match transform configuration
+    /// Represents behaviors when a attribute property is null
     /// </summary>
-    [XmlType(nameof(MatchTransform), Namespace = "http://santedb.org/matcher")]
-    [JsonObject(nameof(MatchTransform))]
-    public class MatchTransform
+    [XmlType(nameof(MatchAttributeNullBehavior), Namespace = "http://santedb.org/matcher")]
+    public enum MatchAttributeNullBehavior
     {
-
         /// <summary>
-        /// The registered name of the transformer
+        /// When the field is null on the queried record apply the mWeight
         /// </summary>
-        [XmlAttribute("name"), JsonProperty("name")]
-        public String Name { get; set; }
-
+        [XmlEnum("match")]
+        Match,
         /// <summary>
-        /// Gets or sets the match transformation parameter
+        /// When the property is null on the queried record apply the uWeight
         /// </summary>
-        [XmlArray("args")]
-        [XmlArrayItem("int", typeof(int))]
-        [XmlArrayItem("double", typeof(double))]
-        [XmlArrayItem("string", typeof(string))]
-        [XmlArrayItem("boolean", typeof(bool))]
-        [JsonProperty("args")]
-        public List<Object> Parameters { get; set; }
+        [XmlEnum("nonmatch")]
+        NonMatch,
+        /// <summary>
+        /// When the property is null on the queried record ignore the rule
+        /// </summary>
+        [XmlEnum("ignore")]
+        Ignore,
+        /// <summary>
+        /// When the property is null on the queried record, disqualify the match entirely
+        /// </summary>
+        [XmlEnum("disqualify")]
+        Disqualify
 
-        public override string ToString() => $"XFRM: {this.Name}({String.Join(",", this.Parameters.Select(p => p.ToString()))})";
     }
 }

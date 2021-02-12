@@ -15,31 +15,42 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2020-1-1
+ * Date: 2019-11-27
  */
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Xml.Serialization;
 
-namespace SanteDB.Matcher.Configuration
+namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Represents a file path configuration
+    /// Gets or sets the binary expression operator
     /// </summary>
-    [XmlType(nameof(FilePathConfiguration), Namespace = "http://santedb.org/configuration")]
-    [JsonObject(nameof(FilePathConfiguration))]
-    public class FilePathConfiguration
+    [XmlType(nameof(BinaryOperatorType), Namespace = "http://santedb.org/matcher")]
+    public enum BinaryOperatorType
     {
-
-        /// <summary>
-        /// True if the path should be treated as readonly
-        /// </summary>
-        [XmlAttribute("readonly")]
-        public bool ReadOnly { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path
-        /// </summary>
-        [XmlText, JsonProperty("value")]
-        public string Path { get; set; }
+        [XmlEnum("eq")]
+        Equal,
+        [XmlEnum("lt")]
+        LessThan,
+        [XmlEnum("lte")]
+        LessThanOrEqual,
+        [XmlEnum("gt")]
+        GreaterThan,
+        [XmlEnum("gte")]
+        GreaterThanOrEqual,
+        [XmlEnum("ne")]
+        NotEqual,
+        [XmlEnum("and")]
+        AndAlso,
+        [XmlEnum("or")]
+        OrElse,
+        [XmlEnum("add")]
+        Add,
+        [XmlEnum("sub")]
+        Subtract,
+        [XmlEnum("is")]
+        TypeIs
     }
 }
