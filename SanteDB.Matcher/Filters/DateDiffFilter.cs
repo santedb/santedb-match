@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Filters
             if (parms.Length != 1) throw new ArgumentOutOfRangeException("date_diff requires one parameter : value=:(date_diff|other)comparator");
 
             // Is scope nullable?
-            if (scope.Type.IsConstructedGenericType && scope.Type.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (scope.Type.IsConstructedGenericType && scope.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 scope = Expression.MakeMemberAccess(scope, scope.Type.GetRuntimeProperty("Value"));
 
             // Convert value expression if it is a string

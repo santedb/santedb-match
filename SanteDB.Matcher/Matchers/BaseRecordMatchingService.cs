@@ -79,7 +79,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         static BaseRecordMatchingService()
         {
-            foreach (var t in typeof(BaseRecordMatchingService).GetTypeInfo().Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract))
+            foreach (var t in typeof(BaseRecordMatchingService).Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
@@ -106,12 +106,12 @@ namespace SanteDB.Matcher.Matchers
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
-                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
+                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
 
                 var strongConfig = config as MatchConfiguration;
-                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 // If the blocking algorithm for this type is AND then we can just use a single IMSI query

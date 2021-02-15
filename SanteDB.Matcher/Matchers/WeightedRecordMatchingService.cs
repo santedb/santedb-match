@@ -64,7 +64,7 @@ namespace SanteDB.Matcher.Matchers
 
                 if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
                 var strongConfig = this.GetConfiguration<T>(configurationName);
-                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 return blocks
@@ -87,7 +87,7 @@ namespace SanteDB.Matcher.Matchers
             if (!s_configurations.TryGetValue(configurationName, out MatchConfiguration retVal))
             {
                 var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-                retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config as MatchConfiguration;
+                retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
                 if (retVal == null)
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
                 s_configurations.TryAdd(configurationName, retVal);
@@ -118,7 +118,7 @@ namespace SanteDB.Matcher.Matchers
                         var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(property, true) as LambdaExpression;
                         object aValue = selectorExpression.Compile().DynamicInvoke(input),
                             bValue = selectorExpression.Compile().DynamicInvoke(block);
-                        var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
+                        var defaultInstance = selectorExpression.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
                             Activator.CreateInstance(selectorExpression.ReturnType) :
                             null;
                         return AssertionUtil.ExecuteAssertion(property, v.Assertion, v, aValue, bValue);
