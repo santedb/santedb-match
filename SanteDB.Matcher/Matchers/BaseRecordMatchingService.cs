@@ -189,21 +189,35 @@ namespace SanteDB.Matcher.Matchers
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
                 int tr = 0;
-                var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
-//                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
 
-                if (tr > block.MaxReuslts)
+                // Set the authentication context 
+                var authContext = AuthenticationContext.Current;
+                try
                 {
-                    this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
-                    var ofs = block.MaxReuslts;
-                    while(ofs < tr)
+                    AuthenticationContext.Current = new AuthenticationContext(AuthenticationContext.SystemPrincipal);
+                    var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
+
+                    //                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
+
+                    if (tr > block.MaxReuslts)
                     {
-                        retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
-                        ofs += block.MaxReuslts;
+                        this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
+                        var ofs = block.MaxReuslts;
+                        while (ofs < tr)
+                        {
+                            retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
+                            ofs += block.MaxReuslts;
+                        }
+
                     }
 
+                    return retVal;
+
                 }
-                return retVal;
+                finally
+                {
+                    AuthenticationContext.Current = authContext;
+                }
             }
             catch(Exception e)
             {
