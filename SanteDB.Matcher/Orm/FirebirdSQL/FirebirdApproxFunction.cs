@@ -14,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-2-9
+ * Date: 2021-2-15
  */
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Postgres;
 
-namespace SanteDB.Matcher.Orm.PostgreSQL
+namespace SanteDB.Matcher.Orm.FirebirdSQL
 {
     /// <summary>
     /// Represents the PostgreSQL approx function driven by the server configuration
@@ -36,13 +36,13 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <example>
     /// ?name.component.value=:(approx|Betty)
     /// </example>
-    public class PostgresApproxlikeFunction : IDbFilterFunction
+    public class FirebirdApproxlikeFunction : IDbFilterFunction
     {
 
         /// <summary>
         /// Tracer to trace the approx function
         /// </summary>
-        private Tracer m_tracer = Tracer.GetTracer(typeof(PostgresApproxlikeFunction));
+        private Tracer m_tracer = Tracer.GetTracer(typeof(FirebirdApproxlikeFunction));
 
         /// <summary>
         /// Gets the name of the function
@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Provider 
         /// </summary>
-        public string Provider => "pgsql";
+        public string Provider => "FirebirdSQL";
 
         /// <summary>
         /// Creates the SQL statement
@@ -75,25 +75,10 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
             var filter = new SqlStatement(new PostgreSQLProvider());
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
-                if (alg is ApproxDifferenceOption difference )
-                    filter.Or($"(length(trim({filterColumn})) > {difference.MaxDifference * 2} AND  levenshtein(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) <= {difference.MaxDifference})", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
-                else if (alg is ApproxPhoneticOption phonetic)
-                {
-                    var min = phonetic.MinSimilarity;
-                    if (!phonetic.MinSimilaritySpecified) min = 1.0f;
-                    if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Soundex)
-                        filter.Or($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
-                    else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone)
-                        filter.Or($"metaphone({filterColumn},4) = metaphone(?,4)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
-                    else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone)
-                        filter.Or($"dmetaphone({filterColumn}) = dmetaphone(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
-                    else
-                        throw new InvalidOperationException($"Phonetic algorithm {phonetic.Algorithm} is not valid");
-                }
-                else if (alg is ApproxPatternOption pattern)
+                if (alg is ApproxPatternOption pattern)
                 {
                     if(pattern.IgnoreCase)
-                        filter.Or($"{filterColumn} ilike ?",  QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                        filter.Or($"LOWER({filterColumn}) like LOWER(?)",  QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
                     else
                         filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
 

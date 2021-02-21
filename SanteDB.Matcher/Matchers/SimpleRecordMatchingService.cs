@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-9
  */
 using System;
 using System.Collections.Generic;
@@ -45,7 +44,7 @@ namespace SanteDB.Matcher.Matchers
         /// <remarks>This particular record matching service only uses the blocking portion of configuration so all blocked records are considered matches</remarks>
         public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
         {
-            return blocks.Select(o => new MatchResult<T>(o, 1.0, RecordMatchClassification.Match));
+            return blocks.Select(o => new MatchResult<T>(o, 1.0, RecordMatchClassification.Match, RecordMatchMethod.Deterministic));
         }
 
         /// <summary>

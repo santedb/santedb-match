@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-9
  */
 using System;
 using System.Collections.Generic;
@@ -58,8 +57,8 @@ namespace SanteDB.Matcher.Transforms
         /// </summary>
         private TransformerFactory()
         {
-            this.m_dataTransformers = typeof(TransformerFactory).GetTypeInfo().Assembly.ExportedTypes
-                .Where(o => typeof(IDataTransformer).GetTypeInfo().IsAssignableFrom(o.GetTypeInfo()) && !o.GetTypeInfo().IsAbstract && !o.GetTypeInfo().IsInterface)
+            this.m_dataTransformers = typeof(TransformerFactory).Assembly.ExportedTypes
+                .Where(o => typeof(IDataTransformer).IsAssignableFrom(o) && !o.IsAbstract && !o.IsInterface)
                 .ToDictionary(o=>(Activator.CreateInstance(o) as IDataTransformer).Name, o=>o);
         }
 

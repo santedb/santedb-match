@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-9
  */
 using SanteDB.Core;
 using SanteDB.Core.Model;
@@ -64,7 +63,7 @@ namespace SanteDB.Matcher.Matchers
 
                 if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
                 var strongConfig = this.GetConfiguration<T>(configurationName);
-                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 return blocks
@@ -87,7 +86,7 @@ namespace SanteDB.Matcher.Matchers
             if (!s_configurations.TryGetValue(configurationName, out MatchConfiguration retVal))
             {
                 var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-                retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config as MatchConfiguration;
+                retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
                 if (retVal == null)
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
                 s_configurations.TryAdd(configurationName, retVal);
@@ -118,7 +117,7 @@ namespace SanteDB.Matcher.Matchers
                         var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(property, true) as LambdaExpression;
                         object aValue = selectorExpression.Compile().DynamicInvoke(input),
                             bValue = selectorExpression.Compile().DynamicInvoke(block);
-                        var defaultInstance = selectorExpression.ReturnType.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0) ?
+                        var defaultInstance = selectorExpression.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
                             Activator.CreateInstance(selectorExpression.ReturnType) :
                             null;
                         return AssertionUtil.ExecuteAssertion(property, v.Assertion, v, aValue, bValue);
@@ -135,8 +134,8 @@ namespace SanteDB.Matcher.Matchers
                 attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
                 var score = (float)attributeResult.Sum(v => v.Score);
 
-                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
-                retVal.Vectors.AddRange(attributeResult);
+                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable, RecordMatchMethod.Weighted);
+                attributeResult.ForEach(o=>retVal.Vectors.Add(o));
 
 
                 return retVal;

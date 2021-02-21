@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-9
  */
 using SanteDB.Core.Services;
 using System;
@@ -44,12 +43,13 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="record">The record that was classified</param>
         /// <param name="score">The assigned score</param>
         /// <param name="classification">The classification</param>
-        public MatchResult(T record, double score, RecordMatchClassification classification)
+        public MatchResult(T record, double score, RecordMatchClassification classification, RecordMatchMethod method)
         {
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
             this.Vectors = new List<MatchVector>();
+            this.Method = method;
         }
 
         /// <summary>
@@ -81,7 +81,12 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
-        public List<MatchVector> Vectors { get; internal set; }
+        public IList<MatchVector> Vectors { get; internal set; }
+
+        /// <summary>
+        /// Gets the method of match
+        /// </summary>
+        public RecordMatchMethod Method { get; private set; }
 
         /// <summary>
         /// Gets the record that matched

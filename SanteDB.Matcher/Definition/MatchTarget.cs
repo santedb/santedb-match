@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-12
  */
 using SanteDB.Core.Model.Roles;
 using System;
@@ -52,7 +51,7 @@ namespace SanteDB.Matcher.Definition
             get
             {
                 if (this.m_type == null)
-                    this.m_type = typeof(Patient).GetTypeInfo().Assembly.ExportedTypes.FirstOrDefault(o => o.GetTypeInfo().GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
+                    this.m_type = typeof(Patient).Assembly.ExportedTypes.FirstOrDefault(o => o.GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
                 return this.m_type;
             }
         }

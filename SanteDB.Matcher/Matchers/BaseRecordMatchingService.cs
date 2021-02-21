@@ -1,6 +1,5 @@
 ﻿/*
- *
- * Copyright (C) 2019 - 2020, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -15,7 +14,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2019-11-27
+ * Date: 2021-2-9
  */
 using System.Collections.Generic;
 using SanteDB.Core.Services;
@@ -79,7 +78,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         static BaseRecordMatchingService()
         {
-            foreach (var t in typeof(BaseRecordMatchingService).GetTypeInfo().Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract))
+            foreach (var t in typeof(BaseRecordMatchingService).Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
@@ -106,12 +105,12 @@ namespace SanteDB.Matcher.Matchers
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
-                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).GetTypeInfo().IsAssignableFrom(t.ResourceType.GetTypeInfo()))) ?? config;
+                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this match provider or is not registered");
 
                 var strongConfig = config as MatchConfiguration;
-                if (!strongConfig.Target.Any(t => t.ResourceType.GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
+                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 // If the blocking algorithm for this type is AND then we can just use a single IMSI query
@@ -189,21 +188,35 @@ namespace SanteDB.Matcher.Matchers
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 // Total results
                 int tr = 0;
-                var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
-//                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
 
-                if (tr > block.MaxReuslts)
+                // Set the authentication context 
+                var authContext = AuthenticationContext.Current;
+                try
                 {
-                    this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
-                    var ofs = block.MaxReuslts;
-                    while(ofs < tr)
+                    AuthenticationContext.Current = new AuthenticationContext(AuthenticationContext.SystemPrincipal);
+                    var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
+
+                    //                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
+
+                    if (tr > block.MaxReuslts)
                     {
-                        retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
-                        ofs += block.MaxReuslts;
+                        this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
+                        var ofs = block.MaxReuslts;
+                        while (ofs < tr)
+                        {
+                            retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
+                            ofs += block.MaxReuslts;
+                        }
+
                     }
 
+                    return retVal;
+
                 }
-                return retVal;
+                finally
+                {
+                    AuthenticationContext.Current = authContext;
+                }
             }
             catch(Exception e)
             {
@@ -231,7 +244,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = input.Key.Value,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification)
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification, o.Method)
                 {
                     Vectors = ((MatchResult<T>)o).Vectors,
                 })).ToList()
