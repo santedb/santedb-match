@@ -135,8 +135,8 @@ namespace SanteDB.Matcher.Matchers
                 attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
                 var score = (float)attributeResult.Sum(v => v.Score);
 
-                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable);
-                retVal.Vectors.AddRange(attributeResult);
+                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable, RecordMatchMethod.Weighted);
+                attributeResult.ForEach(o=>retVal.Vectors.Add(o));
 
 
                 return retVal;

@@ -44,12 +44,13 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="record">The record that was classified</param>
         /// <param name="score">The assigned score</param>
         /// <param name="classification">The classification</param>
-        public MatchResult(T record, double score, RecordMatchClassification classification)
+        public MatchResult(T record, double score, RecordMatchClassification classification, RecordMatchMethod method)
         {
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
             this.Vectors = new List<MatchVector>();
+            this.Method = method;
         }
 
         /// <summary>
@@ -81,7 +82,12 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
-        public List<MatchVector> Vectors { get; internal set; }
+        public IList<MatchVector> Vectors { get; internal set; }
+
+        /// <summary>
+        /// Gets the method of match
+        /// </summary>
+        public RecordMatchMethod Method { get; private set; }
 
         /// <summary>
         /// Gets the record that matched

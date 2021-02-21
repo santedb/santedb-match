@@ -245,7 +245,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = input.Key.Value,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification)
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification, o.Method)
                 {
                     Vectors = ((MatchResult<T>)o).Vectors,
                 })).ToList()
