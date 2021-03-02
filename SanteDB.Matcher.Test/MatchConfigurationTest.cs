@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
@@ -8,13 +8,13 @@ using SanteDB.Matcher.Model;
 
 namespace SanteDB.Matcher.Test
 {
-    [TestClass]
+    [TestFixture(Category = "Matching")]
     public class MatchConfigurationTest
     {
         /// <summary>
         /// Should load configuration
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ShouldLoadConfiguration()
         {
             var loaded = MatchConfiguration.Load(typeof(MatchConfigurationTest).Assembly.GetManifestResourceStream("SanteDB.Matcher.Test.Resources.DateOfBirthGenderIdClassified.xml"));

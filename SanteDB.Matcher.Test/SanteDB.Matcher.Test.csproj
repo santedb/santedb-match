@@ -112,14 +112,11 @@
     <PackageReference Include="AtnaApi">
       <Version>1.1.4</Version>
     </PackageReference>
-    <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestFramework">
-      <Version>2.1.0</Version>
-    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="NUnit">
+      <Version>3.13.1</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
       <Version>0.26.0</Version>
@@ -139,6 +136,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SanteDB.Core.TestFramework\SanteDB.Core.TestFramework.csproj">
+      <Project>{ad73db46-cbb3-4746-b406-40fc435ab3db}</Project>
+      <Name>SanteDB.Core.TestFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj">
       <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
       <Name>SanteDB.Matcher</Name>
