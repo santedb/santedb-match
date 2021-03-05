@@ -34,6 +34,7 @@ using SanteDB.Core.Security;
 using SanteDB.Matcher.Model;
 using SanteDB.Core.Model.Serialization;
 using SanteDB.Matcher.Definition;
+using System.Collections;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -105,12 +106,12 @@ namespace SanteDB.Matcher.Matchers
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
-                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config;
+                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType) || input.GetType().IsAssignableFrom(t.ResourceType))) ?? config;
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
 
                 var strongConfig = config as MatchConfiguration;
-                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
+                if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 // If the blocking algorithm for this type is AND then we can just use a single IMSI query
@@ -190,10 +191,7 @@ namespace SanteDB.Matcher.Matchers
                 int tr = 0;
 
                 // Set the authentication context 
-                var authContext = AuthenticationContext.Current;
-                try
-                {
-                    AuthenticationContext.Current = new AuthenticationContext(AuthenticationContext.SystemPrincipal);
+                using (AuthenticationContext.EnterSystemContext()) { 
                     var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
 
                     //                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
@@ -213,10 +211,6 @@ namespace SanteDB.Matcher.Matchers
                     return retVal;
 
                 }
-                finally
-                {
-                    AuthenticationContext.Current = authContext;
-                }
             }
             catch(Exception e)
             {
@@ -235,7 +229,6 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
 
-    
         /// <summary>
         /// Create a match report 
         /// </summary>
@@ -244,12 +237,22 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = input.Key.Value,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Classification, o.Method)
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method)
                 {
                     Vectors = ((MatchResult<T>)o).Vectors,
                 })).ToList()
             };
         }
 
+        /// <summary>
+        /// Perform the specified match on <paramref name="input"/>
+        /// </summary>
+        public IEnumerable<IRecordMatchResult> Match(IdentifiedData input, string configurationName)
+        {
+            // TODO: Provide a lookup list with a lambda expression to make this go faster
+            var genMethod = typeof(BaseRecordMatchingService).GetGenericMethod(nameof(Match), new Type[] { input.GetType() }, new Type[] { input.GetType(), typeof(String) });
+            var results = genMethod.Invoke(this, new object[] { input, configurationName }) as IEnumerable;
+            return results.OfType<IRecordMatchResult>();
+        }
     }
 }

@@ -83,6 +83,10 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         private MatchConfiguration GetConfiguration<T>(string configurationName) where T : IdentifiedData
         {
+#if DEBUG
+            var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
+            MatchConfiguration retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
+#else
             if (!s_configurations.TryGetValue(configurationName, out MatchConfiguration retVal))
             {
                 var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
@@ -91,6 +95,7 @@ namespace SanteDB.Matcher.Matchers
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
                 s_configurations.TryAdd(configurationName, retVal);
             }
+#endif
             return retVal;
         }
 
@@ -131,10 +136,19 @@ namespace SanteDB.Matcher.Matchers
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
+                // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was 
+                // unsuccessful, we want to exclude CITY.
                 attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
-                var score = (float)attributeResult.Sum(v => v.Score);
+                var score = attributeResult.Sum(v => v.Score);
 
-                var retVal = new MatchResult<T>(block, score, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable, RecordMatchMethod.Weighted);
+                // The attribute scores which are produced will be from SUM(NonMatchWeight) .. SUM(MatchWeight)
+                double maxScore = attributeResult.Sum(o => o.Attribute.MatchWeight),
+                    minScore = attributeResult.Sum(o => o.Attribute.NonMatchWeight);
+                // This forms a number line between -MIN .. MAX , our probability is the distance that our score 
+                // is on that line, for example: -30.392 .. 30.392 
+                // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
+                var strength = (score + -minScore) / (maxScore + -minScore);
+                var retVal = new MatchResult<T>(block, score, strength, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable, RecordMatchMethod.Weighted);
                 attributeResult.ForEach(o=>retVal.Vectors.Add(o));
 
 
