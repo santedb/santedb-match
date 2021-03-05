@@ -68,12 +68,12 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Gets the confidence that this is a match (the number of assertions that were actually assessed)
+        /// Gets the strength of the match
         /// </summary>
-        [XmlElement("evaluated"), JsonProperty("evaluated")]
-        public double EvaluatedVectors
+        [XmlElement("strength"), JsonProperty("strength")]
+        public double Strength 
         {
-            get => this.m_match.EvaluatedVectors;
+            get => this.m_match.Strength;
             set { }
         }
 
