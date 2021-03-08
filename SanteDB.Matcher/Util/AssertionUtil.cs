@@ -39,7 +39,7 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Creates a new assertion result
         /// </summary>
-        public AssertionResult(string propertyName, bool evaluated, bool result, double calculatedScore, object aValue, object bValue)
+        public AssertionResult(string propertyName, bool evaluated, bool result, double? calculatedScore, object aValue, object bValue)
         {
             this.PropertyName = propertyName;
             this.Evaluated = evaluated;
@@ -62,7 +62,7 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// The calculated score
         /// </summary>
-        public double CalculatedScore { get; }
+        public double? CalculatedScore { get; }
 
         /// <summary>
         /// The A value
@@ -108,18 +108,20 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Get the null score
         /// </summary>
-        private static double GetNullScore(MatchAttribute attribute)
+        private static double? GetNullScore(MatchAttribute attribute)
         {
             switch (attribute.WhenNull)
             {
                 case MatchAttributeNullBehavior.Disqualify:
-                    return -Double.MaxValue;
-                case MatchAttributeNullBehavior.Ignore:
+                    return -100;
+                case MatchAttributeNullBehavior.Zero:
                     return 0.0;
                 case MatchAttributeNullBehavior.Match:
                     return attribute.MatchWeight;
                 case MatchAttributeNullBehavior.NonMatch:
                     return attribute.NonMatchWeight;
+                case MatchAttributeNullBehavior.Ignore:
+                    return null;
                 default:
                     throw new InvalidOperationException("Should not be here - Can't determine null behavior");
             }
@@ -196,7 +198,10 @@ namespace SanteDB.Matcher.Util
                 }
                 if (a == null || b == null)
                     return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                else if(a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
+                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
 
+                // Scope as enum
                 if (scope is IEnumerable enumScope)
                 {
                     if (!enumScope.OfType<Object>().Any()) // No results - cannot evaluate

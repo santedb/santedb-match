@@ -141,7 +141,7 @@ namespace SanteDB.Matcher.Matchers
                             this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
                         }
-                    return retVal;
+                    return retVal.ToList();
                 }
                 else
                     throw new InvalidOperationException($"Configuration {config.Name} contains no blocking instructions, cannot Block");
