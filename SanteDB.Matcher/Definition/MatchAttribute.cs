@@ -21,6 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
+using System.Linq.Expressions;
+using SanteDB.Core.Model.Query;
+using System.Collections.Concurrent;
 
 namespace SanteDB.Matcher.Definition
 {
@@ -37,6 +40,7 @@ namespace SanteDB.Matcher.Definition
         private double? m_u = null;
         private double? m_weightM = null;
         private double? m_weightN = null;
+        private ConcurrentDictionary<Type, IDictionary<String, Delegate>> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary<String, Delegate>>();
 
         /// <summary>
         /// The identifier for the attribute
@@ -54,7 +58,8 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the match weight
         /// </summary>
         [XmlAttribute("m"), JsonProperty("m")]
-        public double M {
+        public double M
+        {
             get => this.m_m.GetValueOrDefault();
             set => this.m_m = value;
         }
@@ -63,7 +68,8 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the unmatch weight (penalty)
         /// </summary>
         [XmlAttribute("u"), JsonProperty("u")]
-        public double U {
+        public double U
+        {
             get => this.m_u.GetValueOrDefault();
             set => this.m_u = value;
         }
@@ -82,7 +88,8 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the unmatch weight (penalty)
         /// </summary>
         [XmlAttribute("nonMatchWeight"), JsonProperty("nonMatchWeight")]
-        public double NonMatchWeight {
+        public double NonMatchWeight
+        {
             get => this.m_weightN.GetValueOrDefault();
             set => this.m_weightN = value;
         }
@@ -92,6 +99,24 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlAttribute("property"), JsonProperty("property")]
         public List<string> Property { get; set; }
+
+        /// <summary>
+        /// Property selector helper
+        /// </summary>
+        public IDictionary<String, Delegate> GetPropertySelectors<T>()
+        {
+            if (!this.m_propertySelectors.TryGetValue(typeof(T), out IDictionary<String, Delegate> retVal))
+            {
+                retVal = this.Property.ToDictionary(o => o, o =>
+                {
+                    var selector = QueryExpressionParser.BuildPropertySelector<T>(o, true);
+                    var param = Expression.Parameter(typeof(T));
+                    return (Delegate)Expression.Lambda<Func<T, dynamic>>(Expression.Convert(Expression.Invoke(selector, param), typeof(Object)), param).Compile();
+                });
+                this.m_propertySelectors.TryAdd(typeof(T), retVal);
+            }
+            return retVal;
+        }
 
         /// <summary>
         /// When null what should happen?
@@ -124,14 +149,14 @@ namespace SanteDB.Matcher.Definition
         public void Initialize()
         {
             // Step 1 : Are we missing weights?
-            if(!this.m_weightM.HasValue)
+            if (!this.m_weightM.HasValue)
             {
                 // U must be set
                 if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
 
                 this.m_weightM = (this.m_m.Value / this.m_u.Value).Ln() / (2.0d).Ln();
             }
-            if(!this.m_weightN.HasValue)
+            if (!this.m_weightN.HasValue)
             {
                 // U must be set
                 if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");

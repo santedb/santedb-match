@@ -66,10 +66,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks
-                    .AsParallel()
-                    .AsOrdered()
-                    .WithDegreeOfParallelism(2).Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {
@@ -107,7 +104,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="block">The block which is being classified</param>
         /// <param name="attributes">The match attributes to classify on</param>
         /// <returns>The match classification</returns>
-        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
+        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
         {
             try
             {
@@ -117,22 +114,22 @@ namespace SanteDB.Matcher.Matchers
                     this.m_tracer.TraceVerbose("Initializing attribute {0}", v);
                     // Initialize the weights and such for the attribute
                     v.Initialize();
-                    var attributeScores = v.Property.Select(property =>
+                    var attributeScores = v.GetPropertySelectors<T>().Select(selector =>
                     {
-                        var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(property, true) as LambdaExpression;
-                        object aValue = selectorExpression.Compile().DynamicInvoke(input),
-                            bValue = selectorExpression.Compile().DynamicInvoke(block);
-                        var defaultInstance = selectorExpression.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
-                            Activator.CreateInstance(selectorExpression.ReturnType) :
+                        Func<T, dynamic> selectorExpression = (Func<T, dynamic>)selector.Value;
+                        object aValue = selectorExpression(input),
+                            bValue = selectorExpression(block);
+                        var defaultInstance = selectorExpression.Method.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
+                            Activator.CreateInstance(selectorExpression.Method.ReturnType) :
                             null;
-                        return AssertionUtil.ExecuteAssertion(property, v.Assertion, v, aValue, bValue);
+                        return AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
                     });
                     var bestScore = attributeScores.OrderByDescending(o => o.CalculatedScore).FirstOrDefault();
 
-                    if (bestScore == null)
+                    if (bestScore == null || !bestScore.CalculatedScore.HasValue)
                         return null;
                     else
-                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, v.M, v.MatchWeight, bestScore.CalculatedScore, bestScore.Evaluated, bestScore.A, bestScore.B);
+                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, v.M, v.MatchWeight, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
@@ -148,7 +145,12 @@ namespace SanteDB.Matcher.Matchers
                 // is on that line, for example: -30.392 .. 30.392 
                 // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
                 var strength = (score + -minScore) / (maxScore + -minScore);
-                var retVal = new MatchResult<T>(block, score, strength, score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable, RecordMatchMethod.Weighted);
+                RecordMatchClassification classification = RecordMatchClassification.NonMatch;
+                if (evaluationType == ThresholdEvaluationType.AbsoluteScore)
+                    classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
+                else 
+                    classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
+                var retVal = new MatchResult<T>(block, score, strength, classification, RecordMatchMethod.Weighted);
                 attributeResult.ForEach(o=>retVal.Vectors.Add(o));
 
 

@@ -42,6 +42,11 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// When the property is null on the queried record ignore the rule
         /// </summary>
+        [XmlEnum("zero")]
+        Zero,
+        /// <summary>
+        /// When the property is null on the queried record ignore the rule
+        /// </summary>
         [XmlEnum("ignore")]
         Ignore,
         /// <summary>

@@ -44,6 +44,12 @@ namespace SanteDB.Matcher.Definition
         public String Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the manner in which the classification is determined
+        /// </summary>
+        [XmlAttribute("evaluationMode"), JsonProperty("evaluationMode")]
+        public ThresholdEvaluationType ClassificationMethod { get; set; }
+
+        /// <summary>
         /// Gets or sets the score at which a record is not a match
         /// </summary>
         [XmlAttribute("nonmatchThreshold"), JsonProperty("nonmatchThreshold")]
