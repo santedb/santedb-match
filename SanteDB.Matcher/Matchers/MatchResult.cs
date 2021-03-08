@@ -43,8 +43,11 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="record">The record that was classified</param>
         /// <param name="score">The assigned score</param>
         /// <param name="classification">The classification</param>
-        public MatchResult(T record, double score, RecordMatchClassification classification, RecordMatchMethod method)
+        /// <param name="method">The method that was used to establish the match</param>
+        /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
+        public MatchResult(T record, double score, double strength, RecordMatchClassification classification, RecordMatchMethod method)
         {
+            this.Strength = strength;
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
@@ -58,15 +61,14 @@ namespace SanteDB.Matcher.Matchers
         public double Score { get; private set; }
 
         /// <summary>
-        /// Gets the confidence that this is a match (the number of assertions that were actually assessed)
+        /// Gets the relative strength for this match 
         /// </summary>
-        public double EvaluatedVectors
-        {
-            get
-            {
-                return (double)this.Vectors.Count(o=>o.Evaluated) / this.Vectors.Count();
-            }
-        }
+        /// <remarks>
+        /// The <see cref="Score"/> property contains the absolute score that the record obtained which may be
+        /// from MINSCORE ... MAXSCORE , where MINSCORE is usually a negative number. This value represents the 
+        /// value from 0 .. 1 of where the <see cref="Score"/> property lay on the number line between min and max.
+        /// </remarks>
+        public double Strength { get; private set;  }
 
         /// <summary>
         /// Gets the record
@@ -98,7 +100,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public override string ToString()
         {
-            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, EVAL: {this.EvaluatedVectors}";
+            return $"{this.Classification} - {this.Record} (SCORE: {this.Score}, STR: {this.Strength}";
         }
     }
 

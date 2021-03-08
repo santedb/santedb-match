@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using SanteDB.Core;
 using SanteDB.Core.Data;
 using SanteDB.Core.Interfaces;
@@ -15,25 +15,25 @@ using SanteDB.Matcher.Matchers;
 
 namespace SanteDB.Matcher.Test
 {
-    [TestClass]
+    [TestFixture(Category = "Matching")]
     public class MatcherTest
     {
 
         /// <summary>
         /// Initialize the test class
         /// </summary>
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        [SetUp]
+        public void ClassInitialize()
         {
             AppDomain.CurrentDomain.SetData(
                "DataDirectory",
-               Path.Combine(context.TestDeploymentDir, string.Empty));
+               Path.Combine(TestContext.CurrentContext.TestDirectory, string.Empty));
 
             EntitySource.Current = new EntitySource(new RepositoryEntitySource());
 
             // Register the AuditAdoPersistenceService
             TestApplicationContext.TestAssembly = typeof(MatcherTest).Assembly;
-            TestApplicationContext.Initialize(context.DeploymentDirectory);
+            TestApplicationContext.Initialize(TestContext.CurrentContext.TestDirectory);
 
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyMatchConfigurationProvider)); // Sec repo service is for get user name implementation
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyConceptRepositoryService));
@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Test that matching patients are blocked
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ShouldBlockMatchingPatients()
         {
             var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
@@ -80,7 +80,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Test that matching patients are blocked
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ShouldBlockFuzzyPatients()
         {
             var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
@@ -110,7 +110,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ComplexByHINShouldResultInMatch()
         {
             var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
@@ -144,7 +144,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ComplexByNameOnlyShouldMatch()
         {
             var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
