@@ -198,14 +198,7 @@ namespace SanteDB.Matcher.Matchers
 
                     if (tr > block.MaxReuslts)
                     {
-                        this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts} this may adversely impact system performance");
-                        var ofs = block.MaxReuslts;
-                        while (ofs < tr)
-                        {
-                            retVal = retVal.Concat(persistenceService.Find(linq, ofs, block.MaxReuslts, out tr));
-                            ofs += block.MaxReuslts;
-                        }
-
+                        this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts}!! Records will be ignored for consideration!");
                     }
 
                     return retVal;
