@@ -39,7 +39,15 @@
     <PackageIconUrl>http://santesuite.org/assets/img/logo.png</PackageIconUrl>
     <PackageProjectUrl>http://santesuite.org</PackageProjectUrl>
     <Company>SanteSuite Contributors</Company>
-  </PropertyGroup>  
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <None Remove="Docker\MatchingFeature.xml" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <EmbeddedResource Include="Docker\MatchingFeature.xml" />
+  </ItemGroup>  
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>      
@@ -127,6 +135,8 @@
           <Name>SanteDB.Core.Applets</Name>
         </ProjectReference>
         <ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj" />
+        <ProjectReference Include="..\..\santedb-docker\SanteDB.Docker.Core\SanteDB.Docker.Core.csproj" />
+
       </ItemGroup>
     </When>
     <Otherwise>
@@ -135,6 +145,7 @@
         <PackageReference Include="SanteDB.Core.Api" Version="2.1.3.0" />
         <PackageReference Include="SanteDB.Core.Model" Version="2.1.3.0" />
         <PackageReference Include="SanteDB.OrmLite" Version="2.1.3.0" />
+        <PackageReference Include="SanteDB.Docker.Core" Version="2.1.3.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
