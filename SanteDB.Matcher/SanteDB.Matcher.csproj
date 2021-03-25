@@ -19,11 +19,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-    
+  <PropertyGroup Condition="'$(VersionNumber)' == ''">
+    <VersionNumber>2.1.0-debug</VersionNumber>
+  </PropertyGroup>
   <PropertyGroup>
     <PackageId>SanteDB.Matcher</PackageId>
     <Title>SanteDB.Matcher</Title>
-    <Version>2.1.3</Version>
+    <Version>$(VersionNumber)</Version>
     <Description>SanteDB Matching Plugin. Provides deterministic and probabalistic matching algorithms for the SanteDB persistence engine.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
@@ -141,11 +143,11 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.1.3.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.1.3.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.1.3.0" />
-        <PackageReference Include="SanteDB.OrmLite" Version="2.1.3.0" />
-        <PackageReference Include="SanteDB.Docker.Core" Version="2.1.3.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Api" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.OrmLite" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Docker.Core" Version="$(VersionNumber)" />
       </ItemGroup>
     </Otherwise>
   </Choose>
