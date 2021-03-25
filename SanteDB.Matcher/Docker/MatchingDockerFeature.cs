@@ -14,7 +14,7 @@ namespace SanteDB.Matcher.Docker
     /// <summary>
     /// Docker feature for matching configuration
     /// </summary>
-    public class MatchingFeature : IDockerFeature
+    public class MatchingDockerFeature : IDockerFeature
     {
 
         // Mode setting
