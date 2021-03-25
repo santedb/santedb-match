@@ -19,11 +19,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-    
+  <PropertyGroup Condition="'$(VersionNumber)' == ''">
+    <VersionNumber>2.1.0-debug</VersionNumber>
+  </PropertyGroup>
   <PropertyGroup>
     <PackageId>SanteDB.Matcher</PackageId>
     <Title>SanteDB.Matcher</Title>
-    <Version>2.1.2</Version>
+    <Version>$(VersionNumber)</Version>
     <Description>SanteDB Matching Plugin. Provides deterministic and probabalistic matching algorithms for the SanteDB persistence engine.</Description>
     <Authors>SanteSuite Contributors</Authors>
     <PackageTags>SanteDB</PackageTags>
@@ -39,7 +41,15 @@
     <PackageIconUrl>http://santesuite.org/assets/img/logo.png</PackageIconUrl>
     <PackageProjectUrl>http://santesuite.org</PackageProjectUrl>
     <Company>SanteSuite Contributors</Company>
-  </PropertyGroup>  
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <None Remove="Docker\MatchingFeature.xml" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <EmbeddedResource Include="Docker\MatchingFeature.xml" />
+  </ItemGroup>  
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>      
@@ -127,14 +137,17 @@
           <Name>SanteDB.Core.Applets</Name>
         </ProjectReference>
         <ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj" />
+        <ProjectReference Include="..\..\santedb-docker\SanteDB.Docker.Core\SanteDB.Docker.Core.csproj" />
+
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="2.1.2.0" />
-        <PackageReference Include="SanteDB.Core.Api" Version="2.1.2.0" />
-        <PackageReference Include="SanteDB.Core.Model" Version="2.1.2.0" />
-        <PackageReference Include="SanteDB.OrmLite" Version="2.1.2.0" />
+        <PackageReference Include="SanteDB.Core.Applets" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Api" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.OrmLite" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Docker.Core" Version="$(VersionNumber)" />
       </ItemGroup>
     </Otherwise>
   </Choose>
