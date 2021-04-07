@@ -145,6 +145,8 @@ namespace SanteDB.Matcher.Matchers
                 // is on that line, for example: -30.392 .. 30.392 
                 // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
                 var strength = (score + -minScore) / (maxScore + -minScore);
+                if (Double.IsNaN(strength))
+                    strength = 0;
                 RecordMatchClassification classification = RecordMatchClassification.NonMatch;
                 if (evaluationType == ThresholdEvaluationType.AbsoluteScore)
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;

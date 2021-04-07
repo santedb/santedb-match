@@ -37,6 +37,12 @@ namespace SanteDB.Matcher.Configuration
     {
 
         /// <summary>
+        /// True if files should be cached
+        /// </summary>
+        [XmlAttribute("cache"), JsonProperty("cache")]
+        public bool CacheFiles { get; set; }
+
+        /// <summary>
         /// File path
         /// </summary>
         [XmlArray("basePath"), XmlArrayItem("add"), JsonProperty("basePath")]
