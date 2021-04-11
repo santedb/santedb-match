@@ -113,14 +113,16 @@ namespace SanteDB.Matcher.Services
         /// <returns>The loaded configuration</returns>
         public IRecordMatchingConfiguration GetConfiguration(string name)
         {
-#if DEBUG
             if (this.m_matchConfigurations.TryGetValue(name, out dynamic configData))
-                using (var fs = System.IO.File.OpenRead(configData.OriginalFilePath))
-                    return MatchConfiguration.Load(fs);
-#else
-            if (this.m_matchConfigurations.TryGetValue(name, out dynamic configData))
-                return configData.Configuration as IRecordMatchingConfiguration;
-#endif
+            {
+                if (this.m_configuration.CacheFiles)
+                    return configData.Configuration as IRecordMatchingConfiguration;
+                else
+                {
+                    using (var fs = System.IO.File.OpenRead(configData.OriginalFilePath))
+                        return MatchConfiguration.Load(fs);
+                }
+            }
             else return null;
         }
 
