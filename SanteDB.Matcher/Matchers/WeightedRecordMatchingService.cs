@@ -168,9 +168,9 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Block and match records based on their match result
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList)
         {
-            var result = this.Classify(input, base.Block(input, configurationName), configurationName);
+            var result = this.Classify(input, base.Block(input, configurationName, ignoreList), configurationName);
             return result;
         }
 
