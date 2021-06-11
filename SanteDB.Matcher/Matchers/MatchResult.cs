@@ -30,13 +30,13 @@ using SanteDB.Matcher.Definition;
 
 namespace SanteDB.Matcher.Matchers
 {
+
     /// <summary>
-    /// Represents a single record match
+    /// Non-generic version of match result
     /// </summary>
-    /// <typeparam name="T">The type of record matched</typeparam>
-    public class MatchResult<T> : IRecordMatchResult<T>
-        where T: IdentifiedData
+    public abstract class MatchResult : IRecordMatchResult
     {
+
         /// <summary>
         /// Creates a new match result
         /// </summary>
@@ -45,60 +45,51 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="classification">The classification</param>
         /// <param name="method">The method that was used to establish the match</param>
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
-        public MatchResult(T record, double score, double strength, RecordMatchClassification classification, RecordMatchMethod method)
+        public MatchResult(IdentifiedData record, double score, double strength, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
         {
             this.Strength = strength;
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
-            this.Vectors = new List<MatchVector>();
+            this.Vectors = new List<MatchVector>(vectors);
             this.Method = method;
         }
 
         /// <summary>
-        /// Gets the score
+        /// Gets the record that was matched
+        /// </summary>
+        public IdentifiedData Record { get; set; }
+
+        /// <summary>
+        /// Gets the numeric score.
         /// </summary>
         public double Score { get; private set; }
 
         /// <summary>
-        /// Gets the relative strength for this match 
+        /// Gets the strength of the vector match (0..1)
         /// </summary>
-        /// <remarks>
-        /// The <see cref="Score"/> property contains the absolute score that the record obtained which may be
-        /// from MINSCORE ... MAXSCORE , where MINSCORE is usually a negative number. This value represents the 
-        /// value from 0 .. 1 of where the <see cref="Score"/> property lay on the number line between min and max.
-        /// </remarks>
-        public double Strength { get; private set;  }
+        public double Strength { get; private set; }
 
         /// <summary>
-        /// Gets the record
-        /// </summary>
-        public T Record { get; private set; }
-
-        /// <summary>
-        /// Gets the classification 
+        /// Gets the classification
         /// </summary>
         public RecordMatchClassification Classification { get; private set; }
 
         /// <summary>
-        /// Gets or sets the properties that matched and their score
-        /// </summary>
-        public IList<MatchVector> Vectors { get; internal set; }
-
-        /// <summary>
-        /// Get match attributes
-        /// </summary>
-        IEnumerable<IRecordMatchAttribute> IRecordMatchResult.Attributes => this.Vectors.OfType<IRecordMatchAttribute>();
-
-        /// <summary>
-        /// Gets the method of match
+        /// Gets the method that was used to calculate the vector's scopre
         /// </summary>
         public RecordMatchMethod Method { get; private set; }
 
         /// <summary>
-        /// Gets the record that matched
+        /// Get the generic vectors
         /// </summary>
-        IdentifiedData IRecordMatchResult.Record => this.Record;
+        IEnumerable<IRecordMatchVector> IRecordMatchResult.Vectors => this.Vectors;
+
+        /// <summary>
+        /// Gets or sets the properties that matched and their score
+        /// </summary>
+        public IList<MatchVector> Vectors { get; private set; }
+
 
         /// <summary>
         /// Represent this match as a string
@@ -110,10 +101,37 @@ namespace SanteDB.Matcher.Matchers
     }
 
     /// <summary>
+    /// Represents a single record match
+    /// </summary>
+    /// <typeparam name="T">The type of record matched</typeparam>
+    public class MatchResult<T> : MatchResult, IRecordMatchResult<T>
+        where T: IdentifiedData
+    {
+        /// <summary>
+        /// Creates a new match result
+        /// </summary>
+        /// <param name="record">The record that was classified</param>
+        /// <param name="score">The assigned score</param>
+        /// <param name="classification">The classification</param>
+        /// <param name="method">The method that was used to establish the match</param>
+        /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
+        public MatchResult(T record, double score, double strength, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
+            : base(record, score, strength, classification, method, vectors)
+        {
+        }
+
+        /// <summary>
+        /// Gets the record
+        /// </summary>
+        public new T Record => (T)base.Record;
+
+    }
+
+    /// <summary>
     /// Represents an individual property that matched
     /// </summary>
     [XmlType(Namespace = "http://santedb.org/matcher"), JsonObject]
-    public class MatchVector : IRecordMatchAttribute
+    public class MatchVector : IRecordMatchVector
     {
 
         /// <summary>
