@@ -50,9 +50,9 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Performs a block and match operation
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList)
         {
-            return this.Classify(input, this.Block(input, configurationName), configurationName);
+            return this.Classify(input, this.Block(input, configurationName, ignoreList), configurationName);
         }
 
     }

@@ -86,6 +86,11 @@ namespace SanteDB.Matcher.Matchers
         public IList<MatchVector> Vectors { get; internal set; }
 
         /// <summary>
+        /// Get match attributes
+        /// </summary>
+        IEnumerable<IRecordMatchAttribute> IRecordMatchResult.Attributes => this.Vectors.OfType<IRecordMatchAttribute>();
+
+        /// <summary>
         /// Gets the method of match
         /// </summary>
         public RecordMatchMethod Method { get; private set; }
@@ -108,7 +113,7 @@ namespace SanteDB.Matcher.Matchers
     /// Represents an individual property that matched
     /// </summary>
     [XmlType(Namespace = "http://santedb.org/matcher"), JsonObject]
-    public class MatchVector
+    public class MatchVector : IRecordMatchAttribute
     {
 
         /// <summary>

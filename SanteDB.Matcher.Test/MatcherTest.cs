@@ -72,7 +72,7 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            var blocks = matchService.Block<Patient>(patient, "test.dob_and_gender_no_class");
+            var blocks = matchService.Block<Patient>(patient, "test.dob_and_gender_no_class", null);
             Assert.AreEqual(2, blocks.Count());
         }
 
@@ -100,7 +100,7 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            var blocks = matchService.Block(patient, "test.dob_and_gender_with_class");
+            var blocks = matchService.Block(patient, "test.dob_and_gender_with_class", null);
             Assert.AreEqual(5, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.dob_and_gender_with_class");
             Assert.AreEqual(5, output.Count());
@@ -111,7 +111,7 @@ namespace SanteDB.Matcher.Test
         /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
         /// </summary>
         [Test]
-        public void ComplexByHINShouldResultInMatch()
+        public void ComplexByHinShouldResultInMatch()
         {
             var matchService = ApplicationServiceContext.Current.GetService<IRecordMatchingService>();
 
@@ -134,8 +134,8 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            var blocks = matchService.Block(patient, "test.complex");
-            Assert.AreEqual(113, blocks.Count());
+            var blocks = matchService.Block(patient, "test.complex", null);
+            Assert.AreEqual(100, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(1, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
 
@@ -179,8 +179,8 @@ namespace SanteDB.Matcher.Test
                 }
             };
             patient = patient.LoadConcepts();
-            var blocks = matchService.Block(patient, "test.complex");
-            Assert.AreEqual(140, blocks.Count());
+            var blocks = matchService.Block(patient, "test.complex", null);
+            Assert.AreEqual(100, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(3, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
         }
