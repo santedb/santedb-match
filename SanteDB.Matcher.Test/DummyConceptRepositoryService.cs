@@ -77,7 +77,7 @@ namespace SanteDB.Matcher.Test
             return this.Get(key);
         }
 
-        public Concept Get(Guid id, Guid? versionId, bool loadFast, IPrincipal principal)
+        public Concept Get(Guid id, Guid? versionId, IPrincipal principal)
         {
             return this.Get(id);
         }
