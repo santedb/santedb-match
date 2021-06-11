@@ -229,18 +229,23 @@ namespace SanteDB.Matcher.Matchers
         public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData;
 
         /// <summary>
+        /// Create a match report from the record type
+        /// </summary>
+        public object CreateMatchReport(Type recordType, object input, IEnumerable<IRecordMatchResult> matches)
+        {
+            return new MatchReport()
+            {
+                Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+            };
+        }
+
+        /// <summary>
         /// Create a match report 
         /// </summary>
         public object CreateMatchReport<T>(T input, IEnumerable<IRecordMatchResult<T>> matches) where T : IdentifiedData
         {
-            return new MatchReport()
-            {
-                Input = input.Key.Value,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method)
-                {
-                    Vectors = ((MatchResult<T>)o).Vectors,
-                })).ToList()
-            };
+            return this.CreateMatchReport(typeof(T), input, matches.OfType<IRecordMatchResult>());
         }
 
         /// <summary>
