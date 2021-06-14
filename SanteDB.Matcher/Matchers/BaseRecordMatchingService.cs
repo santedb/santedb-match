@@ -89,9 +89,10 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         /// <typeparam name="T">The type of object to be classified</typeparam>
         /// <param name="input">The input to be blocked</param>
+        /// <param name="ignoreKeys">The keys to ignore for blocking</param>
         /// <param name="configurationName">The name of the configuration to use</param>
         /// <returns>The blocked records</returns>
-        public virtual IEnumerable<T> Block<T>(T input, string configurationName) where T : IdentifiedData
+        public virtual IEnumerable<T> Block<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
         {
             this.m_tracer.TraceVerbose("Will block {0} on configuration {1}", input, configurationName);
 
@@ -120,13 +121,13 @@ namespace SanteDB.Matcher.Matchers
                     IEnumerable<T> retVal = null;
                     foreach (var b in strongConfig.Blocking)
                         if (retVal == null)
-                            retVal = this.DoBlock<T>(input, b);
+                            retVal = this.DoBlock<T>(input, b, ignoreKeys);
                         else if (b.Operator == BinaryOperatorType.AndAlso)
                         {
 #if DEBUG
                             this.m_tracer.TraceVerbose("INTERSECT {0} blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                            retVal = retVal.Intersect(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
+                            retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>());
 #if DEBUG
                             this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -136,7 +137,7 @@ namespace SanteDB.Matcher.Matchers
 #if DEBUG
                             this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                            retVal = retVal.Union(this.DoBlock<T>(input, b), new IdentifiedComparator<T>());
+                            retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>());
 #if DEBUG
                             this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -156,7 +157,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Perform the block operation
         /// </summary>
-        private IEnumerable<T> DoBlock<T>(T input, MatchBlock block) where T : IdentifiedData
+        private IEnumerable<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
         {
             try
             {
@@ -174,6 +175,11 @@ namespace SanteDB.Matcher.Matchers
                     foreach (var nv in nvc)
                         foreach (var val in nv.Value)
                             qfilter.Add(nv.Key, val);
+                }
+
+                if(ignoreKeys?.Any() == true)
+                {
+                    qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
 
                 // Make LINQ query 
@@ -220,31 +226,36 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Performs a block and match operation in one call
         /// </summary>
-        public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName) where T : IdentifiedData;
+        public abstract IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData;
+
+        /// <summary>
+        /// Create a match report from the record type
+        /// </summary>
+        public object CreateMatchReport(Type recordType, object input, IEnumerable<IRecordMatchResult> matches)
+        {
+            return new MatchReport()
+            {
+                Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+            };
+        }
 
         /// <summary>
         /// Create a match report 
         /// </summary>
         public object CreateMatchReport<T>(T input, IEnumerable<IRecordMatchResult<T>> matches) where T : IdentifiedData
         {
-            return new MatchReport()
-            {
-                Input = input.Key.Value,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method)
-                {
-                    Vectors = ((MatchResult<T>)o).Vectors,
-                })).ToList()
-            };
+            return this.CreateMatchReport(typeof(T), input, matches.OfType<IRecordMatchResult>());
         }
 
         /// <summary>
         /// Perform the specified match on <paramref name="input"/>
         /// </summary>
-        public IEnumerable<IRecordMatchResult> Match(IdentifiedData input, string configurationName)
+        public IEnumerable<IRecordMatchResult> Match(IdentifiedData input, string configurationName, IEnumerable<Guid> ignoreKeys)
         {
             // TODO: Provide a lookup list with a lambda expression to make this go faster
-            var genMethod = typeof(BaseRecordMatchingService).GetGenericMethod(nameof(Match), new Type[] { input.GetType() }, new Type[] { input.GetType(), typeof(String) });
-            var results = genMethod.Invoke(this, new object[] { input, configurationName }) as IEnumerable;
+            var genMethod = typeof(BaseRecordMatchingService).GetGenericMethod(nameof(Match), new Type[] { input.GetType() }, new Type[] { input.GetType(), typeof(String), typeof(IEnumerable<Guid>) });
+            var results = genMethod.Invoke(this, new object[] { input, configurationName, ignoreKeys }) as IEnumerable;
             return results.OfType<IRecordMatchResult>();
         }
     }

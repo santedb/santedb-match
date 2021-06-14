@@ -152,8 +152,7 @@ namespace SanteDB.Matcher.Matchers
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 else 
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
-                var retVal = new MatchResult<T>(block, score, strength, classification, RecordMatchMethod.Weighted);
-                attributeResult.ForEach(o=>retVal.Vectors.Add(o));
+                var retVal = new MatchResult<T>(block, score, strength, classification, RecordMatchMethod.Weighted, attributeResult);
 
 
                 return retVal;
@@ -168,9 +167,9 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Block and match records based on their match result
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList)
         {
-            var result = this.Classify(input, base.Block(input, configurationName), configurationName);
+            var result = this.Classify(input, base.Block(input, configurationName, ignoreList), configurationName);
             return result;
         }
 

@@ -40,7 +40,7 @@ namespace SanteDB.Matcher.Model
     {
 
         // The match data
-        private MatchResult<IdentifiedData> m_match;
+        private MatchResult m_match;
 
         /// <summary>
         /// Default ctor for serialization
@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Creates a new match result report from the specified match data
         /// </summary>
-        public MatchResultReport(MatchResult<IdentifiedData> match)
+        public MatchResultReport(MatchResult match)
         {
             this.m_match = match;
         }
