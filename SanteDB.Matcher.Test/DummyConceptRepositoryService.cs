@@ -88,7 +88,7 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public Concept Obsolete(Concept data, TransactionMode mode, IPrincipal principal)
+        public Concept Obsolete(Guid key, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
