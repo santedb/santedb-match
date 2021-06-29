@@ -166,5 +166,26 @@ namespace SanteDB.Matcher.Services
                 throw new Exception($"Error while saving match configuration {configuration.Name}", e);
             }
         }
+
+        /// <summary>
+        /// Delete the specified configuration
+        /// </summary>
+        public IRecordMatchingConfiguration DeleteConfiguration(string name)
+        {
+            if (this.m_matchConfigurations.TryRemove(name, out dynamic configData))
+            {
+                try
+                {
+                    File.Delete(configData.OriginalFilePath);
+                    return configData.Configuration;
+                }
+                catch(Exception e)
+                {
+                    this.m_tracer.TraceError("Error removing {0} - {1}", name, e.Message);
+                    throw new IOException($"Error removing {name}", e);
+                }
+            }
+            else throw new KeyNotFoundException($"Could not find {name}");
+        }
     }
 }

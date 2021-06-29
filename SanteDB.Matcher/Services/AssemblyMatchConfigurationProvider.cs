@@ -103,6 +103,14 @@ namespace SanteDB.Matcher.Services
         public IEnumerable<string> Configurations => this.m_configurations.Select(o => o.Name);
 
         /// <summary>
+        /// Delete configurations
+        /// </summary>
+        public IRecordMatchingConfiguration DeleteConfiguration(string name)
+        {
+            throw new NotSupportedException("Saving to assemblies is not supported");
+        }
+
+        /// <summary>
         /// Gets the specified configuration name
         /// </summary>
         public IRecordMatchingConfiguration GetConfiguration(string name)

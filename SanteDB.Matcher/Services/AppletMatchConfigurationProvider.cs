@@ -98,5 +98,13 @@ namespace SanteDB.Matcher.Services
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Delete configuration
+        /// </summary>
+        public IRecordMatchingConfiguration DeleteConfiguration(string name)
+        {
+            throw new NotSupportedException("This service does not support saving match configurations");
+        }
     }
 }

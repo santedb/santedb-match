@@ -38,6 +38,14 @@ namespace SanteDB.Matcher.Definition
     {
 
         /// <summary>
+        /// Match configuration
+        /// </summary>
+        static MatchConfiguration()
+        {
+            ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
+        }
+
+        /// <summary>
         /// Gets or sets the name of the matching configuration
         /// </summary>
         [XmlAttribute("id"), JsonProperty("id")]

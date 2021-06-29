@@ -51,5 +51,10 @@ namespace SanteDB.Matcher.Test
         {
             throw new NotImplementedException();
         }
+
+        public IRecordMatchingConfiguration DeleteConfiguration(string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
