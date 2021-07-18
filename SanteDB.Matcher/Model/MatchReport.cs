@@ -51,7 +51,7 @@ namespace SanteDB.Matcher.Model
     [XmlInclude(typeof(DeviceEntity))]
     [XmlInclude(typeof(UserEntity))]
     [XmlInclude(typeof(ApplicationEntity))]
-    public class MatchReport
+    public class MatchReport 
     {
 
         /// <summary>

@@ -81,9 +81,18 @@ namespace SanteDB.Matcher.Test
         {
             return this.Get(id);
         }
-        
+
+        public Concept Get(Guid key, Guid? versionKey, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
         public Concept Insert(Concept data, TransactionMode mode, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Obsolete(Guid key, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
