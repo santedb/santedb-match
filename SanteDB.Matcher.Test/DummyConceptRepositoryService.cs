@@ -82,11 +82,6 @@ namespace SanteDB.Matcher.Test
             return this.Get(id);
         }
 
-        public Concept Get(Guid key, Guid? versionKey, IPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
         public Concept Insert(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
@@ -97,12 +92,8 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public Concept Obsolete(Guid key, TransactionMode mode, IPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
 
-        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
+        public IQueryResultSet<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
