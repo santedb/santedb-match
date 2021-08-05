@@ -193,20 +193,25 @@ namespace SanteDB.Matcher.Matchers
                 if (block.SkipIfNull && qfilter.All(o => o.Value.All(v => "null".Equals(v))))
                     return new List<T>();
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
-                // Total results
-                int tr = 0;
+                
+                
+                // Query control variables for iterating result sets
+                int tr = 1;
+                var batch = block.BatchSize;
+                if(batch == 0) { batch = 100; }
 
                 // Set the authentication context 
-                using (AuthenticationContext.EnterSystemContext()) { 
-                    var retVal = persistenceService.Find(linq, 0, block.MaxReuslts, out tr);
-
-                    //                var retVal = persistenceService.Query(linq, 0, block.MaxReuslts, out tr, AuthenticationContext.SystemPrincipal);
-
-                    if (tr > block.MaxReuslts)
+                using (AuthenticationContext.EnterSystemContext()) {
+                    int ofs = 0;
+                    IEnumerable<T> retVal = null;
+                    while (ofs < tr)
                     {
-                        this.m_tracer.TraceWarning($"Block condition {linq} results {tr} exceeds configured maximum of {block.MaxReuslts}!! Records will be ignored for consideration!");
+                        if (retVal == null)
+                            retVal = persistenceService.Find(linq, ofs, batch, out tr);
+                        else
+                            retVal = retVal.Union(persistenceService.Find(linq, ofs, batch, out tr));
+                        ofs += batch;
                     }
-
                     return retVal;
 
                 }
