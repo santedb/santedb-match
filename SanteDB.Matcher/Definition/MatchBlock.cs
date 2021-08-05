@@ -47,7 +47,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the maximum results for this filter
         /// </summary>
         [XmlAttribute("maxResults"), JsonProperty("maxResults")]
-        public int MaxReuslts { get; set; }
+        public int BatchSize { get; set; }
 
         /// <summary>
         /// When true, skip this blocking filter if all the values are null

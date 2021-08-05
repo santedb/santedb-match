@@ -193,26 +193,20 @@ namespace SanteDB.Matcher.Filters
             return source.Subtract(target).Duration();
         }
 
+     
         /// <summary>
         /// Gets the first characters
         /// </summary>
-        public static String Substr(this String me, int start)
+        public static String Substr(this String me, int start, int? length)
         {
-            if (start > me.Length)
-                start = me.Length - 1;
-            return me.Substring(start); 
-        }
-
-        /// <summary>
-        /// Gets the first characters
-        /// </summary>
-        public static String Substr(this String me, int start, int length)
-        {
-            if (start + length> me.Length)
+            if (length.HasValue && start + length > me.Length)
                 length = me.Length - start;
             if (start > me.Length)
                 start = me.Length - 1;
-            return me.Substring(start, length);
+            if (length.HasValue)
+                return me.Substring(start, length.Value);
+            else
+                return me.Substring(start);
         }
 
         /// <summary>

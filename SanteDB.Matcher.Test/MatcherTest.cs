@@ -29,7 +29,7 @@ namespace SanteDB.Matcher.Test
                "DataDirectory",
                Path.Combine(TestContext.CurrentContext.TestDirectory, string.Empty));
 
-            EntitySource.Current = new EntitySource(new RepositoryEntitySource());
+            EntitySource.Current = new EntitySource(new PersistenceEntitySource());
 
             // Register the AuditAdoPersistenceService
             TestApplicationContext.TestAssembly = typeof(MatcherTest).Assembly;
@@ -135,7 +135,7 @@ namespace SanteDB.Matcher.Test
             };
             patient = patient.LoadConcepts();
             var blocks = matchService.Block(patient, "test.complex", null);
-            Assert.AreEqual(100, blocks.Count());
+            Assert.AreEqual(113, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(1, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
 
@@ -180,9 +180,10 @@ namespace SanteDB.Matcher.Test
             };
             patient = patient.LoadConcepts();
             var blocks = matchService.Block(patient, "test.complex", null);
-            Assert.AreEqual(100, blocks.Count());
+            Assert.AreEqual(140, blocks.Count());
             var output = matchService.Classify(patient, blocks, "test.complex");
             Assert.AreEqual(3, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
+            Assert.AreEqual(9, output.Where(o => o.Classification == RecordMatchClassification.Probable).Count());
         }
     }
 }
