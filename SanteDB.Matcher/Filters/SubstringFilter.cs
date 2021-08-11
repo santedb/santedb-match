@@ -40,7 +40,7 @@ namespace SanteDB.Matcher.Filters
         /// <summary>
         /// The extension method
         /// </summary>
-        public MethodInfo ExtensionMethod => typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.Substr), new Type[] { typeof(String), typeof(Int32) });
+        public MethodInfo ExtensionMethod => typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.Substr), new Type[] { typeof(String), typeof(Int32), typeof(Int32?) });
 
         /// <summary>
         /// Compose the expression
@@ -53,14 +53,14 @@ namespace SanteDB.Matcher.Filters
 
             if (parms.Length == 1)
                 return Expression.MakeBinary(comparison,
-                    Expression.Call(this.ExtensionMethod, scope, parms[0]),
-                    Expression.Call(this.ExtensionMethod, valueExpression, parms[0]));
+                    Expression.Call(this.ExtensionMethod, scope, parms[0], Expression.Constant(null)),
+                    Expression.Call(this.ExtensionMethod, valueExpression, parms[0], Expression.Constant(null)));
             else if (parms.Length == 2)
             {
                 var exm = typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.Substr), new Type[] { typeof(String), typeof(Int32), typeof(Int32) });
                 return Expression.MakeBinary(comparison,
-                    Expression.Call(exm, scope, parms[0], parms[1]),
-                    Expression.Call(exm, valueExpression, parms[0], parms[1]));
+                    Expression.Call(exm, scope, parms[0], Expression.Convert(parms[1], typeof(Int32?))),
+                    Expression.Call(exm, valueExpression, parms[0], Expression.Convert(parms[1], typeof(Int32?))));
             }
             else
                 throw new ArgumentOutOfRangeException($"Invalid number of arguments to substr");
