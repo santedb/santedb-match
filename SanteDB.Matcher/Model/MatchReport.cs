@@ -63,7 +63,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// The results for the matches
         /// </summary>
-        [XmlElement("result"), JsonProperty("result")]
+        [XmlElement("result"), JsonProperty("results")]
         public List<MatchResultReport> Results { get; set; }
 
     }

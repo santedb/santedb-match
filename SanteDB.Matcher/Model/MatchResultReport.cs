@@ -100,7 +100,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
-        [XmlArray("vectors"), XmlArrayItem("v"), JsonProperty("vector")]
+        [XmlArray("vectors"), XmlArrayItem("v"), JsonProperty("vectors")]
         public List<VectorResultReport> Vectors
         {
             get => this.m_match.Vectors.Select(o => new VectorResultReport(o)).ToList();
