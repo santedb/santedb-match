@@ -29,7 +29,7 @@ namespace SanteDB.Matcher.Test
         {
              var instance = TransformerFactory.Current.CreateTransformer("sorensen_dice");
             Assert.IsAssignableFrom<SorensenDiceTransform>(instance);
-            Assert.IsAssignableFrom<IBinaryDataTransformer>(instance);
+            Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
 
             // Apply
             if (instance is IBinaryDataTransformer binary) {
