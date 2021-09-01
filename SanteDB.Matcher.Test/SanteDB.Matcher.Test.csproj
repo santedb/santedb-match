@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(VersionNumber)' == ''">
     <VersionNumber>2.1.0-debug</VersionNumber>
   </PropertyGroup>
-    <PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E210AD94-8006-4F32-A86D-198CB2D8A9CE}</ProjectGuid>
@@ -116,13 +116,13 @@
       <Version>1.1.4</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
-      <Version>3.13.1</Version>
+      <Version>3.13.2</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.26.0</Version>
+      <Version>0.28.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
