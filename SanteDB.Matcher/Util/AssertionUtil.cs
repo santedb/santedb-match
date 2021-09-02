@@ -117,6 +117,7 @@ namespace SanteDB.Matcher.Util
                 case MatchAttributeNullBehavior.Disqualify:
                     return -100;
                 case MatchAttributeNullBehavior.Zero:
+                case MatchAttributeNullBehavior.None:
                     return 0.0;
                 case MatchAttributeNullBehavior.Match:
                     return attribute.MatchWeight;
@@ -124,6 +125,7 @@ namespace SanteDB.Matcher.Util
                     return attribute.NonMatchWeight;
                 case MatchAttributeNullBehavior.Ignore:
                     return null;
+                
                 default:
                     throw new InvalidOperationException("Should not be here - Can't determine null behavior");
             }
@@ -291,7 +293,18 @@ namespace SanteDB.Matcher.Util
                     a = aValue; b = bValue;
                     foreach (var xform in attribute.Measure.Transforms)
                         ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b);
-                    weightedScore *= (double)ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
+                    var measureResult = ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
+                    if(measureResult is IEnumerable enumMeasure)
+                    {
+                        foreach (var itm in enumMeasure)
+                        {
+                            weightedScore *= (double)itm;
+                        }
+                    }
+                    else
+                    {
+                        weightedScore *= (double)measureResult;
+                    }
                 }
 
                 m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
@@ -300,8 +313,7 @@ namespace SanteDB.Matcher.Util
             }
             catch (Exception e)
             {
-                m_tracer.TraceError("Error executing assertion {0} - {1}", e);
-                throw new MatchingException($"Error executing assertion {assertion}", e);
+                throw new MatchingException($"Error executing assertion {assertion} on attribute {attribute}", e);
             }
         }
     }

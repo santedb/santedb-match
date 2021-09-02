@@ -32,6 +32,11 @@ namespace SanteDB.Matcher.Definition
     public enum MatchAttributeNullBehavior
     {
         /// <summary>
+        /// Take no special action
+        /// </summary>
+        [XmlEnum("none")]
+        None,
+        /// <summary>
         /// When the field is null on the queried record apply the mWeight
         /// </summary>
         [XmlEnum("match")]

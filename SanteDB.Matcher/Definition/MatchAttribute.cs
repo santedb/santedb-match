@@ -170,6 +170,6 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Represent this attribute as a string
         /// </summary>
-        public override string ToString() => $"VECTOR: {this.Property} ({this.Assertion}) [match: {this.MatchWeight}, non: {this.NonMatchWeight}, u: {this.U}, m: {this.M}, measure: {this.Measure}]";
+        public override string ToString() => $"ATTRIBUTE: {String.Join(" || ", this.Property)} ({this.Assertion}) [match: {this.MatchWeight}, non: {this.NonMatchWeight}, u: {this.U}, m: {this.M}, measure: {this.Measure}]";
     }
 }
