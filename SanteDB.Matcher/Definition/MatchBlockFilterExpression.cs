@@ -21,40 +21,34 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq.Expressions;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Represents a block configuration which are IMSI expressions to send to the database
+    /// Block filter expression
     /// </summary>
-    [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlock))]
-    public class MatchBlock
+    [XmlType(nameof(MatchBlockFilterExpression), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlockFilterExpression))]
+    public class MatchBlockFilterExpression
     {
 
         /// <summary>
-        /// Gets or sets the binary operator
+        /// The when condition on the filter expression
         /// </summary>
-        [XmlAttribute("op"), JsonProperty("op")]
-        public BinaryOperatorType Operator { get; set; }
+        [XmlAttribute("when"), JsonProperty("when")]
+        public List<string> When { get; set; }
 
         /// <summary>
-        /// Gets or sets the block filters
+        /// Expression 
         /// </summary>
-        [XmlElement("filter"), JsonProperty("filter")]
-        public List<MatchBlockFilterExpression> Filter { get; set; }
+        [XmlText(), JsonProperty("expression")]
+        public string Expression { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum results for this filter
+        /// The selector
         /// </summary>
-        [XmlAttribute("maxResults"), JsonProperty("maxResults")]
-        public int BatchSize { get; set; }
-
-        /// <summary>
-        /// When true, skip this blocking filter if all the values are null
-        /// </summary>
-        [XmlAttribute("skipWhenNullInput"), JsonProperty("skipWhenNullInput")]
-        public bool SkipIfNull { get; set; }
+        [XmlIgnore, JsonIgnore]
+        public Delegate GuardExpression { get; internal set; }
     }
 }
