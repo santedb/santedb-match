@@ -20,39 +20,35 @@
  */
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Represents a match transformer configuration
+    /// Block filter expression
     /// </summary>
-    [XmlType(nameof(MatchTransformConfiguration), Namespace = "http://santedb.org/matcher")]
-    [JsonObject(nameof(MatchTransformConfiguration))]
-    public class MatchTransformConfiguration
+    [XmlType(nameof(MatchBlockFilterExpression), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlockFilterExpression))]
+    public class MatchBlockFilterExpression
     {
 
         /// <summary>
-        /// Gets the name of the transform
+        /// The when condition on the filter expression
         /// </summary>
-        [XmlAttribute("name"), JsonProperty("name")]
-        public string Name { get; set; }
+        [XmlAttribute("when"), JsonProperty("when")]
+        public List<string> When { get; set; }
 
         /// <summary>
-        /// Gets the type
+        /// Expression 
         /// </summary>
-        [XmlAttribute("type"), JsonProperty("type")]
-        public string TypeXml { get; set; }
+        [XmlText(), JsonProperty("expression")]
+        public string Expression { get; set; }
 
         /// <summary>
-        /// Gets or sets the type
+        /// The selector
         /// </summary>
-        [XmlIgnore]
-        public Type Type
-        {
-            get => Type.GetType(this.TypeXml);
-            set => this.TypeXml = value.AssemblyQualifiedName;
-        }
-
+        [XmlIgnore, JsonIgnore]
+        public Delegate GuardExpression { get; internal set; }
     }
 }

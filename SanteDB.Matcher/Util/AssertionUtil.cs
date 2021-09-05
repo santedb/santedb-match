@@ -1,5 +1,7 @@
 ﻿/*
- * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
+ * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -14,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-2-9
+ * Date: 2021-8-5
  */
 using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Configuration;
@@ -115,6 +117,7 @@ namespace SanteDB.Matcher.Util
                 case MatchAttributeNullBehavior.Disqualify:
                     return -100;
                 case MatchAttributeNullBehavior.Zero:
+                case MatchAttributeNullBehavior.None:
                     return 0.0;
                 case MatchAttributeNullBehavior.Match:
                     return attribute.MatchWeight;
@@ -122,6 +125,7 @@ namespace SanteDB.Matcher.Util
                     return attribute.NonMatchWeight;
                 case MatchAttributeNullBehavior.Ignore:
                     return null;
+                
                 default:
                     throw new InvalidOperationException("Should not be here - Can't determine null behavior");
             }
@@ -289,17 +293,27 @@ namespace SanteDB.Matcher.Util
                     a = aValue; b = bValue;
                     foreach (var xform in attribute.Measure.Transforms)
                         ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b);
-                    weightedScore *= (double)ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
+                    var measureResult = ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
+                    if(measureResult is IEnumerable enumMeasure)
+                    {
+                        foreach (var itm in enumMeasure)
+                        {
+                            weightedScore *= (double)itm;
+                        }
+                    }
+                    else
+                    {
+                        weightedScore *= (double)measureResult;
+                    }
                 }
 
-                m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
+                m_tracer.TraceInfo("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
 
                 return new AssertionResult(propertyName, true, retVal, weightedScore, aValue, bValue);
             }
             catch (Exception e)
             {
-                m_tracer.TraceError("Error executing assertion {0} - {1}", e);
-                throw new MatchingException($"Error executing assertion {assertion}", e);
+                throw new MatchingException($"Error executing assertion {assertion} on attribute {attribute}", e);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿/*
- * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
+ * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -14,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-2-9
+ * Date: 2021-8-5
  */
 using System.Collections.Generic;
 using SanteDB.Core.Services;
@@ -171,29 +173,74 @@ namespace SanteDB.Matcher.Matchers
                 NameValueCollection qfilter = new NameValueCollection();
                 foreach (var b in filter)
                 {
-                    var nvc = NameValueCollection.ParseQueryString(b);
-                    foreach (var nv in nvc)
-                        foreach (var val in nv.Value)
-                            qfilter.Add(nv.Key, val);
+
+                    bool shouldIncludeExpression = true;
+                    if(b.When?.Any() == true) // Only include the filter when the conditions are met
+                    {
+                        var guardExpression = b.GuardExpression;
+
+                        if (guardExpression == null) // not built
+                        {
+                            var parameter = Expression.Parameter(typeof(T));
+                            Expression guardBody = null;
+                            foreach (var whenClause in b.When)
+                            {
+                                var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(whenClause, true);
+                                if(guardBody == null)
+                                {
+                                    guardBody = Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null));
+                                }
+                                else
+                                {
+                                    guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardBody, parameter), Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null)));
+                                }
+                            }
+                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile(); 
+                        }
+
+                        shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
+                    }
+
+                    if (shouldIncludeExpression)
+                    {
+                        var nvc = NameValueCollection.ParseQueryString(b.Expression);
+                        // Build the expression
+                        foreach (var nv in nvc)
+                        {
+                            foreach (var val in nv.Value)
+                            {
+                                qfilter.Add(nv.Key, val);
+
+                                if(b.When?.Any(o=>o == nv.Key) == true)
+                                {
+                                    qfilter.Add(nv.Key, "null");
+                                }
+                            }
+                        }
+                    }
                 }
 
+                // Do we skip when no conditions?
+                if(!qfilter.Any())
+                {
+                    return new T[0];
+                }
+
+                // Add ignore clauses
                 if(ignoreKeys?.Any() == true)
                 {
                     qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
 
-                // Make LINQ query 
+                // Make LINQ query
+                // NOTE: We can't build and store this since input is a closure 
+                // TODO: Figure out a way to compile this expression once
                 var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
                 }, safeNullable: true, lazyExpandVariables: false);
-
-                // If the resolved query variables are all null we want to ignore the query
-                qfilter = new NameValueCollection(QueryExpressionBuilder.BuildQuery(linq).ToArray());
-                if (block.SkipIfNull && qfilter.All(o => o.Value.All(v => "null".Equals(v))))
-                    return new List<T>();
-                this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 
+                this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
                 
                 // Query control variables for iterating result sets
                 int tr = 1;

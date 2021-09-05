@@ -1,5 +1,7 @@
 ﻿/*
- * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors (See NOTICE.md)
+ * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
+ * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. You may 
@@ -14,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-2-9
+ * Date: 2021-8-5
  */
 using SanteDB.Core;
 using SanteDB.Core.Model;
@@ -44,14 +46,11 @@ namespace SanteDB.Matcher.Matchers
     [ServiceProvider("SanteMatch Probabalistic Match Service")]
     public class WeightedRecordMatchingService : BaseRecordMatchingService
     {
-        
+
         /// <summary>
         /// Probabalistic matching service
         /// </summary>
         public override string ServiceName => "SanteMatch Probabalistic Matching Service";
-
-        // Configurations
-        static ConcurrentDictionary<String, MatchConfiguration> s_configurations = new ConcurrentDictionary<string, MatchConfiguration>();
 
         /// <summary>
         /// Classify the records using the specified configuration
@@ -80,19 +79,11 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         private MatchConfiguration GetConfiguration<T>(string configurationName) where T : IdentifiedData
         {
-#if DEBUG
+
             var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-            MatchConfiguration retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
-#else
-            if (!s_configurations.TryGetValue(configurationName, out MatchConfiguration retVal))
-            {
-                var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
-                retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
-                if (retVal == null)
-                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
-                s_configurations.TryAdd(configurationName, retVal);
-            }
-#endif
+            var retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
+            if (retVal == null)
+                throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
             return retVal;
         }
 
@@ -144,13 +135,13 @@ namespace SanteDB.Matcher.Matchers
                 // This forms a number line between -MIN .. MAX , our probability is the distance that our score 
                 // is on that line, for example: -30.392 .. 30.392 
                 // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
-                var strength = (score + -minScore) / (maxScore + -minScore);
+                var strength = (double)(score + -minScore) / (double)(maxScore + -minScore);
                 if (Double.IsNaN(strength))
                     strength = 0;
                 RecordMatchClassification classification = RecordMatchClassification.NonMatch;
                 if (evaluationType == ThresholdEvaluationType.AbsoluteScore)
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
-                else 
+                else
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 var retVal = new MatchResult<T>(block, score, strength, classification, RecordMatchMethod.Weighted, attributeResult);
 
