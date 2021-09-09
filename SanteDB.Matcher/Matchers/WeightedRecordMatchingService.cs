@@ -65,7 +65,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.AsParallel().AsOrdered().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.AsParallel().AsOrdered().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
             catch (Exception e)
             {
@@ -95,7 +95,10 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="block">The block which is being classified</param>
         /// <param name="attributes">The match attributes to classify on</param>
         /// <returns>The match classification</returns>
-        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
+        /// <param name="configurationName">The name of the configuration used</param>
+        /// <param name="evaluationType">The evaluation type</param>
+        /// <param name="matchThreshold">The matching threshold</param>
+        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, string configurationName, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
         {
             try
             {
@@ -143,7 +146,7 @@ namespace SanteDB.Matcher.Matchers
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 else
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
-                var retVal = new MatchResult<T>(block, score, strength, classification, RecordMatchMethod.Weighted, attributeResult);
+                var retVal = new MatchResult<T>(block, score, strength, configurationName, classification, RecordMatchMethod.Weighted, attributeResult);
 
 
                 return retVal;

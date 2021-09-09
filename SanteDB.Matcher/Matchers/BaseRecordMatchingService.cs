@@ -288,7 +288,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
             };
         }
 
@@ -310,5 +310,17 @@ namespace SanteDB.Matcher.Matchers
             var results = genMethod.Invoke(this, new object[] { input, configurationName, ignoreKeys }) as IEnumerable;
             return results.OfType<IRecordMatchResult>();
         }
+
+        /// <summary>
+        /// Classify 
+        /// </summary>
+        public IEnumerable<IRecordMatchResult> Classify(IdentifiedData input, IEnumerable<IdentifiedData> blocks, String configurationName)
+        {
+            var genMethod = this.GetType().GetGenericMethod(nameof(Classify), new Type[] { input.GetType() }, new Type[] { input.GetType(), typeof(IEnumerable<>).MakeGenericType(input.GetType()), typeof(String) });
+            var ofTypeMethod = typeof(Enumerable).GetGenericMethod(nameof(Enumerable.OfType), new Type[] { input.GetType() }, new Type[] { typeof(IEnumerable) });
+            var results = genMethod.Invoke(this, new object[] { input, ofTypeMethod.Invoke(null, new object[] { blocks }), configurationName }) as IEnumerable;
+            return results.OfType<IRecordMatchResult>();
+        }
+
     }
 }
