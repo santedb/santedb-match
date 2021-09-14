@@ -18,7 +18,6 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +28,7 @@ using System.Xml.Serialization;
 using SanteDB.Core.Model;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
+using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {

@@ -32,6 +32,11 @@ namespace SanteDB.Matcher.Definition
     [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlock))]
     public class MatchBlock
     {
+        /// <summary>
+        /// Gets or sets the description
+        /// </summary>
+        [XmlElement("description"), JsonProperty("description")]
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the binary operator

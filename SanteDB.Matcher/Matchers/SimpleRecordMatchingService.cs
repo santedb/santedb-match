@@ -25,6 +25,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {

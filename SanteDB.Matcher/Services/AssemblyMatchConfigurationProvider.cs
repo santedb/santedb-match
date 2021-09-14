@@ -21,6 +21,7 @@
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using System;
@@ -30,6 +31,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Services
 {
@@ -70,7 +72,7 @@ namespace SanteDB.Matcher.Services
                             {
                                 var conf = MatchConfigurationCollection.Load(s);
                                 this.m_configurations.Add(conf);
-                                this.m_tracer.TraceInfo("Loaded match configuration collection {0}", conf.Name);
+                                this.m_tracer.TraceInfo("Loaded match configuration collection {0}", conf.Id);
                             }
                             catch
                             {
@@ -78,7 +80,7 @@ namespace SanteDB.Matcher.Services
                                 {
                                     var conf = MatchConfiguration.Load(s);
                                     this.m_configurations.Add(conf);
-                                    this.m_tracer.TraceInfo("Loaded match configuration {0}", conf.Name);
+                                    this.m_tracer.TraceInfo("Loaded match configuration {0}", conf.Id);
                                 }
                                 catch { }
                             }
@@ -102,7 +104,7 @@ namespace SanteDB.Matcher.Services
         /// <summary>
         /// Gets all configurations 
         /// </summary>
-        public IEnumerable<string> Configurations => this.m_configurations.Select(o => o.Name);
+        public IEnumerable<IRecordMatchingConfiguration> Configurations => this.m_configurations;
 
         /// <summary>
         /// Delete configurations
@@ -117,7 +119,16 @@ namespace SanteDB.Matcher.Services
         /// </summary>
         public IRecordMatchingConfiguration GetConfiguration(string name)
         {
-            return this.m_configurations.FirstOrDefault(o => o.Name == name);
+            return this.m_configurations.FirstOrDefault(o => o.Id == name);
+        }
+
+        /// <summary>
+        /// Get all configurations of type 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public IEnumerable<IRecordMatchingConfiguration> GetConfigurations<T>(Expression<Func<IRecordMatchingConfiguration, bool>> filter)
+        {
+            return this.m_configurations.Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
 
         /// <summary>
@@ -128,6 +139,15 @@ namespace SanteDB.Matcher.Services
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration config)
         {
             throw new NotSupportedException("Saving to assemblies is not supported");
+        }
+
+        /// <summary>
+        /// Saving to assemblies not supported
+        /// </summary>
+        public IRecordMatchingConfiguration SetMetadata(string name, IRecordMatchingConfigurationMetadata metadata)
+        {
+            throw new NotSupportedException("Saving to assemblies is not supported");
+
         }
     }
 }

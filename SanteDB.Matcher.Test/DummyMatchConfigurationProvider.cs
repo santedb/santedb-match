@@ -28,6 +28,8 @@ using System.Reflection;
 using SanteDB.Matcher.Model;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
+using SanteDB.Core.Matching;
+using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Test
 {
@@ -42,7 +44,8 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// All configuration 
         /// </summary>
-        public IEnumerable<string> Configurations => this.m_configs.Select(o => o.Name);
+        public IEnumerable<IRecordMatchingConfiguration> Configurations => this.m_configs;
+
 
         private List<IRecordMatchingConfiguration> m_configs = new List<IRecordMatchingConfiguration>();
 
@@ -64,7 +67,7 @@ namespace SanteDB.Matcher.Test
         /// </summary>
         public IRecordMatchingConfiguration GetConfiguration(string name)
         {
-            return this.m_configs.FirstOrDefault(o => o.Name == name);
+            return this.m_configs.FirstOrDefault(o => o.Id == name);
         }
 
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
@@ -75,6 +78,11 @@ namespace SanteDB.Matcher.Test
         public IRecordMatchingConfiguration DeleteConfiguration(string name)
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<IRecordMatchingConfiguration> GetConfigurations<T>(Expression<Func<IRecordMatchingConfiguration, bool>> filter)
+        {
+            return this.Configurations.Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
     }
 }

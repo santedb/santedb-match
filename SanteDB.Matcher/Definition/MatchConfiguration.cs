@@ -20,7 +20,7 @@
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Serialization;
-using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,11 +47,36 @@ namespace SanteDB.Matcher.Definition
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
 
+
+        /// <summary>
+        /// Gets or sets the metadata for this object
+        /// </summary>
+        [XmlIgnore, JsonIgnore]
+        IRecordMatchingConfigurationMetadata IRecordMatchingConfiguration.Metadata { get => this.Metadata; set => this.Metadata = new MatchConfigurationMetadata(value); }
+
+        /// <summary>
+        /// Gets or sets meta data
+        /// </summary>
+        [XmlElement("meta"), JsonProperty("meta")]
+        public MatchConfigurationMetadata Metadata { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the matching configuration
         /// </summary>
         [XmlAttribute("id"), JsonProperty("id")]
-        public String Name { get; set; }
+        public String Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name
+        /// </summary>
+        [XmlAttribute("name"), JsonProperty("name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name
+        /// </summary>
+        [XmlAttribute("description"), JsonProperty("description")]
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the manner in which the classification is determined

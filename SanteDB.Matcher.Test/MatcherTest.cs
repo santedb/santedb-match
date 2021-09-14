@@ -29,7 +29,7 @@ using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.EntityLoader;
 using SanteDB.Core.Model.Roles;
-using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using SanteDB.Core.TestFramework;
 using SanteDB.Matcher.Matchers;
 

@@ -23,6 +23,7 @@ using SanteDB.Core.Model;
 using SanteDB.Core.Model.Query;
 using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
@@ -63,7 +64,7 @@ namespace SanteDB.Matcher.Matchers
                 if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
                 var strongConfig = this.GetConfiguration<T>(configurationName);
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
-                    throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
+                    throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 return blocks.AsParallel().AsOrdered().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
             }
