@@ -45,8 +45,16 @@ namespace SanteDB.Matcher.Definition
         static MatchConfiguration()
         {
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
+            
         }
 
+        /// <summary>
+        /// Match configuration metadata
+        /// </summary>
+        public MatchConfiguration()
+        {
+            this.Metadata = new MatchConfigurationMetadata();
+        }
 
         /// <summary>
         /// Gets or sets the metadata for this object
