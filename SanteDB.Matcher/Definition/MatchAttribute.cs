@@ -51,6 +51,12 @@ namespace SanteDB.Matcher.Definition
         public string Id { get; set; }
 
         /// <summary>
+        /// Gets or sets the name
+        /// </summary>
+        [XmlAttribute("description"), JsonProperty("description")]
+        public string Description { get; set; }
+
+        /// <summary>
         /// When condition on a match attribute
         /// </summary>
         [XmlArray("when"), XmlArrayItem("attribute"), JsonProperty("when")]

@@ -307,7 +307,7 @@ namespace SanteDB.Matcher.Util
                     }
                 }
 
-                m_tracer.TraceVerbose("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
+                m_tracer.TraceInfo("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
 
                 return new AssertionResult(propertyName, true, retVal, weightedScore, aValue, bValue);
             }
