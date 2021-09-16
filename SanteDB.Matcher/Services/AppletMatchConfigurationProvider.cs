@@ -22,6 +22,7 @@ using SanteDB.Core;
 using SanteDB.Core.Applets.Services;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using System;
@@ -30,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Services
 {
@@ -61,7 +63,7 @@ namespace SanteDB.Matcher.Services
         /// <summary>
         /// Configurations
         /// </summary>
-        public IEnumerable<string> Configurations => this.m_configurationCache.Keys;
+        public IEnumerable<IRecordMatchingConfiguration> Configurations => this.m_configurationCache.Values;
 
         /// <summary>
         /// Get the specified configuration name
@@ -107,6 +109,22 @@ namespace SanteDB.Matcher.Services
         public IRecordMatchingConfiguration DeleteConfiguration(string name)
         {
             throw new NotSupportedException("This service does not support saving match configurations");
+        }
+
+        /// <summary>
+        /// Set metadata
+        /// </summary>
+        public IRecordMatchingConfiguration SetMetadata(string name, IRecordMatchingConfigurationMetadata metadata)
+        {
+            throw new NotSupportedException("This service does not support saving match configurations");
+        }
+
+        /// <summary>
+        /// Get configurations
+        /// </summary>
+        public IEnumerable<IRecordMatchingConfiguration> GetConfigurations<T>(Expression<Func<IRecordMatchingConfiguration, bool>> filter)
+        {
+            return this.m_configurationCache.Values.Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
     }
 }

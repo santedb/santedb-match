@@ -31,6 +31,9 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
+using SanteDB.Core.Matching;
+using System.Linq.Expressions;
+using SanteDB.Core.Security;
 
 namespace SanteDB.Matcher.Services
 {
@@ -54,7 +57,7 @@ namespace SanteDB.Matcher.Services
         /// <summary>
         /// Gets the configurations known to this configuration provider
         /// </summary>
-        public IEnumerable<string> Configurations => this.m_matchConfigurations.Values.Select(o => o.Configuration.Name).OfType<String>();
+        public IEnumerable<IRecordMatchingConfiguration> Configurations => this.m_matchConfigurations.Values.Select(o => o.Configuration).OfType<IRecordMatchingConfiguration>();
 
         /// <summary>
         /// Gets the service name
@@ -87,7 +90,7 @@ namespace SanteDB.Matcher.Services
                                     using (var fs = System.IO.File.OpenRead(fileName))
                                     {
                                         var config = MatchConfiguration.Load(fs);
-                                        this.m_matchConfigurations.TryAdd(config.Name, new
+                                        this.m_matchConfigurations.TryAdd(config.Id, new
                                         {
                                             OriginalFilePath = fileName,
                                             Configuration = config
@@ -135,11 +138,18 @@ namespace SanteDB.Matcher.Services
         /// <returns>The updated configuration</returns>
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
-            if (!this.m_matchConfigurations.TryGetValue(configuration.Name, out dynamic configData))
+            if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out dynamic configData))
             {
                 var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
                 if (savePath == null)
                     throw new InvalidOperationException("Cannot find a read/write configuration path");
+
+                // Set select metadata
+                configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                {
+                    CreationTime = DateTimeOffset.Now,
+                    CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
+                };
 
                 configData = new
                 {
@@ -147,7 +157,7 @@ namespace SanteDB.Matcher.Services
                     OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, Guid.NewGuid().ToString()), "xml")
                 };
 
-                if (!this.m_matchConfigurations.TryAdd(configuration.Name, configData))
+                if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
                     throw new InvalidOperationException("Storing configuration has failed");
             }
 
@@ -165,7 +175,7 @@ namespace SanteDB.Matcher.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Error while saving match configuration {configuration.Name}", e);
+                throw new Exception($"Error while saving match configuration {configuration.Id}", e);
             }
         }
 
@@ -181,13 +191,21 @@ namespace SanteDB.Matcher.Services
                     File.Delete(configData.OriginalFilePath);
                     return configData.Configuration;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     this.m_tracer.TraceError("Error removing {0} - {1}", name, e.Message);
                     throw new IOException($"Error removing {name}", e);
                 }
             }
             else throw new KeyNotFoundException($"Could not find {name}");
+        }
+
+        /// <summary>
+        /// Get all configurations from this provider
+        /// </summary>
+        public IEnumerable<IRecordMatchingConfiguration> GetConfigurations<T>(Expression<Func<IRecordMatchingConfiguration, bool>> filter)
+        {
+            return this.m_matchConfigurations.Values.Select(o => o.Configuration).OfType<IRecordMatchingConfiguration>().Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
     }
 }

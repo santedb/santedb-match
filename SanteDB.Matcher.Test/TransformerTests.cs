@@ -42,6 +42,24 @@ namespace SanteDB.Matcher.Test
         }
 
         /// <summary>
+        /// Tests the jaro-winkler transfrm
+        /// </summary>
+        [Test]
+        public void TestJaroWinklerTransform()
+        {
+            var instance = TransformerFactory.Current.CreateTransformer("jaro_winkler");
+            Assert.IsAssignableFrom<JaroWinklerTransform>(instance);
+            Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
+
+            if(instance is IBinaryDataTransformer binary)
+            {
+                var distance = binary.Apply("Oscar", "Ofsar");
+                Assert.LessOrEqual(0.1d, (double)distance);
+                distance = binary.Apply("Kimeu", "Cherop");
+            }
+        }
+
+        /// <summary>
         /// Tests the sorensen dice
         /// </summary>
         [Test]

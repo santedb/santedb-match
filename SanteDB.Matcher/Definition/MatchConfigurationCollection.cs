@@ -20,7 +20,7 @@
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Serialization;
-using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets the name of the matching configuration collection
         /// </summary>
         [XmlAttribute("id"), JsonProperty("id")]
-        public string Name { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Applies to
@@ -72,6 +72,18 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlElement("configuration"), JsonProperty("configuration")]
         public List<MatchConfiguration> Configurations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the metadata for this object
+        /// </summary>
+        [XmlIgnore, JsonIgnore]
+        IRecordMatchingConfigurationMetadata  IRecordMatchingConfiguration.Metadata { get => this.Metadata; set => this.Metadata = new MatchConfigurationMetadata(value); }
+
+        /// <summary>
+        /// Gets or sets meta data
+        /// </summary>
+        [XmlElement("meta"), JsonProperty("meta")]
+        public MatchConfigurationMetadata Metadata { get; set; }
 
         /// <summary>
         /// Load match configuration from the specified stream

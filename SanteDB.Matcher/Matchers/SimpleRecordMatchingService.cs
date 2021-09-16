@@ -25,6 +25,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -46,7 +47,7 @@ namespace SanteDB.Matcher.Matchers
         /// <remarks>This particular record matching service only uses the blocking portion of configuration so all blocked records are considered matches</remarks>
         public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
         {
-            return blocks.Select(o => new MatchResult<T>(o, 1.0, 1.0, RecordMatchClassification.Match, RecordMatchMethod.Deterministic,null));
+            return blocks.Select(o => new MatchResult<T>(o, 1.0, 1.0, configurationName, RecordMatchClassification.Match, RecordMatchMethod.Deterministic,null));
         }
 
         /// <summary>

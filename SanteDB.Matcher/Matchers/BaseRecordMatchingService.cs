@@ -37,6 +37,7 @@ using SanteDB.Matcher.Model;
 using SanteDB.Core.Model.Serialization;
 using SanteDB.Matcher.Definition;
 using System.Collections;
+using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -109,13 +110,18 @@ namespace SanteDB.Matcher.Matchers
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
-                config = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType) || input.GetType().IsAssignableFrom(t.ResourceType))) ?? config;
+
+                if (config is MatchConfigurationCollection collection)
+                {
+                    config = collection.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType) || input.GetType().IsAssignableFrom(t.ResourceType))) ?? config;
+                }
+
                 if (config == null || !(config is MatchConfiguration))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
 
                 var strongConfig = config as MatchConfiguration;
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
-                    throw new InvalidOperationException($"Configuration {strongConfig.Name} doesn't appear to contain any reference to {typeof(T).FullName}");
+                    throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
                 // If the blocking algorithm for this type is AND then we can just use a single IMSI query
                 if (strongConfig.Blocking.Count > 0)
@@ -147,7 +153,7 @@ namespace SanteDB.Matcher.Matchers
                     return retVal.ToList();
                 }
                 else
-                    throw new InvalidOperationException($"Configuration {config.Name} contains no blocking instructions, cannot Block");
+                    throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
             }
             catch(Exception e)
             {
@@ -288,7 +294,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
             };
         }
 
@@ -310,5 +316,17 @@ namespace SanteDB.Matcher.Matchers
             var results = genMethod.Invoke(this, new object[] { input, configurationName, ignoreKeys }) as IEnumerable;
             return results.OfType<IRecordMatchResult>();
         }
+
+        /// <summary>
+        /// Classify 
+        /// </summary>
+        public IEnumerable<IRecordMatchResult> Classify(IdentifiedData input, IEnumerable<IdentifiedData> blocks, String configurationName)
+        {
+            var genMethod = this.GetType().GetGenericMethod(nameof(Classify), new Type[] { input.GetType() }, new Type[] { input.GetType(), typeof(IEnumerable<>).MakeGenericType(input.GetType()), typeof(String) });
+            var ofTypeMethod = typeof(Enumerable).GetGenericMethod(nameof(Enumerable.OfType), new Type[] { input.GetType() }, new Type[] { typeof(IEnumerable) });
+            var results = genMethod.Invoke(this, new object[] { input, ofTypeMethod.Invoke(null, new object[] { blocks }), configurationName }) as IEnumerable;
+            return results.OfType<IRecordMatchResult>();
+        }
+
     }
 }

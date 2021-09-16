@@ -154,7 +154,7 @@ namespace SanteDB.Matcher.Util
         /// </summary>
         public static double SimilarityTo(this String source, String target)
         {
-
+            
             return (1.0 - (source.Levenshtein(target) / (double)Math.Max(source.Length, target.Length) + 0.000001));
         }
     }
