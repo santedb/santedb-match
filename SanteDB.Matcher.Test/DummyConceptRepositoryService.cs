@@ -112,6 +112,10 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
+        public void ObsoleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
         public IQueryResultSet<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
         {
