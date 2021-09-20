@@ -79,8 +79,15 @@ namespace SanteDB.Matcher.Services
                     this.m_tracer.TraceInfo("Loading match configurations...");
                     foreach (var configDir in this.m_configuration.FilePath)
                     {
+                        if(!Path.IsPathRooted(configDir.Path))
+                        {
+                            configDir.Path = Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), configDir.Path);
+                        }
+
                         if (!Directory.Exists(configDir.Path))
+                        {
                             this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
+                        }
                         else
                             foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
                             {
