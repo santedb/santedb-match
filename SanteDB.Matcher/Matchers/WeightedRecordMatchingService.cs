@@ -124,7 +124,7 @@ namespace SanteDB.Matcher.Matchers
                     if (bestScore == null || !bestScore.CalculatedScore.HasValue)
                         return null;
                     else
-                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, v.M, v.MatchWeight, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
+                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful

@@ -160,12 +160,10 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Creates a new assertion result
         /// </summary>
-        public MatchVector(MatchAttribute attribute, String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
+        public MatchVector(MatchAttribute attribute, String name, double score, bool evaluated, object aValue, object bValue)
         {
             this.Attribute = attribute;
             this.Name = name;
-            this.ConfiguredProbability = configuredProbability;
-            this.ConfiguredWeight = configuredWeight;
             this.Score = score;
             this.Evaluated = evaluated;
             this.A = aValue;
@@ -196,16 +194,6 @@ namespace SanteDB.Matcher.Matchers
         /// True if the assertion was evaluated
         /// </summary>
         public bool Evaluated { get; set; }
-
-        /// <summary>
-        /// Gets the configured probability
-        /// </summary>
-        public double ConfiguredProbability { get; private set; }
-
-        /// <summary>
-        /// Gets the configured weight
-        /// </summary>
-        public double ConfiguredWeight { get; private set; }
 
         /// <summary>
         /// Gets the score assigned to this assertion
