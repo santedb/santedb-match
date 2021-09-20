@@ -102,7 +102,7 @@ namespace SanteDB.Matcher.Model
         /// <summary>
         /// The configuration name 
         /// </summary>
-        [XmlArray("configuration"), JsonProperty("configuration")]
+        [XmlElement("configuration"), JsonProperty("configuration")]
         public string ConfigurationName { get; set;  }
 
         /// <summary>

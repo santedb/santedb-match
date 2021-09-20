@@ -49,14 +49,14 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
         /// <param name="vectors">The attributes + scores</param>
         /// <param name="configurationName">The name of the configuration used to match</param>
-        public MatchResult(IdentifiedData record, double score, double strength, String configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
+        public MatchResult(IdentifiedData record, double score, double strength, String configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
         {
             this.Strength = strength;
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
             this.ConfigurationName = configurationName;
-            this.Vectors = new List<MatchVector>(vectors);
+            this.Vectors = vectors.Select(o => o is MatchVector mv ? mv : new MatchVector(o)).ToList();
             this.Method = method;
         }
 
@@ -127,7 +127,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
         /// <param name="configurationName">The name of the configuration used to score</param>
         /// <param name="vectors">The matching attribute and scores</param>
-        public MatchResult(T record, double score, double strength, string configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
+        public MatchResult(T record, double score, double strength, string configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
             : base(record, score, strength, configurationName, classification, method, vectors)
         {
         }
@@ -145,6 +145,17 @@ namespace SanteDB.Matcher.Matchers
     [XmlType(Namespace = "http://santedb.org/matcher"), JsonObject]
     public class MatchVector : IRecordMatchVector
     {
+
+        /// <summary>
+        /// Create new match vector form a generic vector interface
+        /// </summary>
+        public MatchVector(IRecordMatchVector vector)
+        {
+            this.Name = vector.Name;
+            this.Score = vector.Score;
+            this.A = vector.A;
+            this.B = vector.B;
+        }
 
         /// <summary>
         /// Creates a new assertion result

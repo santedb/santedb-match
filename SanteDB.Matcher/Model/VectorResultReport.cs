@@ -50,9 +50,8 @@ namespace SanteDB.Matcher.Model
             this.ConfiguredProbability = result.ConfiguredProbability;
             this.ConfiguredWeight = result.ConfiguredWeight;
             this.Score = result.Score;
-            this.A = result.A.ToString();
-            this.B = result.B.ToString();
-
+            this.A = result.A?.ToString();
+            this.B = result.B?.ToString();
         }
 
         /// <summary>

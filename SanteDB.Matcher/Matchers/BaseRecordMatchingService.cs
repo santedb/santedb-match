@@ -294,7 +294,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors))).ToList()
             };
         }
 
