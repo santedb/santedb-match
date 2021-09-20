@@ -38,11 +38,8 @@ namespace SanteDB.Matcher.Model
     /// Represents a MatchResultReport which encapsulates a MatchResult
     /// </summary>
     [JsonObject, XmlType(nameof(MatchResultReport), Namespace = "http://santedb.org/matcher")]
-    public class MatchResultReport
+    public class MatchResultReport : IdentifiedData
     {
-
-        // The match data
-        private MatchResult m_match;
 
         /// <summary>
         /// Default ctor for serialization
@@ -56,59 +53,46 @@ namespace SanteDB.Matcher.Model
         /// </summary>
         public MatchResultReport(MatchResult match)
         {
-            this.m_match = match;
+            this.Score = match.Score;
+            this.Strength = match.Strength;
+            this.Record = match.Record.Key.Value;
+            this.Classification = match.Classification;
+            this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
         }
 
         /// <summary>
         /// Gets the score
         /// </summary>
         [XmlElement("score"), JsonProperty("score")]
-        public double Score
-        {
-            get => this.m_match.Score;
-            set { }
-        }
+        public double Score { get; set; }
 
         /// <summary>
         /// Gets the strength of the match
         /// </summary>
         [XmlElement("strength"), JsonProperty("strength")]
-        public double Strength 
-        {
-            get => this.m_match.Strength;
-            set { }
-        }
+        public double Strength { get; set; }
 
         /// <summary>
         /// Gets the record
         /// </summary>
         [XmlElement("record"), JsonProperty("record")]
-        public Guid Record
-        {
-            get => this.m_match.Record.Key.Value;
-            set { }
-        }
+        public Guid Record { get; set; }
 
         /// <summary>
         /// Gets the classification 
         /// </summary>
         [XmlElement("classification"), JsonProperty("classification")]
-        public RecordMatchClassification Classification
-        {
-            get => this.m_match.Classification;
-            set { }
-        }
+        public RecordMatchClassification Classification { get; set; }
 
         /// <summary>
         /// Gets or sets the properties that matched and their score
         /// </summary>
         [XmlArray("vectors"), XmlArrayItem("v"), JsonProperty("vectors")]
-        public List<VectorResultReport> Vectors
-        {
-            get => this.m_match.Vectors.Select(o => new VectorResultReport(o)).ToList();
-            set { }
-        }
+        public List<VectorResultReport> Vectors { get; set; }
 
-
+        /// <summary>
+        /// Get modified on
+        /// </summary>
+        public override DateTimeOffset ModifiedOn => DateTimeOffset.Now;
     }
 }

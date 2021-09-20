@@ -35,7 +35,7 @@ namespace SanteDB.Matcher.Model
     /// <summary>
     /// Represents a match report
     /// </summary>
-    [JsonObject, XmlType(nameof(MatchReport), Namespace = "http://santedb.org/matcher")]
+    [JsonObject, XmlType(nameof(MatchReport), Namespace = "http://santedb.org/matcher"), XmlRoot(nameof(MatchReport), Namespace = "http://santedb.org/matcher")]
     [XmlInclude(typeof(Act))]
     [XmlInclude(typeof(TextObservation))]
     [XmlInclude(typeof(CodedObservation))]
@@ -53,7 +53,7 @@ namespace SanteDB.Matcher.Model
     [XmlInclude(typeof(DeviceEntity))]
     [XmlInclude(typeof(UserEntity))]
     [XmlInclude(typeof(ApplicationEntity))]
-    public class MatchReport 
+    public class MatchReport : IdentifiedData
     {
 
         /// <summary>
@@ -68,5 +68,9 @@ namespace SanteDB.Matcher.Model
         [XmlElement("result"), JsonProperty("results")]
         public List<MatchResultReport> Results { get; set; }
 
+        /// <summary>
+        /// Gets the date of modification
+        /// </summary>
+        public override DateTimeOffset ModifiedOn => DateTimeOffset.Now;
     }
 }
