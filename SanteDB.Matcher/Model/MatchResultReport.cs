@@ -58,6 +58,9 @@ namespace SanteDB.Matcher.Model
             this.Record = match.Record.Key.Value;
             this.Classification = match.Classification;
             this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
+            this.Method = match.Method;
+            this.ConfigurationName = match.ConfigurationName;
+            
         }
 
         /// <summary>
@@ -89,6 +92,18 @@ namespace SanteDB.Matcher.Model
         /// </summary>
         [XmlArray("vectors"), XmlArrayItem("v"), JsonProperty("vectors")]
         public List<VectorResultReport> Vectors { get; set; }
+
+        /// <summary>
+        /// The method of match
+        /// </summary>
+        [XmlElement("method"), JsonProperty("method")]
+        public RecordMatchMethod Method { get; set; }
+
+        /// <summary>
+        /// The configuration name 
+        /// </summary>
+        [XmlArray("configuration"), JsonProperty("configuration")]
+        public string ConfigurationName { get; set;  }
 
         /// <summary>
         /// Get modified on
