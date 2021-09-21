@@ -47,9 +47,9 @@ namespace SanteDB.Matcher.Model
         {
             this.Name = result.Name;
             this.Evaluated = result.Evaluated;
-            this.ConfiguredProbability = result.Attribute.U;
-            this.ConfiguredWeight = result.Attribute.MatchWeight;
-            this.ConfiguredUncertainty = result.Attribute.U;
+            this.ConfiguredProbability = result.Attribute?.M;
+            this.ConfiguredWeight = result.Attribute?.MatchWeight;
+            this.ConfiguredUncertainty = result.Attribute?.U;
             this.Score = result.Score;
             this.A = result.A?.ToString();
             this.B = result.B?.ToString();
@@ -71,19 +71,19 @@ namespace SanteDB.Matcher.Model
         /// Gets the configured probability
         /// </summary>
         [XmlAttribute("m"), JsonProperty("m")]
-        public double ConfiguredProbability { get; set; }
+        public double? ConfiguredProbability { get; set; }
 
         /// <summary>
         /// Gets the U value
         /// </summary>
         [XmlAttribute("u"), JsonProperty("u")]
-        public double ConfiguredUncertainty { get; set; }
+        public double? ConfiguredUncertainty { get; set; }
 
         /// <summary>
         /// Gets the configured weight
         /// </summary>
         [XmlAttribute("w"), JsonProperty("w")]
-        public double ConfiguredWeight { get; set; }
+        public double? ConfiguredWeight { get; set; }
 
         /// <summary>
         /// Gets the score assigned to this assertion
