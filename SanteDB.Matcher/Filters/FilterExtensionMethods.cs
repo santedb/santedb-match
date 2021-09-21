@@ -18,18 +18,14 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Phonix;
 using SanteDB.Core;
-using SanteDB.Core.Interfaces;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Util;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SanteDB.Matcher.Filters
 {
@@ -130,7 +126,7 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public static bool SoundsLike(this String me, String other, String algorithmName)
         {
-            switch(algorithmName)
+            switch (algorithmName)
             {
                 case "metaphone":
                     return new Metaphone(4).IsSimilar(new string[] { me, other });
@@ -195,7 +191,7 @@ namespace SanteDB.Matcher.Filters
             return source.Subtract(target).Duration();
         }
 
-     
+
         /// <summary>
         /// Gets the first characters
         /// </summary>

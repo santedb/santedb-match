@@ -19,10 +19,6 @@
  * Date: 2021-8-5
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Date
 {
@@ -45,7 +41,7 @@ namespace SanteDB.Matcher.Transforms.Date
             if (b == null) throw new ArgumentNullException(nameof(b));
 
             // Get strong instances
-            if(parms.Length == 0)
+            if (parms.Length == 0)
                 return ((DateTime)a - (DateTime)b);
             else
             {
@@ -54,7 +50,7 @@ namespace SanteDB.Matcher.Transforms.Date
                 switch (parms[0].ToString())
                 {
                     case "y":
-                        retVal =((DateTime)a).Year - ((DateTime)b).Year;
+                        retVal = ((DateTime)a).Year - ((DateTime)b).Year;
                         break;
                     case "M":
                         retVal = (((DateTime)a).Year * 12 + ((DateTime)a).Month) -

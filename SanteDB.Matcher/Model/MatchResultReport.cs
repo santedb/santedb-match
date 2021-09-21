@@ -19,17 +19,12 @@
  * Date: 2021-8-5
  */
 using Newtonsoft.Json;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Acts;
-using SanteDB.Core.Model.Entities;
-using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Model;
 using SanteDB.Matcher.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Model
@@ -60,7 +55,7 @@ namespace SanteDB.Matcher.Model
             this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
             this.Method = match.Method;
             this.ConfigurationName = match.ConfigurationName;
-            
+
         }
 
         /// <summary>
@@ -103,7 +98,7 @@ namespace SanteDB.Matcher.Model
         /// The configuration name 
         /// </summary>
         [XmlElement("configuration"), JsonProperty("configuration")]
-        public string ConfigurationName { get; set;  }
+        public string ConfigurationName { get; set; }
 
         /// <summary>
         /// Get modified on

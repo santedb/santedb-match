@@ -19,10 +19,6 @@
  * Date: 2021-8-5
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Numeric
 {
@@ -41,7 +37,7 @@ namespace SanteDB.Matcher.Transforms.Numeric
         /// </summary>
         public object Apply(object input, params object[] parms)
         {
-            if(input is int)
+            if (input is int)
                 return Math.Abs((int)input);
             else if (input is double)
                 return Math.Abs((double)input);

@@ -19,7 +19,6 @@
  * Date: 2021-8-5
  */
 using SanteDB.Core.Diagnostics;
-using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Matcher.Transforms;
@@ -27,7 +26,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SanteDB.Matcher.Util
 {
@@ -125,7 +123,7 @@ namespace SanteDB.Matcher.Util
                     return attribute.NonMatchWeight;
                 case MatchAttributeNullBehavior.Ignore:
                     return null;
-                
+
                 default:
                     throw new InvalidOperationException("Should not be here - Can't determine null behavior");
             }
@@ -202,7 +200,7 @@ namespace SanteDB.Matcher.Util
                 }
                 if (a == null || b == null)
                     return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
-                else if(a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
+                else if (a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
                     return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
 
                 // Scope as enum
@@ -294,7 +292,7 @@ namespace SanteDB.Matcher.Util
                     foreach (var xform in attribute.Measure.Transforms)
                         ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b);
                     var measureResult = ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
-                    if(measureResult is IEnumerable enumMeasure)
+                    if (measureResult is IEnumerable enumMeasure)
                     {
                         foreach (var itm in enumMeasure)
                         {

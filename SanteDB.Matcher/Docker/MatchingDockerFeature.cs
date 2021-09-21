@@ -27,7 +27,6 @@ using SanteDB.Matcher.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SanteDB.Matcher.Docker
 {
@@ -57,7 +56,7 @@ namespace SanteDB.Matcher.Docker
         /// </summary>
         public void Configure(SanteDBConfiguration configuration, IDictionary<string, string> settings)
         {
-            if(configuration.GetSection<FileMatchConfigurationSection>() == null) // Add configuration for file matching
+            if (configuration.GetSection<FileMatchConfigurationSection>() == null) // Add configuration for file matching
             {
                 configuration.AddSection(DockerFeatureUtils.LoadConfigurationResource<FileMatchConfigurationSection>("SanteDB.Matcher.Docker.MatchingFeature.xml"));
             }

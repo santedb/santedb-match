@@ -19,14 +19,12 @@
  * Date: 2021-8-5
  */
 using Newtonsoft.Json;
-using SanteDB.Core.Model.Serialization;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Model.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
@@ -77,7 +75,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the metadata for this object
         /// </summary>
         [XmlIgnore, JsonIgnore]
-        IRecordMatchingConfigurationMetadata  IRecordMatchingConfiguration.Metadata { get => this.Metadata; set => this.Metadata = new MatchConfigurationMetadata(value); }
+        IRecordMatchingConfigurationMetadata IRecordMatchingConfiguration.Metadata { get => this.Metadata; set => this.Metadata = new MatchConfigurationMetadata(value); }
 
         /// <summary>
         /// Gets or sets meta data

@@ -19,10 +19,6 @@
  * Date: 2021-8-5
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Timespan
 {
@@ -46,7 +42,7 @@ namespace SanteDB.Matcher.Transforms.Timespan
             if (parms.Length != 1) throw new ArgumentOutOfRangeException(nameof(parms), "Missing facet type");
 
             var data = (TimeSpan)input;
-            switch(parms[0].ToString())
+            switch (parms[0].ToString())
             {
                 case "y":
                     return data.TotalDays / 365;
@@ -57,7 +53,7 @@ namespace SanteDB.Matcher.Transforms.Timespan
                 case "w":
                     return data.TotalDays / 7;
                 case "q":
-                    return data.TotalDays / 91; 
+                    return data.TotalDays / 91;
                 case "h":
                     return data.TotalHours;
                 case "m":
