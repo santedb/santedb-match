@@ -20,18 +20,16 @@
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
-using SanteDB.Core.Services;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SanteDB.Matcher.Services
 {

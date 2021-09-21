@@ -18,17 +18,14 @@
  * User: fyfej
  * Date: 2021-8-5
  */
+using Newtonsoft.Json;
+using SanteDB.Core.Matching;
+using SanteDB.Core.Model;
+using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Xml.Serialization;
-using SanteDB.Core.Model;
-using SanteDB.Matcher.Configuration;
-using SanteDB.Matcher.Definition;
-using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -115,7 +112,7 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     /// <typeparam name="T">The type of record matched</typeparam>
     public class MatchResult<T> : MatchResult, IRecordMatchResult<T>
-        where T: IdentifiedData
+        where T : IdentifiedData
     {
         /// <summary>
         /// Creates a new match result

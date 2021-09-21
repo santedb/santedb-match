@@ -21,10 +21,8 @@
 using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Util;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace SanteDB.Matcher.Filters
 {

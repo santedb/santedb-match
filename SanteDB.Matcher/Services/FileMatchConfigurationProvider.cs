@@ -20,20 +20,17 @@
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
+using SanteDB.Core.Matching;
+using SanteDB.Core.Security;
 using SanteDB.Core.Services;
+using SanteDB.Matcher.Configuration;
+using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using SanteDB.Matcher.Configuration;
-using SanteDB.Matcher.Definition;
-using SanteDB.Core.Matching;
 using System.Linq.Expressions;
-using SanteDB.Core.Security;
 
 namespace SanteDB.Matcher.Services
 {
@@ -79,7 +76,7 @@ namespace SanteDB.Matcher.Services
                     this.m_tracer.TraceInfo("Loading match configurations...");
                     foreach (var configDir in this.m_configuration.FilePath)
                     {
-                        if(!Path.IsPathRooted(configDir.Path))
+                        if (!Path.IsPathRooted(configDir.Path))
                         {
                             configDir.Path = Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), configDir.Path);
                         }

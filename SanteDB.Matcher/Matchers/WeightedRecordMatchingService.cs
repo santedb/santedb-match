@@ -19,25 +19,15 @@
  * Date: 2021-8-5
  */
 using SanteDB.Core;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Query;
-using SanteDB.Core.Model.Roles;
-using SanteDB.Core.Services;
 using SanteDB.Core.Matching;
-using SanteDB.Matcher.Configuration;
+using SanteDB.Core.Model;
+using SanteDB.Core.Services;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
-using SanteDB.Matcher.Transforms;
 using SanteDB.Matcher.Util;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Matchers
 {

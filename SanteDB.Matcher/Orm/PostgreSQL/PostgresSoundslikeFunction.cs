@@ -18,11 +18,9 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
+using System;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
 {
