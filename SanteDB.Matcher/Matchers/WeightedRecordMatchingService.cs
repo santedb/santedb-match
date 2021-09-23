@@ -19,25 +19,15 @@
  * Date: 2021-8-5
  */
 using SanteDB.Core;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Query;
-using SanteDB.Core.Model.Roles;
-using SanteDB.Core.Services;
 using SanteDB.Core.Matching;
-using SanteDB.Matcher.Configuration;
+using SanteDB.Core.Model;
+using SanteDB.Core.Services;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
-using SanteDB.Matcher.Transforms;
 using SanteDB.Matcher.Util;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -124,7 +114,7 @@ namespace SanteDB.Matcher.Matchers
                     if (bestScore == null || !bestScore.CalculatedScore.HasValue)
                         return null;
                     else
-                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, v.M, v.MatchWeight, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
+                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful

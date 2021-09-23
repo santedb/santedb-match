@@ -18,12 +18,10 @@
  * User: fyfej
  * Date: 2021-8-5
  */
+using SanteDB.Core.Model.Query;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using SanteDB.Core.Model.Query;
 
 namespace SanteDB.Matcher.Filters
 {

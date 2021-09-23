@@ -19,11 +19,7 @@
  * Date: 2021-8-5
  */
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Date
 {
@@ -53,7 +49,7 @@ namespace SanteDB.Matcher.Transforms.Date
             bool epoch = parms.Length == 2 && parms[1].Equals(true);
 
             // Parameters
-            switch(parms[0].ToString())
+            switch (parms[0].ToString())
             {
                 case "y":
                     return data.Year;

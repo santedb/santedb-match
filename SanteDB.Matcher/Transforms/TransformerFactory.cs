@@ -21,9 +21,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms
 {
@@ -48,7 +45,7 @@ namespace SanteDB.Matcher.Transforms
             get
             {
                 if (s_current == null)
-                    lock(s_lock)
+                    lock (s_lock)
                         s_current = s_current ?? new TransformerFactory();
                 return s_current;
             }
@@ -61,7 +58,7 @@ namespace SanteDB.Matcher.Transforms
         {
             this.m_dataTransformers = typeof(TransformerFactory).Assembly.ExportedTypes
                 .Where(o => typeof(IDataTransformer).IsAssignableFrom(o) && !o.IsAbstract && !o.IsInterface)
-                .ToDictionary(o=>(Activator.CreateInstance(o) as IDataTransformer).Name, o=>o);
+                .ToDictionary(o => (Activator.CreateInstance(o) as IDataTransformer).Name, o => o);
         }
 
         /// <summary>

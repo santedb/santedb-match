@@ -18,17 +18,14 @@
  * User: fyfej
  * Date: 2021-8-5
  */
+using Newtonsoft.Json;
+using SanteDB.Core.Matching;
+using SanteDB.Core.Model;
+using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Xml.Serialization;
-using SanteDB.Core.Model;
-using SanteDB.Matcher.Configuration;
-using SanteDB.Matcher.Definition;
-using SanteDB.Core.Matching;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -49,14 +46,14 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
         /// <param name="vectors">The attributes + scores</param>
         /// <param name="configurationName">The name of the configuration used to match</param>
-        public MatchResult(IdentifiedData record, double score, double strength, String configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
+        public MatchResult(IdentifiedData record, double score, double strength, String configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
         {
             this.Strength = strength;
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
             this.ConfigurationName = configurationName;
-            this.Vectors = new List<MatchVector>(vectors);
+            this.Vectors = vectors.Select(o => o is MatchVector mv ? mv : new MatchVector(o)).ToList();
             this.Method = method;
         }
 
@@ -115,7 +112,7 @@ namespace SanteDB.Matcher.Matchers
     /// </summary>
     /// <typeparam name="T">The type of record matched</typeparam>
     public class MatchResult<T> : MatchResult, IRecordMatchResult<T>
-        where T: IdentifiedData
+        where T : IdentifiedData
     {
         /// <summary>
         /// Creates a new match result
@@ -127,7 +124,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
         /// <param name="configurationName">The name of the configuration used to score</param>
         /// <param name="vectors">The matching attribute and scores</param>
-        public MatchResult(T record, double score, double strength, string configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<MatchVector> vectors)
+        public MatchResult(T record, double score, double strength, string configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
             : base(record, score, strength, configurationName, classification, method, vectors)
         {
         }
@@ -147,14 +144,24 @@ namespace SanteDB.Matcher.Matchers
     {
 
         /// <summary>
+        /// Create new match vector form a generic vector interface
+        /// </summary>
+        public MatchVector(IRecordMatchVector vector)
+        {
+            this.Name = vector.Name;
+            this.Score = vector.Score;
+            this.A = vector.A;
+            this.B = vector.B;
+            this.Evaluated = vector.Evaluated;
+        }
+
+        /// <summary>
         /// Creates a new assertion result
         /// </summary>
-        public MatchVector(MatchAttribute attribute, String name, double configuredProbability, double configuredWeight, double score, bool evaluated, object aValue, object bValue)
+        public MatchVector(MatchAttribute attribute, String name, double score, bool evaluated, object aValue, object bValue)
         {
             this.Attribute = attribute;
             this.Name = name;
-            this.ConfiguredProbability = configuredProbability;
-            this.ConfiguredWeight = configuredWeight;
             this.Score = score;
             this.Evaluated = evaluated;
             this.A = aValue;
@@ -185,16 +192,6 @@ namespace SanteDB.Matcher.Matchers
         /// True if the assertion was evaluated
         /// </summary>
         public bool Evaluated { get; set; }
-
-        /// <summary>
-        /// Gets the configured probability
-        /// </summary>
-        public double ConfiguredProbability { get; private set; }
-
-        /// <summary>
-        /// Gets the configured weight
-        /// </summary>
-        public double ConfiguredWeight { get; private set; }
 
         /// <summary>
         /// Gets the score assigned to this assertion

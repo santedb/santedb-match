@@ -18,12 +18,10 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
+using System;
+using System.Text.RegularExpressions;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
 {

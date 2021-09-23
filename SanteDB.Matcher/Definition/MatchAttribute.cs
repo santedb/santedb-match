@@ -19,13 +19,13 @@
  * Date: 2021-8-5
  */
 using Newtonsoft.Json;
+using SanteDB.Core.Model.Query;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using System.Linq;
 using System.Linq.Expressions;
-using SanteDB.Core.Model.Query;
-using System.Collections.Concurrent;
+using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
 {
