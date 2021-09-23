@@ -33,6 +33,9 @@ namespace SanteDB.Matcher.Model
     public class VectorResultReport : IdentifiedData
     {
 
+        // True if the object has configuration data
+        private bool m_hasConfigurationData = true;
+
         /// <summary>
         /// Default ctor for serializer
         /// </summary>
@@ -47,9 +50,17 @@ namespace SanteDB.Matcher.Model
         {
             this.Name = result.Name;
             this.Evaluated = result.Evaluated;
-            this.ConfiguredProbability = result.Attribute?.M;
-            this.ConfiguredWeight = result.Attribute?.MatchWeight;
-            this.ConfiguredUncertainty = result.Attribute?.U;
+
+            if (result.Attribute == null)
+            {
+                this.m_hasConfigurationData = false;
+            }
+            else
+            {
+                this.ConfiguredProbability = result.Attribute.M;
+                this.ConfiguredWeight = result.Attribute.MatchWeight;
+                this.ConfiguredUncertainty = result.Attribute.U;
+            }
             this.Score = result.Score;
             this.A = result.A?.ToString();
             this.B = result.B?.ToString();
@@ -71,20 +82,35 @@ namespace SanteDB.Matcher.Model
         /// Gets the configured probability
         /// </summary>
         [XmlAttribute("m"), JsonProperty("m")]
-        public double? ConfiguredProbability { get; set; }
+        public double ConfiguredProbability { get; set; }
+
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredProbability() => this.m_hasConfigurationData;
 
         /// <summary>
         /// Gets the U value
         /// </summary>
         [XmlAttribute("u"), JsonProperty("u")]
-        public double? ConfiguredUncertainty { get; set; }
+        public double ConfiguredUncertainty { get; set; }
+
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredUncertainty() => this.m_hasConfigurationData;
 
         /// <summary>
         /// Gets the configured weight
         /// </summary>
         [XmlAttribute("w"), JsonProperty("w")]
-        public double? ConfiguredWeight { get; set; }
+        public double ConfiguredWeight { get; set; }
 
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredWeight() => this.m_hasConfigurationData;
+        
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>

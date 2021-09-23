@@ -152,6 +152,7 @@ namespace SanteDB.Matcher.Matchers
             this.Score = vector.Score;
             this.A = vector.A;
             this.B = vector.B;
+            this.Evaluated = vector.Evaluated;
         }
 
         /// <summary>
