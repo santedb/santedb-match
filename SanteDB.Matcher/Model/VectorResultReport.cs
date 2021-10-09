@@ -19,6 +19,7 @@
  * Date: 2021-8-5
  */
 using Newtonsoft.Json;
+using SanteDB.Core.Model;
 using SanteDB.Matcher.Matchers;
 using System;
 using System.Xml.Serialization;
@@ -29,11 +30,11 @@ namespace SanteDB.Matcher.Model
     /// Represents a match assertion
     /// </summary>
     [XmlType(nameof(VectorResultReport), Namespace = "http://santedb.org/matcher"), JsonObject]
-    public class VectorResultReport
+    public class VectorResultReport : IdentifiedData
     {
 
-        // Vector result
-        private MatchVector m_result;
+        // True if the object has configuration data
+        private bool m_hasConfigurationData = true;
 
         /// <summary>
         /// Default ctor for serializer
@@ -47,80 +48,90 @@ namespace SanteDB.Matcher.Model
         /// </summary>
         public VectorResultReport(MatchVector result)
         {
-            this.m_result = result;
+            this.Name = result.Name;
+            this.Evaluated = result.Evaluated;
+
+            if (result.Attribute == null)
+            {
+                this.m_hasConfigurationData = false;
+            }
+            else
+            {
+                this.ConfiguredProbability = result.Attribute.M;
+                this.ConfiguredWeight = result.Attribute.MatchWeight;
+                this.ConfiguredUncertainty = result.Attribute.U;
+            }
+            this.Score = result.Score;
+            this.A = result.A?.ToString();
+            this.B = result.B?.ToString();
         }
 
         /// <summary>
         /// Gets the name of the property
         /// </summary>
         [XmlAttribute("name"), JsonProperty("name")]
-        public string Name
-        {
-            get => this.m_result.Name;
-            set { }
-        }
+        public string Name { get; set; }
 
         /// <summary>
         /// True if the assertion was evaluated
         /// </summary>
         [XmlAttribute("evaluated"), JsonProperty("evaluated")]
-        public bool Evaluated
-        {
-            get => this.m_result.Evaluated;
-            set { }
-        }
+        public bool Evaluated { get; set; }
 
         /// <summary>
         /// Gets the configured probability
         /// </summary>
         [XmlAttribute("m"), JsonProperty("m")]
-        public double ConfiguredProbability
-        {
-            get => this.m_result.ConfiguredProbability;
-            set { }
-        }
+        public double ConfiguredProbability { get; set; }
 
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredProbability() => this.m_hasConfigurationData;
+
+        /// <summary>
+        /// Gets the U value
+        /// </summary>
+        [XmlAttribute("u"), JsonProperty("u")]
+        public double ConfiguredUncertainty { get; set; }
+
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredUncertainty() => this.m_hasConfigurationData;
 
         /// <summary>
         /// Gets the configured weight
         /// </summary>
         [XmlAttribute("w"), JsonProperty("w")]
-        public double ConfiguredWeight
-        {
-            get => this.m_result.ConfiguredWeight;
-            set { }
-        }
+        public double ConfiguredWeight { get; set; }
 
+        /// <summary>
+        /// True if serialization of configured weight
+        /// </summary>
+        public bool ShouldSerializeConfiguredWeight() => this.m_hasConfigurationData;
+        
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("score"), JsonProperty("score")]
-        public double Score
-        {
-            get => this.m_result.Score;
-            set { }
-        }
+        public double Score { get; set; }
 
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("a"), JsonProperty("a")]
-        public String A
-        {
-            get => this.m_result.A?.ToString();
-            set { }
-        }
+        public String A { get; set; }
 
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>
         [XmlAttribute("b"), JsonProperty("b")]
-        public String B
-        {
-            get => this.m_result.B.ToString();
-            set { }
-        }
+        public String B { get; set; }
 
-
+        /// <summary>
+        /// Get the time this was modified
+        /// </summary>
+        public override DateTimeOffset ModifiedOn => DateTimeOffset.Now;
     }
 }

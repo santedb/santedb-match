@@ -20,12 +20,8 @@
  */
 using SanteDB.Core.Model.Query;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Filters
 {
@@ -49,8 +45,8 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
-            for (int i = 0; i < parms.Length; i++) 
-                if(parms[i] is ConstantExpression)
+            for (int i = 0; i < parms.Length; i++)
+                if (parms[i] is ConstantExpression)
                     parms[i] = Expression.Constant(Int32.Parse((parms[i] as ConstantExpression).Value.ToString()));
 
             if (parms.Length == 1)

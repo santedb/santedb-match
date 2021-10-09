@@ -2,42 +2,39 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
-using System.Collections.Generic;
-using SanteDB.Core.Services;
-using System.Reflection;
-using System.Linq;
-using SanteDB.Core.Model.Query;
-using System;
+
 using SanteDB.Core;
-using SanteDB.Matcher.Configuration;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Interfaces;
-using System.Linq.Expressions;
-using SanteDB.Core.Attributes;
 using SanteDB.Core.Diagnostics;
-using SanteDB.Matcher.Exceptions;
-using SanteDB.Core.Security;
-using SanteDB.Matcher.Model;
-using SanteDB.Core.Model.Serialization;
-using SanteDB.Matcher.Definition;
-using System.Collections;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Model;
+using SanteDB.Core.Model.Query;
+using SanteDB.Core.Model.Serialization;
+using SanteDB.Core.Security;
+using SanteDB.Core.Services;
+using SanteDB.Matcher.Definition;
+using SanteDB.Matcher.Exceptions;
+using SanteDB.Matcher.Model;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -155,7 +152,7 @@ namespace SanteDB.Matcher.Matchers
                 else
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 this.m_tracer.TraceError("Error blocking input {0} - {1}", input, e.Message);
                 throw new MatchingException($"Error blocking input {input}", e);
@@ -179,9 +176,8 @@ namespace SanteDB.Matcher.Matchers
                 NameValueCollection qfilter = new NameValueCollection();
                 foreach (var b in filter)
                 {
-
                     bool shouldIncludeExpression = true;
-                    if(b.When?.Any() == true) // Only include the filter when the conditions are met
+                    if (b.When?.Any() == true) // Only include the filter when the conditions are met
                     {
                         var guardExpression = b.GuardExpression;
 
@@ -192,7 +188,7 @@ namespace SanteDB.Matcher.Matchers
                             foreach (var whenClause in b.When)
                             {
                                 var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(whenClause, true);
-                                if(guardBody == null)
+                                if (guardBody == null)
                                 {
                                     guardBody = Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null));
                                 }
@@ -201,7 +197,7 @@ namespace SanteDB.Matcher.Matchers
                                     guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardBody, parameter), Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null)));
                                 }
                             }
-                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile(); 
+                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
                         }
 
                         shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
@@ -217,7 +213,7 @@ namespace SanteDB.Matcher.Matchers
                             {
                                 qfilter.Add(nv.Key, val);
 
-                                if(b.When?.Any(o=>o == nv.Key) == true)
+                                if (b.When?.Any(o => o == nv.Key) == true)
                                 {
                                     qfilter.Add(nv.Key, "null");
                                 }
@@ -227,34 +223,35 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 // Do we skip when no conditions?
-                if(!qfilter.Any())
+                if (!qfilter.Any())
                 {
                     return new T[0];
                 }
 
                 // Add ignore clauses
-                if(ignoreKeys?.Any() == true)
+                if (ignoreKeys?.Any() == true)
                 {
                     qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
 
                 // Make LINQ query
-                // NOTE: We can't build and store this since input is a closure 
+                // NOTE: We can't build and store this since input is a closure
                 // TODO: Figure out a way to compile this expression once
                 var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
                 }, safeNullable: true, lazyExpandVariables: false);
-                
+
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
-                
+
                 // Query control variables for iterating result sets
                 int tr = 1;
                 var batch = block.BatchSize;
-                if(batch == 0) { batch = 100; }
+                if (batch == 0) { batch = 100; }
 
-                // Set the authentication context 
-                using (AuthenticationContext.EnterSystemContext()) {
+                // Set the authentication context
+                using (AuthenticationContext.EnterSystemContext())
+                {
                     int ofs = 0;
                     IEnumerable<T> retVal = null;
                     while (ofs < tr)
@@ -266,10 +263,9 @@ namespace SanteDB.Matcher.Matchers
                         ofs += batch;
                     }
                     return retVal;
-
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 this.m_tracer.TraceError("Could not execute block {0} against {1} on storage provider: {2}", String.Join(" / ", block.Filter), input, e.Message);
                 throw new MatchingException($"Could not execute block {String.Join(" / ", block.Filter)} against {input}", e);
@@ -294,12 +290,12 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Input = (input as IdentifiedData)?.Key.Value ?? Guid.Empty,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors.OfType<MatchVector>()))).ToList()
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors))).ToList()
             };
         }
 
         /// <summary>
-        /// Create a match report 
+        /// Create a match report
         /// </summary>
         public object CreateMatchReport<T>(T input, IEnumerable<IRecordMatchResult<T>> matches) where T : IdentifiedData
         {
@@ -318,7 +314,7 @@ namespace SanteDB.Matcher.Matchers
         }
 
         /// <summary>
-        /// Classify 
+        /// Classify
         /// </summary>
         public IEnumerable<IRecordMatchResult> Classify(IdentifiedData input, IEnumerable<IdentifiedData> blocks, String configurationName)
         {
@@ -327,6 +323,5 @@ namespace SanteDB.Matcher.Matchers
             var results = genMethod.Invoke(this, new object[] { input, ofTypeMethod.Invoke(null, new object[] { blocks }), configurationName }) as IEnumerable;
             return results.OfType<IRecordMatchResult>();
         }
-
     }
 }

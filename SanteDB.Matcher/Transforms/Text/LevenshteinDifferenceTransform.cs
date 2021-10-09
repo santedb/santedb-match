@@ -21,10 +21,7 @@
 using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Text
 {
@@ -49,7 +46,7 @@ namespace SanteDB.Matcher.Transforms.Text
                 return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.Levenshtein(sb)));
             else
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
-            
+
         }
     }
 }

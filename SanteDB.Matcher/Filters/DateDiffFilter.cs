@@ -21,12 +21,8 @@
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Query;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Filters
 {
@@ -60,12 +56,12 @@ namespace SanteDB.Matcher.Filters
             var constVal = valueExpression as ConstantExpression;
             if (constVal != null && constVal.Value is String)
                 valueExpression = Expression.Constant(TimeSpan.Parse(constVal.Value.ToString()));
-            
+
             // Convert scope 
             constVal = scope as ConstantExpression;
             if (constVal != null && constVal.Value is String)
                 scope = Expression.Constant(DateTime.Parse(constVal.Value.ToString()));
-            
+
             // Convert expression
             if (parms[0].NodeType == ExpressionType.Constant)
             {
@@ -73,13 +69,14 @@ namespace SanteDB.Matcher.Filters
                 if (constVal == null || "null".Equals(constVal.Value.ToString()))
                     parms[0] = Expression.Constant(default(DateTime));
                 else if (constVal != null && constVal.Value is String && DateTime.TryParseExact(
-                    constVal.Value.ToString(), new string[] {"o", "yyyy", "yyyy-MM", "yyyy-MM-dd"},
+                    constVal.Value.ToString(), new string[] { "o", "yyyy", "yyyy-MM", "yyyy-MM-dd" },
                     System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
                     out DateTime val))
                     parms[0] = Expression.Constant(val);
             }
 
-            if (scope.Type.StripNullable() == typeof(DateTimeOffset)) {
+            if (scope.Type.StripNullable() == typeof(DateTimeOffset))
+            {
                 var exm = typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.Difference), new Type[] { typeof(DateTimeOffset), typeof(DateTimeOffset) });
                 return Expression.MakeBinary(comparison,
                     Expression.Call(exm, scope, parms[0]),

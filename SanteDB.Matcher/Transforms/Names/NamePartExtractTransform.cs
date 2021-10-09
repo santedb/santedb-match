@@ -21,11 +21,8 @@
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Transforms.Names
 {
@@ -50,7 +47,7 @@ namespace SanteDB.Matcher.Transforms.Names
             try
             {
                 var partUuid = (Guid)(typeof(NameComponentKeys).GetRuntimeField(parms[0].ToString())?.GetValue(null));
-                return en.Component.Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o=>o.Value);
+                return en.Component.Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o => o.Value);
             }
             catch
             {

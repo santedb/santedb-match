@@ -21,16 +21,12 @@
 using SanteDB.Core;
 using SanteDB.Core.Applets.Services;
 using SanteDB.Core.Diagnostics;
-using SanteDB.Core.Services;
 using SanteDB.Core.Matching;
-using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Services
@@ -74,7 +70,7 @@ namespace SanteDB.Matcher.Services
         {
             if (this.m_configurationCache.TryGetValue(name, out IRecordMatchingConfiguration retVal))
             {
-                var solutions = ApplicationServiceContext.Current.GetService<IAppletSolutionManagerService>()?.Solutions.Select(o=>o.Meta.Id).ToList();
+                var solutions = ApplicationServiceContext.Current.GetService<IAppletSolutionManagerService>()?.Solutions.Select(o => o.Meta.Id).ToList();
                 solutions.Add(String.Empty); // Include the default solution
 
                 // Solution 

@@ -18,10 +18,6 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Services;
@@ -29,6 +25,9 @@ using SanteDB.Matcher.Configuration;
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Postgres;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
 {
@@ -77,7 +76,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
             var filter = new SqlStatement(new PostgreSQLProvider());
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
-                if (alg is ApproxDifferenceOption difference )
+                if (alg is ApproxDifferenceOption difference)
                     filter.Or($"(length(trim({filterColumn})) > {difference.MaxDifference * 2} AND  levenshtein(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) <= {difference.MaxDifference})", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
                 else if (alg is ApproxPhoneticOption phonetic)
                 {
@@ -94,8 +93,8 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                 }
                 else if (alg is ApproxPatternOption pattern)
                 {
-                    if(pattern.IgnoreCase)
-                        filter.Or($"{filterColumn} ilike ?",  QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                    if (pattern.IgnoreCase)
+                        filter.Or($"{filterColumn} ilike ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
                     else
                         filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
 

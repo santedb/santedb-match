@@ -18,13 +18,13 @@
  * User: fyfej
  * Date: 2021-8-5
  */
+using Newtonsoft.Json;
 using SanteDB.Core.Model.Roles;
 using System;
-using System.Linq;
-using System.Xml.Serialization;
-using System.Reflection;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
 {
@@ -49,7 +49,8 @@ namespace SanteDB.Matcher.Definition
         /// The resource type
         /// </summary>
         [XmlIgnore]
-        public Type ResourceType {
+        public Type ResourceType
+        {
             get
             {
                 if (this.m_type == null)
