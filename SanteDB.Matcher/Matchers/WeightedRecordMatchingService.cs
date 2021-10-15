@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
@@ -37,7 +38,6 @@ namespace SanteDB.Matcher.Matchers
     [ServiceProvider("SanteMatch Probabalistic Match Service")]
     public class WeightedRecordMatchingService : BaseRecordMatchingService
     {
-
         /// <summary>
         /// Probabalistic matching service
         /// </summary>
@@ -50,7 +50,6 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
-
                 if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
                 var strongConfig = this.GetConfiguration<T>(configurationName);
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
@@ -70,7 +69,6 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         private MatchConfiguration GetConfiguration<T>(string configurationName) where T : IdentifiedData
         {
-
             var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
             var retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
             if (retVal == null)
@@ -93,12 +91,10 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
-
                 var attributeResult = attributes.Select(v =>
                 {
                     this.m_tracer.TraceVerbose("Initializing attribute {0}", v);
                     // Initialize the weights and such for the attribute
-                    v.Initialize();
                     var attributeScores = v.GetPropertySelectors<T>().Select(selector =>
                     {
                         Func<T, dynamic> selectorExpression = (Func<T, dynamic>)selector.Value;
@@ -118,7 +114,7 @@ namespace SanteDB.Matcher.Matchers
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
-                // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was 
+                // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was
                 // unsuccessful, we want to exclude CITY.
                 attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
                 var score = attributeResult.Sum(v => v.Score);
@@ -126,8 +122,8 @@ namespace SanteDB.Matcher.Matchers
                 // The attribute scores which are produced will be from SUM(NonMatchWeight) .. SUM(MatchWeight)
                 double maxScore = attributeResult.Sum(o => o.Attribute.MatchWeight),
                     minScore = attributeResult.Sum(o => o.Attribute.NonMatchWeight);
-                // This forms a number line between -MIN .. MAX , our probability is the distance that our score 
-                // is on that line, for example: -30.392 .. 30.392 
+                // This forms a number line between -MIN .. MAX , our probability is the distance that our score
+                // is on that line, for example: -30.392 .. 30.392
                 // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
                 var strength = (double)(score + -minScore) / (double)(maxScore + -minScore);
                 if (Double.IsNaN(strength))
@@ -138,7 +134,6 @@ namespace SanteDB.Matcher.Matchers
                 else
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 var retVal = new MatchResult<T>(block, score, strength, configurationName, classification, RecordMatchMethod.Weighted, attributeResult);
-
 
                 return retVal;
             }
@@ -157,6 +152,5 @@ namespace SanteDB.Matcher.Matchers
             var result = this.Classify(input, base.Block(input, configurationName, ignoreList), configurationName);
             return result;
         }
-
     }
 }
