@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
@@ -175,7 +176,6 @@ namespace SanteDB.Matcher.Matchers
                 NameValueCollection qfilter = new NameValueCollection();
                 foreach (var b in filter)
                 {
-
                     bool shouldIncludeExpression = true;
                     if (b.When?.Any() == true) // Only include the filter when the conditions are met
                     {
@@ -235,7 +235,7 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 // Make LINQ query
-                // NOTE: We can't build and store this since input is a closure 
+                // NOTE: We can't build and store this since input is a closure
                 // TODO: Figure out a way to compile this expression once
                 var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
@@ -249,7 +249,7 @@ namespace SanteDB.Matcher.Matchers
                 var batch = block.BatchSize;
                 if (batch == 0) { batch = 100; }
 
-                // Set the authentication context 
+                // Set the authentication context
                 using (AuthenticationContext.EnterSystemContext())
                 {
                     int ofs = 0;
@@ -263,7 +263,6 @@ namespace SanteDB.Matcher.Matchers
                         ofs += batch;
                     }
                     return retVal;
-
                 }
             }
             catch (Exception e)
@@ -296,7 +295,7 @@ namespace SanteDB.Matcher.Matchers
         }
 
         /// <summary>
-        /// Create a match report 
+        /// Create a match report
         /// </summary>
         public object CreateMatchReport<T>(T input, IEnumerable<IRecordMatchResult<T>> matches) where T : IdentifiedData
         {
@@ -315,7 +314,7 @@ namespace SanteDB.Matcher.Matchers
         }
 
         /// <summary>
-        /// Classify 
+        /// Classify
         /// </summary>
         public IEnumerable<IRecordMatchResult> Classify(IdentifiedData input, IEnumerable<IdentifiedData> blocks, String configurationName)
         {
@@ -324,6 +323,5 @@ namespace SanteDB.Matcher.Matchers
             var results = genMethod.Invoke(this, new object[] { input, ofTypeMethod.Invoke(null, new object[] { blocks }), configurationName }) as IEnumerable;
             return results.OfType<IRecordMatchResult>();
         }
-
     }
 }

@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Query;
 using System;
@@ -29,7 +30,6 @@ using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Definition
 {
-
     /// <summary>
     /// Represents a configured match attribute
     /// </summary>
@@ -37,11 +37,11 @@ namespace SanteDB.Matcher.Definition
     [JsonObject(nameof(MatchAttribute))]
     public class MatchAttribute
     {
-
         private double? m_m = null;
         private double? m_u = null;
-        private double? m_weightM = null;
         private double? m_weightN = null;
+        private double? m_weightM = null;
+
         private ConcurrentDictionary<Type, IDictionary<String, Delegate>> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary<String, Delegate>>();
 
         /// <summary>
@@ -88,8 +88,17 @@ namespace SanteDB.Matcher.Definition
         [XmlAttribute("matchWeight"), JsonProperty("matchWeight")]
         public double MatchWeight
         {
-            get => this.m_weightM.GetValueOrDefault();
-            set => this.m_weightM = value;
+            get
+            {
+                if (!this.m_weightM.HasValue)
+                {
+                    // U must be set
+                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+
+                    this.m_weightM = (this.m_m.Value / this.m_u.Value).Ln() / (2.0d).Ln();
+                }
+                return this.m_weightM.Value;
+            }
         }
 
         /// <summary>
@@ -98,12 +107,20 @@ namespace SanteDB.Matcher.Definition
         [XmlAttribute("nonMatchWeight"), JsonProperty("nonMatchWeight")]
         public double NonMatchWeight
         {
-            get => this.m_weightN.GetValueOrDefault();
-            set => this.m_weightN = value;
+            get
+            {
+                if (!this.m_weightN.HasValue)
+                {
+                    // U must be set
+                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+                    this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
+                }
+                return this.m_weightN.Value;
+            }
         }
 
         /// <summary>
-        /// Gets or sets the property 
+        /// Gets or sets the property
         /// </summary>
         [XmlAttribute("property"), JsonProperty("property")]
         public List<string> Property { get; set; }
@@ -150,28 +167,6 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlElement("partialWeight"), JsonProperty("partialWeight")]
         public MatchMeasureTransform Measure { get; set; }
-
-        /// <summary>
-        /// Initializes the probability parameters on this class instance
-        /// </summary>
-        public void Initialize()
-        {
-            // Step 1 : Are we missing weights?
-            if (!this.m_weightM.HasValue)
-            {
-                // U must be set
-                if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
-
-                this.m_weightM = (this.m_m.Value / this.m_u.Value).Ln() / (2.0d).Ln();
-            }
-            if (!this.m_weightN.HasValue)
-            {
-                // U must be set
-                if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
-
-                this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
-            }
-        }
 
         /// <summary>
         /// Represent this attribute as a string
