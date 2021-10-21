@@ -147,7 +147,7 @@ namespace SanteDB.Matcher.Matchers
                             this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
                         }
-                    return retVal.ToList();
+                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value)).ToList();
                 }
                 else
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
