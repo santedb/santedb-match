@@ -106,6 +106,7 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Applies to
         /// </summary>
+        [JsonIgnore, XmlIgnore]
         public Type[] AppliesTo => this.Target.Select(o => o.ResourceType).ToArray();
 
         /// <summary>
