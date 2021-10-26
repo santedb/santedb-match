@@ -2,26 +2,28 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Security;
+using SanteDB.Core.Security.Services;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
@@ -39,7 +41,6 @@ namespace SanteDB.Matcher.Services
     /// </summary>
     public class FileMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
-
         /// <summary>
         /// Name and record matching configuration
         /// </summary>
@@ -47,6 +48,9 @@ namespace SanteDB.Matcher.Services
 
         // Gets the configuration
         private FileMatchConfigurationSection m_configuration = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<FileMatchConfigurationSection>();
+
+        // The policy enforcement service
+        private IPolicyEnforcementService m_pepService;
 
         // Tracer
         private Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
@@ -62,10 +66,13 @@ namespace SanteDB.Matcher.Services
         public string ServiceName => "File Based Match Configuration Provider";
 
         /// <summary>
-        /// Process the file directory 
+        /// Process the file directory
         /// </summary>
-        public FileMatchConfigurationProvider()
+        public FileMatchConfigurationProvider(IConfigurationManager configurationManager, IPolicyEnforcementService pepService)
         {
+            this.m_pepService = pepService;
+            this.m_configuration = configurationManager.GetSection<FileMatchConfigurationSection>();
+
             // When application has started
             ApplicationServiceContext.Current.Started += (o, e) =>
             {
@@ -142,6 +149,8 @@ namespace SanteDB.Matcher.Services
         /// <returns>The updated configuration</returns>
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
+            this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+
             if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out dynamic configData))
             {
                 var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
@@ -164,17 +173,33 @@ namespace SanteDB.Matcher.Services
                 if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
                     throw new InvalidOperationException("Storing configuration has failed");
             }
+            else if(configuration is MatchConfiguration mc)
+            {
+                mc.Metadata.UpdatedTime = DateTimeOffset.Now;
+                mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+            }
 
             // Open for writing and write the configuration
             try
             {
                 using (var fs = System.IO.File.Create(configData.OriginalFilePath))
                 {
-                    if (configuration is MatchConfiguration)
-                        (configuration as MatchConfiguration).Save(fs);
-                    else if (configuration is MatchConfigurationCollection)
-                        (configuration as MatchConfigurationCollection).Save(fs);
+                    if (configuration is MatchConfiguration mc)
+                    {
+                        // is the user changing the state
+                        if (mc.Metadata.State != configData.Configuration.Metadata.State)
+                        {
+                            this.m_pepService.Demand(PermissionPolicyIdentifiers.ActivateMatchConfiguration);
+                        }
+
+                        mc.Save(fs);
+                    }
+                    else if (configuration is MatchConfigurationCollection mcc)
+                        mcc.Save(fs);
                 }
+
+                configData.Configuration = configuration;
+
                 return configData.Configuration;
             }
             catch (Exception e)
@@ -188,6 +213,8 @@ namespace SanteDB.Matcher.Services
         /// </summary>
         public IRecordMatchingConfiguration DeleteConfiguration(string name)
         {
+            this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+
             if (this.m_matchConfigurations.TryRemove(name, out dynamic configData))
             {
                 try

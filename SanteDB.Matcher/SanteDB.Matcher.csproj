@@ -176,5 +176,10 @@
   <ItemGroup>
     <Folder Include="Rest\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Data\000-MatchAdminPolicies.dataset">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <!-- <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" /> -->
 </Project>
