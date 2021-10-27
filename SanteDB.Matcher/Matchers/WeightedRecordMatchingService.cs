@@ -116,7 +116,33 @@ namespace SanteDB.Matcher.Matchers
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
                 // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was
                 // unsuccessful, we want to exclude CITY.
-                attributeResult.RemoveAll(o => o.Attribute.When.Any(w => attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score < 0)); // Remove all failed attributes
+                attributeResult.RemoveAll(o => !o.Attribute.When.All(w =>
+                {
+                    var attScore = attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score;
+                    switch (w.Operator)
+                    {
+                        case BinaryOperatorType.NotEqual:
+                            return attScore != w.Value;
+
+                        case BinaryOperatorType.Equal:
+                            return attScore == w.Value;
+
+                        case BinaryOperatorType.GreaterThan:
+                            return attScore > w.Value;
+
+                        case BinaryOperatorType.GreaterThanOrEqual:
+                            return attScore >= w.Value;
+
+                        case BinaryOperatorType.LessThan:
+                            return attScore < w.Value;
+
+                        case BinaryOperatorType.LessThanOrEqual:
+                            return attScore <= w.Value;
+
+                        default:
+                            throw new InvalidOperationException($"Cannot use operator {w.Operator} on when");
+                    }
+                })); // Remove all failed attributes
                 var score = attributeResult.Sum(v => v.Score);
 
                 // The attribute scores which are produced will be from SUM(NonMatchWeight) .. SUM(MatchWeight)

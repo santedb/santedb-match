@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using Newtonsoft.Json;
 using SanteDB.Core.Matching;
 using System;
@@ -34,8 +35,6 @@ namespace SanteDB.Matcher.Definition
     [JsonObject(nameof(MatchConfigurationMetadata))]
     public class MatchConfigurationMetadata : IRecordMatchingConfigurationMetadata
     {
-
-
         /// <summary>
         /// Create new serialization instance of metadata
         /// </summary>
@@ -45,7 +44,7 @@ namespace SanteDB.Matcher.Definition
         }
 
         /// <summary>
-        /// Copy data from <paramref name="value"/> into this instance 
+        /// Copy data from <paramref name="value"/> into this instance
         /// </summary>
         public MatchConfigurationMetadata(IRecordMatchingConfigurationMetadata value)
         {
@@ -72,10 +71,16 @@ namespace SanteDB.Matcher.Definition
         public DateTimeOffset CreationTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the status 
+        /// Gets or sets the status
         /// </summary>
         [XmlElement("status"), JsonProperty("status")]
         public MatchConfigurationStatus State { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version
+        /// </summary>
+        [XmlElement("version"), JsonProperty("version")]
+        public string Version { get; set; }
 
         /// <summary>
         /// Gets or sets the tags for the data
@@ -88,5 +93,23 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlArray("tags"), XmlArrayItem("add"), JsonProperty("tags")]
         public List<MatchConfigurationMetadataTag> Tags { get; set; }
+
+        /// <summary>
+        /// Gets or sets the creation time
+        /// </summary>
+        [XmlElement("updatedTime"), JsonProperty("updatedTime")]
+        public DateTimeOffset? UpdatedTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the updated person
+        /// </summary>
+        [XmlElement("updatedBy"), JsonProperty("updatedBy")]
+        public string UpdatedBy { get; set; }
+
+        /// <summary>
+        /// If this is readonly
+        /// </summary>
+        [XmlElement("isReadonly"), JsonProperty("isReadonly")]
+        public bool IsReadonly { get; set; }
     }
 }
