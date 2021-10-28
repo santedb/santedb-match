@@ -126,13 +126,13 @@ namespace SanteDB.Matcher.Matchers
                     IEnumerable<T> retVal = null;
                     foreach (var b in strongConfig.Blocking)
                         if (retVal == null)
-                            retVal = this.DoBlock<T>(input, b, ignoreKeys);
+                            retVal = this.DoBlock<T>(input, b, ignoreKeys).ToArray();
                         else if (b.Operator == BinaryOperatorType.AndAlso)
                         {
 #if DEBUG
-                            this.m_tracer.TraceVerbose("INTERSECT {0} blocked records against filter {1}", retVal.Count(), b.Filter);
+                            this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                            retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>());
+                            retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
 #if DEBUG
                             this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -142,12 +142,12 @@ namespace SanteDB.Matcher.Matchers
 #if DEBUG
                             this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                            retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>());
+                            retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
 #if DEBUG
                             this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
                         }
-                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value)).ToList();
+                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
                 }
                 else
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
@@ -164,111 +164,99 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         private IEnumerable<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
         {
-            try
+            // Load the persistence service
+            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
+            if (persistenceService == null)
+                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
+
+            // Perpare filter
+            var filter = block.Filter;
+            NameValueCollection qfilter = new NameValueCollection();
+            foreach (var b in filter)
             {
-                // Load the persistence service
-                var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
-                if (persistenceService == null)
-                    throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
-                // Perpare filter
-                var filter = block.Filter;
-                NameValueCollection qfilter = new NameValueCollection();
-                foreach (var b in filter)
+                bool shouldIncludeExpression = true;
+                if (b.When?.Any() == true) // Only include the filter when the conditions are met
                 {
-                    bool shouldIncludeExpression = true;
-                    if (b.When?.Any() == true) // Only include the filter when the conditions are met
+                    var guardExpression = b.GuardExpression;
+
+                    if (guardExpression == null) // not built
                     {
-                        var guardExpression = b.GuardExpression;
-
-                        if (guardExpression == null) // not built
+                        var parameter = Expression.Parameter(typeof(T));
+                        Expression guardBody = null;
+                        foreach (var whenClause in b.When)
                         {
-                            var parameter = Expression.Parameter(typeof(T));
-                            Expression guardBody = null;
-                            foreach (var whenClause in b.When)
+                            var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(whenClause, true);
+                            if (guardBody == null)
                             {
-                                var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(whenClause, true);
-                                if (guardBody == null)
-                                {
-                                    guardBody = Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null));
-                                }
-                                else
-                                {
-                                    guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardBody, parameter), Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null)));
-                                }
+                                guardBody = Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null));
                             }
-                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
+                            else
+                            {
+                                guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardBody, parameter), Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null)));
+                            }
                         }
-
-                        shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
+                        b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
                     }
 
-                    if (shouldIncludeExpression)
-                    {
-                        var nvc = NameValueCollection.ParseQueryString(b.Expression);
-                        // Build the expression
-                        foreach (var nv in nvc)
-                        {
-                            foreach (var val in nv.Value)
-                            {
-                                qfilter.Add(nv.Key, val);
+                    shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
+                }
 
-                                if (b.When?.Any(o => o == nv.Key) == true)
-                                {
-                                    qfilter.Add(nv.Key, "null");
-                                }
+                if (shouldIncludeExpression)
+                {
+                    var nvc = NameValueCollection.ParseQueryString(b.Expression);
+                    // Build the expression
+                    foreach (var nv in nvc)
+                    {
+                        foreach (var val in nv.Value)
+                        {
+                            qfilter.Add(nv.Key, val);
+
+                            if (b.When?.Any(o => o == nv.Key) == true)
+                            {
+                                qfilter.Add(nv.Key, "null");
                             }
                         }
                     }
                 }
+            }
 
-                // Do we skip when no conditions?
-                if (!qfilter.Any())
-                {
-                    return new T[0];
-                }
+            // Do we skip when no conditions?
+            if (!qfilter.Any())
+            {
+                yield break;
+            }
 
-                // Add ignore clauses
-                if (ignoreKeys?.Any() == true)
-                {
-                    qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
-                }
+            // Add ignore clauses
+            if (ignoreKeys?.Any() == true)
+            {
+                qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
+            }
 
-                // Make LINQ query
-                // NOTE: We can't build and store this since input is a closure
-                // TODO: Figure out a way to compile this expression once
-                var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
+            // Make LINQ query
+            // NOTE: We can't build and store this since input is a closure
+            // TODO: Figure out a way to compile this expression once
+            var linq = QueryExpressionParser.BuildLinqExpression<T>(qfilter, new Dictionary<string, Func<Object>>()
                 {
                     { "input", ((Func<T>)(() => input)) }
                 }, safeNullable: true, lazyExpandVariables: false);
 
-                this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
+            this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
-                // Query control variables for iterating result sets
-                int tr = 1;
-                var batch = block.BatchSize;
-                if (batch == 0) { batch = 100; }
+            // Query control variables for iterating result sets
+            int tr = 1;
+            var batch = block.BatchSize;
+            if (batch == 0) { batch = 100; }
 
-                // Set the authentication context
-                using (AuthenticationContext.EnterSystemContext())
-                {
-                    int ofs = 0;
-                    IEnumerable<T> retVal = null;
-                    while (ofs < tr)
-                    {
-                        if (retVal == null)
-                            retVal = persistenceService.Find(linq, ofs, batch, out tr);
-                        else
-                            retVal = retVal.Union(persistenceService.Find(linq, ofs, batch, out tr));
-                        ofs += batch;
-                    }
-                    return retVal;
-                }
-            }
-            catch (Exception e)
+            // Set the authentication context
+            using (AuthenticationContext.EnterSystemContext())
             {
-                this.m_tracer.TraceError("Could not execute block {0} against {1} on storage provider: {2}", String.Join(" / ", block.Filter), input, e.Message);
-                throw new MatchingException($"Could not execute block {String.Join(" / ", block.Filter)} against {input}", e);
+                int ofs = 0;
+                while (ofs < tr)
+                {
+                    foreach (var itm in persistenceService.Find(linq, ofs, batch, out tr))
+                        yield return itm;
+                    ofs += batch;
+                }
             }
         }
 
