@@ -80,6 +80,14 @@ namespace SanteDB.Matcher.Rest
         /// </summary>
         public object Get(Type scopingType, object scopingKey, object key)
         {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Query the object
+        /// </summary>
+        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
+        {
             var configuration = this.m_matchConfiguration?.GetConfiguration(scopingKey.ToString()) as MatchConfiguration;
             if (configuration == null)
             {
@@ -87,6 +95,7 @@ namespace SanteDB.Matcher.Rest
             }
 
             RestOperationContext.Current.OutgoingResponse.ContentType = "text/html";
+            RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.htm\"");
             using (var ms = new MemoryStream())
             {
                 configuration.Save(ms);
@@ -100,16 +109,8 @@ namespace SanteDB.Matcher.Rest
                     }
                 }
             }
+            totalCount = 0;
             return null;
-        }
-
-        /// <summary>
-        /// Query the object
-        /// </summary>
-
-        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
-        {
-            throw new NotSupportedException();
         }
 
         /// <summary>

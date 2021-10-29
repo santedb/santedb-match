@@ -2,11 +2,27 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl m"
                 xmlns:m="http://santedb.org/matcher"
+                xmlns:f="http://santedb.org/xsl-functions"
                 xmlns="http://www.w3.org/1999/xhtml"
 
 >
   <xsl:output method="html" indent="yes" />
 
+  <msxsl:script implements-prefix="f" language="JScript">
+    <![CDATA[
+
+    var isMeasured = false;
+    function setMeasured() {
+      isMeasured = true;
+    }
+    function resetMeasured() {
+      isMeasured = false;
+    }
+    function getMeasured() {
+      return isMeasured;
+    }
+    ]]>
+  </msxsl:script>
   <xsl:template match="m:MatchConfiguration">
     <html>
       <head>
@@ -244,9 +260,12 @@
           score_<xsl:value-of select="position()" />
         </xsl:otherwise>
       </xsl:choose>($input, $blocked, $context):<br />
+      <xsl:value-of select="$indent" disable-output-escaping="yes" />var $a = get($input, '<xsl:value-of select="translate(@property, ' ', '|')" />');<br />
+      <xsl:value-of select="$indent" disable-output-escaping="yes" />var $b = get($blocked, '<xsl:value-of select="translate(@property, ' ', '|')" />');<br />
 
-      <xsl:if test="m:when">
-        <xsl:value-of select="$indent" disable-output-escaping="yes" />if
+      <xsl:value-of select="$indent" disable-output-escaping="yes" />if
+      <xsl:if test="m:when/m:attribute">
+        not(
         <xsl:for-each select="m:when/m:attribute">
           (get_score($context, <xsl:value-of select="@ref" />)
           <xsl:choose>
@@ -265,10 +284,10 @@
             <xsl:otherwise>0.0</xsl:otherwise>
           </xsl:choose>)
           <xsl:if test="position() != last()"> and </xsl:if>
-        </xsl:for-each> then
-      </xsl:if>
-      <xsl:value-of select="$indent" disable-output-escaping="yes" />var $a = get($input, '<xsl:value-of select="translate(@property, ' ', '|')" />');<br />
-      <xsl:value-of select="$indent" disable-output-escaping="yes" />var $b = get($blocked, '<xsl:value-of select="translate(@property, ' ', '|')" />');<br />
+        </xsl:for-each> ) or
+      </xsl:if> ($a == null or $b == null) then <br />
+      <xsl:value-of select="concat($indent,$indent)" disable-output-escaping="yes" />return <xsl:value-of select="@whenNull" />(); <br />
+      <xsl:value-of select="$indent" disable-output-escaping="yes" />end if;<br />
       <xsl:value-of select="$indent" disable-output-escaping="yes" />var $result = false;<br />
       <xsl:value-of select="$indent" disable-output-escaping="yes" />var $score = 0.0;<br />
       <xsl:apply-templates select="m:assert" mode="pseudocode">
@@ -297,6 +316,10 @@
 
   <xsl:template match="m:assert" mode="pseudocode">
     <xsl:param name="indent" />
+
+    <xsl:comment>
+      <xsl:value-of select="f:resetMeasured()" />
+    </xsl:comment>
     <xsl:apply-templates select="m:transform" mode="pseudocode">
       <xsl:with-param name="indent" select="$indent" />
     </xsl:apply-templates>
@@ -320,22 +343,22 @@
         <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $a != $b) then<br />
       </xsl:when>
       <xsl:when test="@op = 'eq'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result == <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $measure == <xsl:value-of select="@value" /><br />
       </xsl:when>
       <xsl:when test="@op = 'ne'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $resut = $result != <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $resut = $measure != <xsl:value-of select="@value" /><br />
       </xsl:when>
       <xsl:when test="@op = 'lt'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result &lt; <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $measure &lt; <xsl:value-of select="@value" /><br />
       </xsl:when>
       <xsl:when test="@op = 'gt'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result &gt; <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $measure &gt; <xsl:value-of select="@value" /><br />
       </xsl:when>
       <xsl:when test="@op = 'lte'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result &lt;= <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $measure &lt;= <xsl:value-of select="@value" /><br />
       </xsl:when>
       <xsl:when test="@op = 'gte'">
-        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result &gt;= <xsl:value-of select="@value" /><br />
+        <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $measure &gt;= <xsl:value-of select="@value" /><br />
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -348,18 +371,21 @@
   <xsl:template match="m:transform" mode="pseudocode">
     <xsl:param name="indent" />
     <xsl:choose>
-      <xsl:when test="contains(@name, '_extract')">
+      <xsl:when test="position() != last() or not(../@value)">
         <xsl:value-of disable-output-escaping="yes" select="$indent" />set $a = <xsl:value-of select="@name" />($a<xsl:apply-templates select="m:args/*" mode="argument" />);<br />
         <xsl:value-of disable-output-escaping="yes" select="$indent" />set $b = <xsl:value-of select="@name" />($b<xsl:apply-templates select="m:args/*" mode="argument" />);
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of disable-output-escaping="yes" select="$indent" />
         <xsl:choose>
-          <xsl:when test="contains(preceding-sibling::m:transform[1]/@name, '_extract')">
-            var $result = <xsl:value-of select="@name" />($a, $b<xsl:apply-templates select="m:args/*" mode="argument" />);
+          <xsl:when test="not(f:getMeasured())">
+            <xsl:comment>
+              <xsl:value-of select="f:setMeasured()" />
+            </xsl:comment>
+            var $measure = <xsl:value-of select="@name" />($a, $b<xsl:apply-templates select="m:args/*" mode="argument" />);
           </xsl:when>
           <xsl:otherwise>
-            set $result = <xsl:value-of select="@name" />($result<xsl:apply-templates select="m:args/*" mode="argument" />);
+            set $measure = <xsl:value-of select="@name" />($measure<xsl:apply-templates select="m:args/*" mode="argument" />);
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
@@ -427,7 +453,7 @@
           </td>
         </tr>
 
-        <xsl:if test="m:when">
+        <xsl:if test="m:when/m:attribute">
           <tr>
             <th>Depends On:</th>
             <td>
