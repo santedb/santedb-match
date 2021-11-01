@@ -19,7 +19,7 @@ namespace SanteDB.Matcher.Rest
     public class ExportMatchReportOperation : IApiChildResourceHandler
     {
         // Transform
-        private readonly XslCompiledTransform m_transform = new XslCompiledTransform();
+        private XslCompiledTransform m_transform = null;
 
         // Match configuration
         private readonly IRecordMatchingConfigurationService m_matchConfiguration;
@@ -29,16 +29,6 @@ namespace SanteDB.Matcher.Rest
         /// </summary>
         public ExportMatchReportOperation(IRecordMatchingConfigurationService matchConfigurationService = null)
         {
-            using (var stream = typeof(ExportMatchReportOperation).Assembly.GetManifestResourceStream("SanteDB.Matcher.Resources.MatchConfiguration.xslt"))
-            {
-                using (var xr = XmlReader.Create(stream))
-                {
-                    this.m_transform.Load(xr, new XsltSettings()
-                    {
-                        EnableScript = true
-                    }, null);
-                }
-            }
             this.m_matchConfiguration = matchConfigurationService;
         }
 
@@ -88,6 +78,20 @@ namespace SanteDB.Matcher.Rest
         /// </summary>
         public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
         {
+            if (this.m_transform == null)
+            {
+                this.m_transform = new XslCompiledTransform();
+                using (var stream = typeof(ExportMatchReportOperation).Assembly.GetManifestResourceStream("SanteDB.Matcher.Resources.MatchConfiguration.xslt"))
+                {
+                    using (var xr = XmlReader.Create(stream))
+                    {
+                        this.m_transform.Load(xr, new XsltSettings()
+                        {
+                            EnableScript = true
+                        }, null);
+                    }
+                }
+            }
             var configuration = this.m_matchConfiguration?.GetConfiguration(scopingKey.ToString()) as MatchConfiguration;
             if (configuration == null)
             {
