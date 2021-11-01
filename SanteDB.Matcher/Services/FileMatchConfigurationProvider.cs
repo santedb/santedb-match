@@ -173,7 +173,7 @@ namespace SanteDB.Matcher.Services
                 if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
                     throw new InvalidOperationException("Storing configuration has failed");
             }
-            else if(configuration is MatchConfiguration mc)
+            else if (configuration is MatchConfiguration mc)
             {
                 mc.Metadata.UpdatedTime = DateTimeOffset.Now;
                 mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
@@ -198,7 +198,10 @@ namespace SanteDB.Matcher.Services
                         mcc.Save(fs);
                 }
 
-                configData.Configuration = configuration;
+                if (configData is IDictionary<String, Object> dict)
+                {
+                    dict["Configuration"] = configuration;
+                }
 
                 return configData.Configuration;
             }
