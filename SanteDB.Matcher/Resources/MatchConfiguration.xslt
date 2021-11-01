@@ -8,17 +8,17 @@
 >
   <xsl:output method="html" indent="yes" />
 
-  <msxsl:script implements-prefix="f" language="JScript">
+  <msxsl:script implements-prefix="f" language="C#">
     <![CDATA[
 
-    var isMeasured = false;
-    function setMeasured() {
+    bool isMeasured = false;
+    public void setMeasured() {
       isMeasured = true;
     }
-    function resetMeasured() {
+    public void resetMeasured() {
       isMeasured = false;
     }
-    function getMeasured() {
+    public bool getMeasured() {
       return isMeasured;
     }
     ]]>
