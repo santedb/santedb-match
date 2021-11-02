@@ -18,37 +18,43 @@
  * User: fyfej
  * Date: 2021-8-5
  */
+
+using System.Collections;
+using System.Reflection;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.DataTypes;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Test
 {
     public static class ExtensionMethodHelpers
     {
-
         /// <summary>
-        /// Load all concepts for T
+        /// Load all concepts for a give source.
         /// </summary>
-        public static T LoadConcepts<T>(this T me) where T  : IdentifiedData
+        public static T LoadConcepts<T>(this T source) where T : IdentifiedData
         {
-
-            foreach(var p in me.GetType().GetRuntimeProperties())
+            foreach (var propertyInfo in source.GetType().GetRuntimeProperties())
             {
-                var val = p.GetValue(me);
-                if (val is IEnumerable)
-                    foreach (var v in val as IEnumerable)
-                        (v as IdentifiedData)?.LoadConcepts();
-                else if (val == null && p.PropertyType == typeof(Concept))
-                    me.LoadProperty<Concept>(p.Name);
+                var val = propertyInfo.GetValue(source);
+
+                switch (val)
+                {
+                    case IEnumerable enumerable:
+                    {
+                        foreach (var v in enumerable)
+                        {
+                            (v as IdentifiedData)?.LoadConcepts();
+                        }
+
+                        break;
+                    }
+                    case null when propertyInfo.PropertyType == typeof(Concept):
+                        source.LoadProperty<Concept>(propertyInfo.Name);
+                        break;
+                }
             }
-            return me;
+
+            return source;
         }
     }
 }
