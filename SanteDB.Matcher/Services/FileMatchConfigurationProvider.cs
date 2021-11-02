@@ -42,9 +42,25 @@ namespace SanteDB.Matcher.Services
     public class FileMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         /// <summary>
+        /// Configuration cache object
+        /// </summary>
+        private class ConfigCacheObject
+        {
+            /// <summary>
+            /// Gets or sets the original file path
+            /// </summary>
+            public String OriginalFilePath { get; set; }
+
+            /// <summary>
+            /// Gets or sets the configuration
+            /// </summary>
+            public dynamic Configuration { get; set; }
+        }
+
+        /// <summary>
         /// Name and record matching configuration
         /// </summary>
-        private ConcurrentDictionary<String, dynamic> m_matchConfigurations;
+        private ConcurrentDictionary<String, ConfigCacheObject> m_matchConfigurations;
 
         // Gets the configuration
         private FileMatchConfigurationSection m_configuration = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<FileMatchConfigurationSection>();
@@ -79,7 +95,7 @@ namespace SanteDB.Matcher.Services
                 try
                 {
                     if (this.m_configuration == null) return;
-                    this.m_matchConfigurations = new ConcurrentDictionary<string, dynamic>();
+                    this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
                     this.m_tracer.TraceInfo("Loading match configurations...");
                     foreach (var configDir in this.m_configuration.FilePath)
                     {
@@ -101,7 +117,7 @@ namespace SanteDB.Matcher.Services
                                     using (var fs = System.IO.File.OpenRead(fileName))
                                     {
                                         var config = MatchConfiguration.Load(fs);
-                                        this.m_matchConfigurations.TryAdd(config.Id, new
+                                        this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
                                         {
                                             OriginalFilePath = fileName,
                                             Configuration = config
@@ -129,7 +145,7 @@ namespace SanteDB.Matcher.Services
         /// <returns>The loaded configuration</returns>
         public IRecordMatchingConfiguration GetConfiguration(string name)
         {
-            if (this.m_matchConfigurations.TryGetValue(name, out dynamic configData))
+            if (this.m_matchConfigurations.TryGetValue(name, out ConfigCacheObject configData))
             {
                 if (this.m_configuration.CacheFiles)
                     return configData.Configuration as IRecordMatchingConfiguration;
@@ -151,7 +167,7 @@ namespace SanteDB.Matcher.Services
         {
             this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
 
-            if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out dynamic configData))
+            if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out ConfigCacheObject configData))
             {
                 var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
                 if (savePath == null)
@@ -164,7 +180,7 @@ namespace SanteDB.Matcher.Services
                     CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
                 };
 
-                configData = new
+                configData = new ConfigCacheObject()
                 {
                     Configuration = configuration,
                     OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, Guid.NewGuid().ToString()), "xml")
@@ -173,7 +189,7 @@ namespace SanteDB.Matcher.Services
                 if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
                     throw new InvalidOperationException("Storing configuration has failed");
             }
-            else if(configuration is MatchConfiguration mc)
+            else if (configuration is MatchConfiguration mc)
             {
                 mc.Metadata.UpdatedTime = DateTimeOffset.Now;
                 mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
@@ -215,7 +231,7 @@ namespace SanteDB.Matcher.Services
         {
             this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
 
-            if (this.m_matchConfigurations.TryRemove(name, out dynamic configData))
+            if (this.m_matchConfigurations.TryRemove(name, out ConfigCacheObject configData))
             {
                 try
                 {
