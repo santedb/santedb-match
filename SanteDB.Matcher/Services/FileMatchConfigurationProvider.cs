@@ -127,10 +127,14 @@ namespace SanteDB.Matcher.Services
                                     }
 
                                     var originalPath = fileName;
-                                    if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _)) // Migrate the config
+                                    if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out Guid uuid) || uuid != config.Uuid) // Migrate the config
                                     {
                                         originalPath = Path.Combine(configDir.Path, $"{config.Uuid}.xml");
-                                        File.Delete(fileName);
+                                        File.Move(fileName, originalPath);
+                                        using (var fs = File.Create(originalPath))
+                                        {
+                                            config.Save(fs);
+                                        }
                                     }
 
                                     this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()

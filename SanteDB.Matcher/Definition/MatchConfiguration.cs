@@ -126,7 +126,7 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Gets or sets the UUID
         /// </summary>
-        [XmlElement("uuid")]
+        [XmlAttribute("uuid")]
         [JsonProperty("uuid")]
         public Guid Uuid { get; set; }
 
