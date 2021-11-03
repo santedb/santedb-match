@@ -76,7 +76,7 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Gets or sets the name
         /// </summary>
-        [XmlAttribute("description"), JsonProperty("description")]
+        [XmlElement("description"), JsonProperty("description")]
         public string Description { get; set; }
 
         /// <summary>
