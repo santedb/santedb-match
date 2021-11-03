@@ -73,10 +73,7 @@
     </attribute>
     <!-- Same County - If on average a state has 30 counties the u = 0.033   -->
     <attribute id="address.county" property="address" u="0.033" m="0.8" whenNull="nonmatch" required="true">
-      <when>
-        <attribute ref="address.state" op="eq" value="true"/>
-      </when>
-      <assert op="eq">
+	    <assert op="eq">
         <transform name="addresspart_extract">
           <args>
             <string>City</string>

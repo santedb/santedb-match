@@ -51,6 +51,7 @@ namespace SanteDB.Matcher.Definition
             this.CreatedBy = value.CreatedBy;
             this.CreationTime = value.CreationTime;
             this.State = value.State;
+
             this.Tags = new List<MatchConfigurationMetadataTag>(value.Tags.Select(o => new MatchConfigurationMetadataTag()
             {
                 Key = o.Key,
@@ -111,5 +112,11 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlElement("isReadonly"), JsonProperty("isReadonly")]
         public bool IsReadonly { get; set; }
+
+        /// <summary>
+        /// Gets or sets the description of the match configuration
+        /// </summary>
+        [XmlElement("description"), JsonProperty("description")]
+        public string Description { get; set; }
     }
 }

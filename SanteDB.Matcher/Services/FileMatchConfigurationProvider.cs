@@ -94,7 +94,12 @@ namespace SanteDB.Matcher.Services
             {
                 try
                 {
-                    if (this.m_configuration == null) return;
+                    if (this.m_configuration == null)
+                    {
+                        this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
+                        return;
+                    }
+
                     this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
                     this.m_tracer.TraceInfo("Loading match configurations...");
                     foreach (var configDir in this.m_configuration.FilePath)
