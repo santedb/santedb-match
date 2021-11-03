@@ -114,26 +114,37 @@ namespace SanteDB.Matcher.Services
                             this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
                         }
                         else
+                        {
                             foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
                             {
                                 this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
                                 try
                                 {
+                                    MatchConfiguration config = null;
                                     using (var fs = System.IO.File.OpenRead(fileName))
                                     {
-                                        var config = MatchConfiguration.Load(fs);
-                                        this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
-                                        {
-                                            OriginalFilePath = fileName,
-                                            Configuration = config
-                                        });
+                                        config = MatchConfiguration.Load(fs);
                                     }
+
+                                    var originalPath = fileName;
+                                    if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _)) // Migrate the config
+                                    {
+                                        originalPath = Path.Combine(configDir.Path, $"{config.Uuid}.xml");
+                                        File.Delete(fileName);
+                                    }
+
+                                    this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
+                                    {
+                                        OriginalFilePath = originalPath,
+                                        Configuration = config
+                                    });
                                 }
                                 catch (Exception ex)
                                 {
                                     this.m_tracer.TraceWarning("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
                                 }
                             }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -174,21 +185,31 @@ namespace SanteDB.Matcher.Services
 
             if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out ConfigCacheObject configData))
             {
+                //
                 var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
                 if (savePath == null)
                     throw new InvalidOperationException("Cannot find a read/write configuration path");
 
                 // Set select metadata
-                configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                if (configuration is MatchConfiguration mci)
                 {
-                    CreationTime = DateTime.Now,
-                    CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
-                };
+                    mci.Metadata.CreationTime = DateTime.Now;
+                    mci.Metadata.CreatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+                    mci.Metadata.Version = 1;
+                }
+                else
+                {
+                    configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                    {
+                        CreationTime = DateTime.Now,
+                        CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
+                    };
+                }
 
                 configData = new ConfigCacheObject()
                 {
                     Configuration = configuration,
-                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Id), "xml")
+                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Uuid.ToString()), "xml")
                 };
 
                 if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
@@ -198,6 +219,7 @@ namespace SanteDB.Matcher.Services
             {
                 mc.Metadata.UpdatedTime = DateTime.Now;
                 mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+                mc.Metadata.Version++;
             }
 
             // Open for writing and write the configuration

@@ -48,6 +48,7 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         public MatchConfigurationMetadata(IRecordMatchingConfigurationMetadata value)
         {
+            this.Version = 1;
             this.CreatedBy = value.CreatedBy;
             this.CreationTime = value.CreationTime.DateTime;
             this.State = value.State;
@@ -81,7 +82,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the version
         /// </summary>
         [XmlElement("version"), JsonProperty("version")]
-        public string Version { get; set; }
+        public int Version { get; set; }
 
         /// <summary>
         /// Gets or sets the tags for the data
