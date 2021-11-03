@@ -22,7 +22,7 @@
 <MatchConfiguration xmlns="http://santedb.org/matcher"
                     id="org.santedb.matcher.example"
                     nonmatchThreshold="5"
-                    matchThreashold="12">
+                    matchThreshold="12">
   <target resource="Patient" />
   
   <!-- Start: Blocking Configuration -->

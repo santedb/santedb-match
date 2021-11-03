@@ -120,37 +120,41 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                // If the blocking algorithm for this type is AND then we can just use a single IMSI query
-                if (strongConfig.Blocking.Count > 0)
+                // if there is no blocking config, we need to throw an error
+                if (!strongConfig.Blocking.Any())
                 {
-                    IEnumerable<T> retVal = null;
-                    foreach (var b in strongConfig.Blocking)
-                        if (retVal == null)
-                            retVal = this.DoBlock<T>(input, b, ignoreKeys).ToArray();
-                        else if (b.Operator == BinaryOperatorType.AndAlso)
-                        {
-#if DEBUG
-                            this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-                            retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
-#if DEBUG
-                            this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
-                        }
-                        else if (b.Operator == BinaryOperatorType.OrElse)
-                        {
-#if DEBUG
-                            this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-                            retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
-#if DEBUG
-                            this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
-                        }
-                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
-                }
-                else
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
+                }
+
+                IEnumerable<T> retVal = null;
+
+                foreach (var b in strongConfig.Blocking)
+                {
+                    if (retVal == null)
+                        retVal = this.DoBlock<T>(input, b, ignoreKeys).ToArray();
+                    else if (b.Operator == BinaryOperatorType.AndAlso)
+                    {
+#if DEBUG
+                        this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
+#endif
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+#if DEBUG
+                        this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
+#endif
+                    }
+                    else if (b.Operator == BinaryOperatorType.OrElse)
+                    {
+#if DEBUG
+                        this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
+#endif
+                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+#if DEBUG
+                        this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
+#endif
+                    }
+                }
+
+                return ignoreKeys == null ? retVal : retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
             }
             catch (Exception e)
             {

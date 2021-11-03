@@ -18,20 +18,20 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.IO;
-using System.Linq;
 using NUnit.Framework;
 using SanteDB.Core;
 using SanteDB.Core.Data;
 using SanteDB.Core.Interfaces;
+using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.EntityLoader;
 using SanteDB.Core.Model.Roles;
-using SanteDB.Core.Matching;
 using SanteDB.Core.TestFramework;
 using SanteDB.Matcher.Matchers;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace SanteDB.Matcher.Test
 {
@@ -153,12 +153,16 @@ namespace SanteDB.Matcher.Test
                     new Core.Model.Entities.EntityAddress(AddressUseKeys.Direct, "483 Some Different Street", "Hamilton", "ON", "CA", "L8K5NN")
                 }
             };
-            patient = patient.LoadConcepts();
-            var blocks = matchService.Block(patient, "test.complex", null);
-            Assert.AreEqual(113, blocks.Count());
-            var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(1, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
 
+            patient = patient.LoadConcepts();
+
+            var blocks = matchService.Block(patient, "test.complex", null);
+
+            Assert.AreEqual(113, blocks.Count());
+
+            var output = matchService.Classify(patient, blocks, "test.complex");
+
+            Assert.AreEqual(1, output.Count(o => o.Classification == RecordMatchClassification.Match));
         }
 
         /// <summary>
@@ -198,12 +202,17 @@ namespace SanteDB.Matcher.Test
                     new Core.Model.Entities.EntityRelationship(EntityRelationshipTypeKeys.Birthplace, Guid.Parse("8f4c9122-7661-4c7c-9069-4a572a965b3f"))
                 }
             };
+
             patient = patient.LoadConcepts();
+
             var blocks = matchService.Block(patient, "test.complex", null);
+
             Assert.AreEqual(140, blocks.Count());
+
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(3, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
-            Assert.AreEqual(9, output.Where(o => o.Classification == RecordMatchClassification.Probable).Count());
+
+            Assert.AreEqual(3, output.Count(o => o.Classification == RecordMatchClassification.Match));
+            Assert.AreEqual(9, output.Count(o => o.Classification == RecordMatchClassification.Probable));
         }
     }
 }
