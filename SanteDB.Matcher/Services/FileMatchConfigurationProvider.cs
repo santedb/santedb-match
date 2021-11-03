@@ -181,14 +181,14 @@ namespace SanteDB.Matcher.Services
                 // Set select metadata
                 configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
                 {
-                    CreationTime = DateTimeOffset.Now,
+                    CreationTime = DateTime.Now,
                     CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
                 };
 
                 configData = new ConfigCacheObject()
                 {
                     Configuration = configuration,
-                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, Guid.NewGuid().ToString()), "xml")
+                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Id), "xml")
                 };
 
                 if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
@@ -196,7 +196,7 @@ namespace SanteDB.Matcher.Services
             }
             else if (configuration is MatchConfiguration mc)
             {
-                mc.Metadata.UpdatedTime = DateTimeOffset.Now;
+                mc.Metadata.UpdatedTime = DateTime.Now;
                 mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
             }
 

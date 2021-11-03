@@ -49,7 +49,7 @@ namespace SanteDB.Matcher.Definition
         public MatchConfigurationMetadata(IRecordMatchingConfigurationMetadata value)
         {
             this.CreatedBy = value.CreatedBy;
-            this.CreationTime = value.CreationTime;
+            this.CreationTime = value.CreationTime.DateTime;
             this.State = value.State;
 
             this.Tags = new List<MatchConfigurationMetadataTag>(value.Tags.Select(o => new MatchConfigurationMetadataTag()
@@ -69,7 +69,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the creation time
         /// </summary>
         [XmlElement("creationTime"), JsonProperty("creationTime")]
-        public DateTimeOffset CreationTime { get; set; }
+        public DateTime CreationTime { get; set; }
 
         /// <summary>
         /// Gets or sets the status
@@ -99,7 +99,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the creation time
         /// </summary>
         [XmlElement("updatedTime"), JsonProperty("updatedTime")]
-        public DateTimeOffset? UpdatedTime { get; set; }
+        public DateTime? UpdatedTime { get; set; }
 
         /// <summary>
         /// Gets or sets the updated person
@@ -118,5 +118,15 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlElement("description"), JsonProperty("description")]
         public string Description { get; set; }
+
+        /// <summary>
+        /// Creation time
+        /// </summary>
+        DateTimeOffset IRecordMatchingConfigurationMetadata.CreationTime => this.CreationTime;
+
+        /// <summary>
+        /// Gets the updated time
+        /// </summary>
+        DateTimeOffset? IRecordMatchingConfigurationMetadata.UpdatedTime => this.UpdatedTime;
     }
 }
