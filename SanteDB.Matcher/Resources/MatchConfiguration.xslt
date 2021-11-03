@@ -4,10 +4,12 @@
                 xmlns:m="http://santedb.org/matcher"
                 xmlns:f="http://santedb.org/xsl-functions"
                 xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://www.w3.org/1999/xhtml"
 
 >
   <xsl:output method="html" indent="yes" />
 
+  <xsl:param name="m:jsonConfig" />
   <msxsl:script implements-prefix="f" language="C#">
     <![CDATA[
 
@@ -24,6 +26,271 @@
     ]]>
   </msxsl:script>
   <xsl:template match="m:MatchConfiguration">
+    <xsl:variable name="mermaidScript">
+      var configuration = <xsl:value-of select="$m:jsonConfig" />;
+
+      <![CDATA[
+
+    
+// Render blocking subgraph
+    function renderBlockingSubgraph(configuration) {
+      var targetResource = configuration.target[0].resource;
+      var retVal = `subgraph Blocking\ndirection TB\n`;
+
+      for (var i in configuration.blocking) {
+
+        var block = configuration.blocking[i];
+
+        if (i == 0) {
+          retVal += 'DB[("<i class=\'fa fa-database\'"></i> main)]==>';
+        }
+        else {
+          retVal += 'DB==>';
+        }
+
+
+        if (block.filter.length == 1) {
+          retVal += `B${i}F0["<i class='fa fa-filter'></i> ${block.filter[0].expression.split('=')[0]}"]\n`;
+          retVal += `B${i}F${block.filter.length - 1}-->`;
+
+        }
+        else {
+          retVal += `Block${i}\nsubgraph Block${i}\ndirection TB\n`;
+          for (var f = 0; f < block.filter.length - 1;) {
+            var filter = block.filter[f];
+            retVal += `B${i}F${f}["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]-->`;
+
+            // Not the first so we are going to point to another record
+
+            retVal += `|intersect| `;
+
+            retVal += `B${i}F${++f}`;
+            if (f == block.filter.length - 1) // last?
+            {
+              filter = block.filter[f];
+              retVal += `["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]\n`
+            }
+            else {
+              retVal += '\n';
+            }
+          }
+          retVal += `end\nBlock${i}-->`;
+
+        }
+
+
+        retVal += `|${block.op == 6 ? 'intersect' : 'union'}| `;
+
+        retVal += 'BJOIN';
+        if (i == 0) {
+          retVal += '["<i class=\'fa fa-code-branch\'></i> Collect Blocked Records"]\n';
+        }
+        else {
+          retVal += '\n';
+        }
+
+      }
+
+      retVal += 'end\n';
+
+      return retVal;
+    }
+
+    // Render an assertion block
+    function renderAssertionBlock(fromNode, prefix, assertion) {
+
+      var retVal = "";
+
+      // Op codes
+      var opCode = "==";
+      switch (assertion.op) {
+        case "LessThan":
+        case 1:
+          opCode = "<";
+          break;
+        case "LessThanOrEqual":
+        case 2:
+          opCode = "<=";
+          break;
+        case "GreaterThan":
+        case 3:
+          opCode = ">";
+          break;
+        case "GreaterThanOrEqual":
+        case 4:
+          opCode = ">";
+          break;
+        case "NotEqual":
+        case 5:
+          opCode = "!=";
+          break;
+        case "AndAlso":
+        case 6:
+          opCode = "&&";
+          break;
+        case "OrElse":
+        case 7:
+
+          opCode = "||";
+          break;
+      }
+
+      // Indicate transforms
+      for (var t in assertion.transform) {
+        var transform = assertion.transform[t];
+
+        var nameString = `${transform.name}(${transform.args.join(',')})`;
+
+        retVal += `${fromNode}-->${prefix}T${t}[["${nameString}"]]\n`;
+        fromNode = `${prefix}T${t}`;
+      }
+
+      if (assertion.assert.length == 0) {
+        if (assertion.value) {
+          retVal += `${fromNode}-->${prefix}OUT{${opCode} ${assertion.value}}\n`;
+        }
+        else {
+          retVal += `${fromNode}-->${prefix}OUT{${opCode}}\n`;
+        }
+      }
+      else {
+        for (var a in assertion.assert) {
+          var subAssertion = assertion.assert[a];
+          retVal += renderAssertionBlock(fromNode, `${prefix}A${a}`, subAssertion);
+          retVal += `${prefix}A${a}OUT-->|true| ${prefix}OUT{${opCode}}\n`;
+        }
+
+      }
+
+      return retVal;
+
+    }
+
+    // Render scoring
+    function renderScoringSubgraph(configuration, simple, only) {
+      var targetResource = configuration.target[0].resource;
+      retVal = "";
+
+      var retVal = `subgraph Scoring\n`;
+      for (var s in configuration.scoring) {
+
+
+        if (only !== undefined && only != s) {
+          continue;
+        }
+
+        var score = configuration.scoring[s];
+
+        if (simple) {
+          retVal += `BJOIN==>`;
+          retVal += `score_${score.id ?? s}[["<i class='fa fa-star-half-alt'></i> ${score.property[0]}"]]\n`
+        }
+        else {
+
+          if (only === undefined) {
+            retVal += `BJOIN==>score_${score.id ?? s}\n`;
+          }
+
+          retVal += `subgraph score_${score.id ?? s}\ndirection TB\n`;
+
+          retVal += renderAssertionBlock(`PARM${s}[/"${score.property[0]}"/]`, `S${s}`, score.assert);
+
+          // Assign output
+          retVal += `S${s}OUT-->|true| S${s}SCORE[/score += ${score.matchWeight.toPrecision(2)}/]\n`
+          retVal += `S${s}OUT-->|false| S${s}NSCORE[/score += ${score.nonMatchWeight.toPrecision(2)}/]\n`
+
+          if (score.partialWeight) {
+            retVal += `S${s}SCORE-->S${s}END(["${score.partialWeight.name}(${score.partialWeight.args.join(",")})"])\n`;
+          }
+          else {
+            retVal += `S${s}SCORE-->S${s}END(["score"])\n`;
+          }
+          retVal += `S${s}NSCORE-->S${s}END\n`;
+
+          retVal += 'end\n';
+          retVal += `style score_${score.id ?? s} fill:#fff,stroke:#000\n`
+        }
+      }
+
+      retVal += 'end\n';
+
+      return retVal;
+    }
+
+    // Render classification
+    function renderClassificationSubgraph(configuration, only) {
+      var targetResource = configuration.target[0].resource;
+      var retVal = `subgraph Classification\n`;
+
+      for (var s in configuration.scoring) {
+
+        if (only !== undefined && only != s) {
+          continue;
+        }
+
+        var score = configuration.scoring[s];
+
+        retVal += `score_${score.id ?? s}-->`;
+
+        retVal += `|"${score.matchWeight.toPrecision(2)} / ${score.nonMatchWeight.toPrecision(2)}"|`;
+
+        retVal += `CLASS{"<i class='fa fa-brain'></i> Classify"}\n`//[["<i class='fa fa-calculator'></i> sum()"]]\n`;
+      }
+
+      // retVal += 'SUMCLS-->CLASS{Classify}\n';
+      retVal += `CLASS-->|"< ${configuration.nonmatchThreshold}"| NON["<i class='fa fa-times'></i> Non Match"]\n`;
+      retVal += `CLASS-->|"< ${configuration.matchThreshold}"| PROB["<i class='fa fa-question'></i> Probable Match"]\n`;
+      retVal += `CLASS-->|"> ${configuration.matchThreshold}"| MATCH["<i class='fa fa-check'></i> Match"]\n`;
+      retVal += 'style NON fill:#f99,stroke:#900\n';
+      retVal += 'style PROB fill:#ff9,stroke:#990\n';
+      retVal += 'style MATCH fill:#9f9,stroke:#090\n';
+      retVal += 'end\n';
+      return retVal;
+    }
+
+    mermaid.mermaidAPI.initialize({
+      "theme": "default",
+      flowchartConfig: {
+        width: '100%',
+        htmlLabels: true,
+        curve: 'linear'
+      },
+      securityLevel: 'loose',
+      startOnLoad: true
+    });
+
+    // Render match configuration for the object
+    var graphData = `flowchart LR\n`;
+    graphData += renderBlockingSubgraph(configuration);
+    graphData += renderScoringSubgraph(configuration, true);
+    graphData += renderClassificationSubgraph(configuration);
+    graphData += 'style Scoring fill:#eff,stroke:#0ff\n';
+    graphData += 'style Blocking fill:#efe,stroke:#0f0\n';
+    graphData += 'style Classification fill:#fef,stroke:#f0f\n';
+    mermaid.mermaidAPI.render('overallMatchDiv', graphData, (svg) => document.getElementById('overallMatchSvg').innerHTML = svg);
+
+    var graphData = `flowchart TB\n`;
+    graphData += renderBlockingSubgraph(configuration);
+    graphData += 'style Blocking fill:#efe,stroke:#0f0\n';
+    mermaid.mermaidAPI.render('blockingDiv', graphData, (svg) => document.getElementById('blockingSvg').innerHTML = svg);
+
+    document.querySelectorAll(".explainsvg").forEach((s) => {
+
+      var id = s.id.substring(4);
+      var graphData = `flowchart TB\n`;
+      graphData += renderScoringSubgraph(configuration, false, id - 1 );
+      graphData += renderClassificationSubgraph(configuration, id - 1);
+      graphData += 'style Scoring fill:#eff,stroke:#0ff\n';
+      graphData += 'style Classification fill:#fef,stroke:#f0f\n';
+      mermaid.mermaidAPI.render(`div_${id}`, graphData, (svg) => s.innerHTML = svg);
+
+
+    });
+
+
+   
+         ]]>
+    </xsl:variable>
     <html>
       <head>
         <title>
@@ -31,6 +298,7 @@
         </title>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous" />
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
+
       </head>
       <body class="w-50 m-auto">
         <a name="top" />
@@ -39,61 +307,75 @@
         </h1>
         <ul>
           <li>
-            <a href="#a0">0. Metadata</a>
+            <a href="#a0">1. Metadata</a>
+            <ul>
+              <li>
+                <a href="#a00">1.0. Explain Diagram</a>
+              </li>
+            </ul>
           </li>
           <li>
-            <a href="#a1">1. Blocking</a>
+            <a href="#a1">2. Blocking</a>
             <ul>
+              <li>
+                <a href="#a10">2.0. Explain Diagram</a>
+              </li>
               <xsl:for-each select="m:blocking">
                 <li>
                   <a href="#a1{position()}">
-                    1.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position()" />
+                    2.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position()" />
                   </a>
                   <ul>
                     <li>
                       <a href="#a1{position()}1">
-                        1.<xsl:value-of select="position()" />.1 Summary
+                        2.<xsl:value-of select="position()" />.1 Summary
                       </a>
                     </li>
                     <li>
                       <a href="#a1{position()}2">
-                        1.<xsl:value-of select="position()" />.2 Pseudocode
+                        2.<xsl:value-of select="position()" />.2 Pseudocode
                       </a>
                     </li>
                   </ul>
                 </li>
               </xsl:for-each>
+
             </ul>
           </li>
           <li>
-            <a href="#a2">2. Scoring</a>
+            <a href="#a2">3. Scoring</a>
             <ul>
               <xsl:for-each select="m:scoring/m:attribute">
                 <li>
                   <a href="#a2{position()}">
-                    2.<xsl:value-of select="position()" />. <xsl:value-of select="@property" /> <xsl:if test="@id">
+                    3.<xsl:value-of select="position()" />. <xsl:value-of select="@property" /> <xsl:if test="@id">
                       (<xsl:value-of select="@id" />)
                     </xsl:if>
                   </a>
                   <ul>
                     <li>
+                      <a href="#a2{position()}0">
+                        3.<xsl:value-of select="position()" />.0 Explain Diagram
+                      </a>
+                    </li>
+                    <li>
                       <a href="#a2{position()}1">
-                        2.<xsl:value-of select="position()" />.1 Summary
+                        3.<xsl:value-of select="position()" />.1 Summary
                       </a>
                     </li>
                     <li>
                       <a href="#a2{position()}2">
-                        2.<xsl:value-of select="position()" />.2 Assertions
+                        3.<xsl:value-of select="position()" />.2 Assertions
                       </a>
                     </li>
                     <li>
                       <a href="#a2{position()}3">
-                        2.<xsl:value-of select="position()" />.3 Partial Scoring
+                        3.<xsl:value-of select="position()" />.3 Partial Scoring
                       </a>
                     </li>
                     <li>
                       <a href="#a2{position()}4">
-                        2.<xsl:value-of select="position()" />.4 Pseudocode
+                        3.<xsl:value-of select="position()" />.4 Pseudocode
                       </a>
                     </li>
                   </ul>
@@ -102,11 +384,12 @@
             </ul>
           </li>
           <li>
-            <a href="#a3">3. Classification</a>
+            <a href="#a3">4. Classification</a>
           </li>
+
         </ul>
         <h2>
-          <a name="a0" />0. Metadata
+          <a name="a0" />1. Metadata
         </h2>
         <table class="table table-striped">
           <tbody>
@@ -139,13 +422,13 @@
               <td>
                 <xsl:choose>
                   <xsl:when test="m:meta/m:status = 'Active'">
-                    <i class="fas fa-check"></i>
+                    <i class="fa fa-check"></i>
                   </xsl:when>
                   <xsl:when test="m:meta/m:status = 'Inactive'">
-                    <i class="fas fa-times"></i>
+                    <i class="fa fa-times"></i>
                   </xsl:when>
                   <xsl:when test="m:meta/m:status = 'Obsolete'">
-                    <i class="fas fa-trash" />
+                    <i class="fa fa-trash" />
                   </xsl:when>
                 </xsl:choose>
                 <xsl:value-of select="m:meta/m:status" />
@@ -180,17 +463,31 @@
             </tr>
           </tbody>
         </table>
+        <h3>
+          <a name="a01">1.0 Explain Diagram</a>
+        </h3>
+        <center>
+          <div id="overallMatchDiv">-</div>
+          <div id="overallMatchSvg">- WAIT -</div>
+        </center>
         <h2>
-          <a name="a1" /> 1. Blocking
+          <a name="a1" />2. Blocking
         </h2>
+        <h3>
+          <a name="a10">2.0 Explain Diagram</a>
+        </h3>
+        <center>
+          <div id="blockingDiv">-</div>
+          <div id="blockingSvg">- WAIT -</div>
+        </center>
         <xsl:apply-templates select="m:blocking" />
         <h2>
-          <a name="a2" />2. Scoring
+          <a name="a2" />3. Scoring
         </h2>
         <xsl:apply-templates select="m:scoring/m:attribute" />
 
         <h2>
-          <a name="a3" />3. Classification
+          <a name="a3" />4. Classification
         </h2>
         <div class="container-fluid">
 
@@ -213,8 +510,14 @@
             </div>
           </div>
         </div>
-
         <a href="#top">Back to Top</a>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js">
+          <![CDATA[// Mermaid Include]]>
+        </script>
+        <script type="text/javascript">
+          <xsl:value-of disable-output-escaping="yes" select="$mermaidScript"></xsl:value-of>
+        </script>
+
       </body>
     </html>
   </xsl:template>
@@ -397,15 +700,25 @@
     <h3>
       <a name="score_{@id}" />
       <a name="a2{position()}" />
-      2.<xsl:value-of select="position()" />. <xsl:value-of select="@property" />
+      3.<xsl:value-of select="position()" />. <xsl:value-of select="@property" />
       <xsl:if test="@id">
         (<xsl:value-of select="@id" />)
       </xsl:if>
     </h3>
     <h4>
+      <a name="a2{position()}0" />
+
+      3.<xsl:value-of select="position()" />.0. Explain Diagram
+    </h4>
+    <center>
+      <div id="div_{position()}" class="explainDiv">-</div>
+      <div id="svg_{position()}" class="explainSvg">-</div>
+    </center>
+    
+    <h4>
       <a name="a2{position()}1" />
 
-      2.<xsl:value-of select="position()" />.1. Summary
+      3.<xsl:value-of select="position()" />.1. Summary
     </h4>
 
     <table class="table table-border">
@@ -488,7 +801,7 @@
     <h4>
       <a name="a2{position()}2" />
 
-      2.<xsl:value-of select="position()" />.2. Assertions
+      3.<xsl:value-of select="position()" />.2. Assertions
     </h4>
     <p>This section illustrates the assertions which are executed and evaluated against the values in A and B to obtain a score.</p>
     <xsl:apply-templates select="m:assert" mode="table" />
@@ -498,7 +811,7 @@
     <h4>
       <a name="a2{position()}3" />
 
-      2.<xsl:value-of select="position()" />.3. Partial Scoring
+      3.<xsl:value-of select="position()" />.3. Partial Scoring
     </h4>
 
     <xsl:choose>
@@ -515,7 +828,7 @@
     <h4>
       <a name="a2{position()}4" />
 
-      2.<xsl:value-of select="position()" />.4. Pseudocode
+      3.<xsl:value-of select="position()" />.5. Pseudocode
     </h4>
 
     <p>
@@ -642,12 +955,12 @@
     <h3>
       <a name="a1{position()}" />
 
-      1.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position()" />
+      2.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position()" />
     </h3>
     <h4>
       <a name="a1{position()}1" />
 
-      1.<xsl:value-of select="position()" />.1. Summary
+      2.<xsl:value-of select="position()" />.1. Summary
     </h4>
     <table class="match-blocking-table">
       <thead>
@@ -684,7 +997,7 @@
     <h4>
       <a name="a1{position()}2" />
 
-      1.<xsl:value-of select="position()" />.2. Pseudocode
+      2.<xsl:value-of select="position()" />.2. Pseudocode
     </h4>
     <xsl:apply-templates select="." mode="pseudocode" />
     <a href="#top">Back to Top</a>

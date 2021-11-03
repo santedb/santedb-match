@@ -1,4 +1,5 @@
-﻿using RestSrvr;
+﻿using Newtonsoft.Json;
+using RestSrvr;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Query;
@@ -109,7 +110,10 @@ namespace SanteDB.Matcher.Rest
                 {
                     using (var xw = XmlWriter.Create(RestOperationContext.Current.OutgoingResponse.OutputStream))
                     {
-                        this.m_transform.Transform(xr, xw);
+                        var args = new XsltArgumentList();
+
+                        args.AddParam("jsonConfig", "http://santedb.org/matcher", JsonConvert.SerializeObject((object)configuration));
+                        this.m_transform.Transform(xr, args, xw);
                     }
                 }
             }
