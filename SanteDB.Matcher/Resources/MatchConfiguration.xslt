@@ -31,264 +31,363 @@
 
       <![CDATA[
 
-    
-// Render blocking subgraph
-    function renderBlockingSubgraph(configuration) {
-      var targetResource = configuration.target[0].resource;
-      var retVal = `subgraph Blocking\ndirection TB\n`;
+function renderBlockingSubgraph(configuration, detailOutput, instructionIndex) {
+    var retVal = `subgraph Blocking["<i class='fa fa-database'></i> Blocking"]\ndirection ${detailOutput ? 'TB' : 'TB'}\n`;
 
-      for (var i in configuration.blocking) {
+    for (var i in configuration.blocking) {
+
+        // Don't show this instruction
+        if (instructionIndex !== undefined && instructionIndex !== i) {
+            continue;
+        }
 
         var block = configuration.blocking[i];
 
-        if (i == 0) {
-          retVal += 'DB[("<i class=\'fa fa-database\'"></i> main)]==>';
+        if (i == 0 || instructionIndex !== undefined) {
+            retVal += `DB[("${configuration.target.map(o => o.resource).join('|')}")]==>`;
         }
         else {
-          retVal += 'DB==>';
+            retVal += 'DB==>';
         }
 
+            retVal += ' ';
 
         if (block.filter.length == 1) {
-          retVal += `B${i}F0["<i class='fa fa-filter'></i> ${block.filter[0].expression.split('=')[0]}"]\n`;
-          retVal += `B${i}F${block.filter.length - 1}-->`;
 
+            if (detailOutput && block.filter[0].when && block.filter[0].when != "") {
+                retVal += `B${i}W0{{"<i class='fa fa-question'></i> $input.${block.filter[0].when}"}}\nB${i}W0-->|"[null]"|BJOIN\nB${i}W0-->|"[not null]"| `;
+            }
+            retVal += `B${i}F0["<i class='fa fa-filter'></i> ${block.filter[0].expression.split('=')[0]}"]\n`;
+            retVal += `B${i}F${block.filter.length - 1}-->`;
         }
         else {
-          retVal += `Block${i}\nsubgraph Block${i}\ndirection TB\n`;
-          for (var f = 0; f < block.filter.length - 1;) {
-            var filter = block.filter[f];
-            retVal += `B${i}F${f}["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]-->`;
+            retVal += `Block${i}\nsubgraph Block${i}\ndirection TB\n`;
+            for (var f = 0; f < block.filter.length; f++) {
+                var filter = block.filter[f];
 
-            // Not the first so we are going to point to another record
+                if (detailOutput && block.filter[f].when && block.filter[f].when != "") {
+                    retVal += `B${i}W${f}{{"<i class='fa fa-question'></i> $input.${block.filter[f].when}"}}\n`;
+                    if (f < block.filter.length - 1) {
+                        retVal += `B${i}W${f}-->|"[null]"|B${i}W${f + 1}\n`;
+                    }
+                    else {
+                        retVal += `B${i}W${f}-->|"[null]"|B${i}RET(("results"))\n`;
+                    }
+                    retVal += `B${i}W${f}-->|"[not null]"| `;
+                }
 
-            retVal += `|intersect| `;
+                retVal += `B${i}F${f}["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]`;
 
-            retVal += `B${i}F${++f}`;
-            if (f == block.filter.length - 1) // last?
-            {
-              filter = block.filter[f];
-              retVal += `["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]\n`
+                if (f == block.filter.length - 1) {
+                    retVal += '\n';
+                    if (detailOutput) {
+                        retVal += `B${i}F${f}-->B${i}RET\n`;
+                    }
+
+                }
+
+                if (f < block.filter.length - 1) {
+                    retVal += '-->';
+                    // Not the first so we are going to point to another record
+
+                        retVal += `|"intersect"| `;
+
+                    if (f < block.filter.length - 2) {
+                        if (detailOutput) // handle IF
+                        {
+                            retVal += `B${i}${block.filter[f + 1].when && block.filter[f + 1].when != "" ? 'W' : 'F'}${f + 1}\n`;
+                        }
+                        else {
+                            retVal += `B${i}F${f + 1}\n`;
+                        }
+                    }
+                }
+                /*if (f == block.filter.length - 1) // last?
+                    {
+                        filter = block.filter[f];
+                        retVal += `["<i class='fa fa-filter'></i> ${filter.expression.split('=')[0]}"]\n`;
+                    }
+                    else {
+                        retVal += '\n';
+                    }*/
             }
-            else {
-              retVal += '\n';
-            }
-          }
-          retVal += `end\nBlock${i}-->`;
+            retVal += `end\nBlock${i}-->`;
 
         }
 
-
-        retVal += `|${block.op == 6 ? 'intersect' : 'union'}| `;
+            retVal += `|${block.op == 'AndAlso' ? 'intersect' : 'union'}| `;
 
         retVal += 'BJOIN';
         if (i == 0) {
-          retVal += '["<i class=\'fa fa-code-branch\'></i> Collect Blocked Records"]\n';
+            retVal += '(["<i class=\'fa fa-code-branch\'></i> Collect Blocked Records"])\n';
         }
         else {
-          retVal += '\n';
+            retVal += '\n';
         }
 
-      }
-
-      retVal += 'end\n';
-
-      return retVal;
     }
 
-    // Render an assertion block
-    function renderAssertionBlock(fromNode, prefix, assertion) {
+    retVal += 'end\n';
 
-      var retVal = "";
+    return retVal;
+}
 
-      // Op codes
-      var opCode = "==";
-      switch (assertion.op) {
+// Render opcode
+function renderOpCode(opCode) {
+    switch (opCode) {
         case "LessThan":
-        case 1:
-          opCode = "<";
-          break;
+		case 1:
+            return "<";
         case "LessThanOrEqual":
-        case 2:
-          opCode = "<=";
-          break;
+		case 2:
+            return "<=";
         case "GreaterThan":
-        case 3:
-          opCode = ">";
-          break;
+		case 3:
+            return ">";
         case "GreaterThanOrEqual":
-        case 4:
-          opCode = ">";
-          break;
+		case 4:
+            return ">";
         case "NotEqual":
-        case 5:
-          opCode = "!=";
-          break;
+		case 5:
+            return "!=";
         case "AndAlso":
-        case 6:
-          opCode = "&&";
-          break;
+		case 6:
+            return "&&";
         case "OrElse":
-        case 7:
+		case 7:
+            return "||";
+		default:
+			return "==";
+    }
+}
+/**
+ * @method
+ * @summary Render a single assertion instruction block with transforms
+ * @param {string} fromNode The node reference in the mermaid graph where the source of the instruction is
+ * @param {string} prefix The prefix to affix to all mermaid graph identifiers
+ * @param {Assertion} assertion The match assertion which should be rendered
+* @returns {string} The MermaidJS graph
+ */
+function renderAssertionBlock(fromNode, prefix, assertion) {
 
-          opCode = "||";
-          break;
-      }
+    var retVal = "";
 
-      // Indicate transforms
-      for (var t in assertion.transform) {
+    // Indicate transforms
+    for (var t in assertion.transform) {
         var transform = assertion.transform[t];
 
         var nameString = `${transform.name}(${transform.args.join(',')})`;
 
-        retVal += `${fromNode}-->${prefix}T${t}[["${nameString}"]]\n`;
+        retVal += `${fromNode}-->${prefix}T${t}[["<i class='fa fa-code'></i> ${nameString}"]]\n`;
         fromNode = `${prefix}T${t}`;
-      }
+    }
 
-      if (assertion.assert.length == 0) {
+    if (assertion.assert.length == 0) {
         if (assertion.value) {
-          retVal += `${fromNode}-->${prefix}OUT{${opCode} ${assertion.value}}\n`;
+            retVal += `${fromNode}-->${prefix}OUT{{"<i class='fa fa-question'></i> ${renderOpCode(assertion.op)} ${assertion.value}"}}\n`;
         }
         else {
-          retVal += `${fromNode}-->${prefix}OUT{${opCode}}\n`;
+            retVal += `${fromNode}-->${prefix}OUT{{"<i class='fa fa-question'></i> ${renderOpCode(assertion.op)}"}}\n`;
         }
-      }
-      else {
+    }
+    else {
         for (var a in assertion.assert) {
-          var subAssertion = assertion.assert[a];
-          retVal += renderAssertionBlock(fromNode, `${prefix}A${a}`, subAssertion);
-          retVal += `${prefix}A${a}OUT-->|true| ${prefix}OUT{${opCode}}\n`;
+            var subAssertion = assertion.assert[a];
+            retVal += renderAssertionBlock(fromNode, `${prefix}A${a}`, subAssertion);
+            retVal += `${prefix}A${a}OUT-->|"[true]"| ${prefix}OUT{{"<i class='fa fa-question'></i> ${renderOpCode(assertion.op)}"}}\n`;
         }
-
-      }
-
-      return retVal;
 
     }
 
-    // Render scoring
-    function renderScoringSubgraph(configuration, simple, only) {
-      var targetResource = configuration.target[0].resource;
-      retVal = "";
+    return retVal;
 
-      var retVal = `subgraph Scoring\n`;
-      for (var s in configuration.scoring) {
+}
 
-
-        if (only !== undefined && only != s) {
-          continue;
-        }
+/**
+ * @method
+ * @summary Render the scoring instructions as a single subgraph
+ * @param {MatchConfiguration} configuration The match configuration which should be rendered
+ * @param {object} actuals When not-null, show the actual results (counts) on the output
+ * @param {boolean} detailOutput When true, don't show the contents of the scoring instruction
+ * @param {number} instructionIndex When provided, only render the specified instruction
+ * @returns {string} The MermaidJS graph
+ */
+function renderScoringSubgraph(configuration, detailOutput, instructionIndex) {
+    var targetResource = configuration.target[0].resource;
+    var retVal = `subgraph Scoring["<i class='fa fa-star'></i> Scoring"]\ndirection ${detailOutput ? 'TB' : 'LR'}\n`;
+    for (var s in configuration.scoring) {
 
         var score = configuration.scoring[s];
 
-        if (simple) {
-          retVal += `BJOIN==>`;
-          retVal += `score_${score.id ?? s}[["<i class='fa fa-star-half-alt'></i> ${score.property[0]}"]]\n`
+        // Don't show this instruction
+        if (instructionIndex !== undefined && instructionIndex != s) {
+            continue;
+        }
+
+        if (!detailOutput) {
+            retVal += `Blocking==>`;
+
+            retVal += `Attribute${s}[["<i class='fa fa-star'></i> ${score.property[0]}"]]\n`;
+            retVal += `Attribute${s}-->SCORE(["<i class='fa fa-calculator'> Sum"])\n`
         }
         else {
+            retVal += `Blocking==>`;
 
-          if (only === undefined) {
-            retVal += `BJOIN==>score_${score.id ?? s}\n`;
-          }
+            retVal += `Attribute${s}\nsubgraph Attribute${s}["<i class='fa fa-star'></i> ${score.id || `Attribute${s}`}"]\ndirection ${detailOutput ? 'TB' : 'TB'}\n`;
 
-          retVal += `subgraph score_${score.id ?? s}\ndirection TB\n`;
+            var rootNode = `PARM${s}`;
 
-          retVal += renderAssertionBlock(`PARM${s}[/"${score.property[0]}"/]`, `S${s}`, score.assert);
+            if (score.when) {
+                for (var w in score.when) {
+                    var when = score.when[w];
 
-          // Assign output
-          retVal += `S${s}OUT-->|true| S${s}SCORE[/score += ${score.matchWeight.toPrecision(2)}/]\n`
-          retVal += `S${s}OUT-->|false| S${s}NSCORE[/score += ${score.nonMatchWeight.toPrecision(2)}/]\n`
+                    var refIdx = configuration.scoring.findIndex(o => o.id == when.ref);
 
-          if (score.partialWeight) {
-            retVal += `S${s}SCORE-->S${s}END(["${score.partialWeight.name}(${score.partialWeight.args.join(",")})"])\n`;
-          }
-          else {
-            retVal += `S${s}SCORE-->S${s}END(["score"])\n`;
-          }
-          retVal += `S${s}NSCORE-->S${s}END\n`;
+                    retVal += `PARM${s}W${w}{{"<a href='#score${refIdx}'><i class='fa fa-star'></i> ${when.ref} ${renderOpCode(when.op)} ${when.value}</a>"}}`;
 
-          retVal += 'end\n';
-          retVal += `style score_${score.id ?? s} fill:#fff,stroke:#000\n`
+                    if (w < score.when.length - 1) {
+                        retVal += `-->|"[true]"| PARM${s}W${w + 1}\n`;
+                    }
+                    else {
+                        retVal += `-->|"[true]"| ${rootNode}\n`;
+                    }
+                                        retVal += `PARM${s}W${w}-->|"[false]"| `;
+
+                    switch (score.whenNull) {
+                        case 'Zero':
+						case 3:
+                        case 'Disqualify':
+						case 5:
+                        case 'Ignore':
+						case 4:
+                            retVal += `PARMWHENNULL${s}\n`;
+                            break;
+                        case 'NonMatch':
+						case 2:
+                            retVal += `S${s}NSCORE\n`;
+                            break;
+                        case 'Match':
+						case 1:
+                            retVal += `S${s}SCORE\n`;
+                            break;
+                        default:
+                            retVal += `${rootNode}\n`;
+                        break;
+                    }
+                }
+            }
+
+            // Null score
+            switch (score.whenNull) {
+                case 'Zero':
+				case 3:
+                    retVal += `${rootNode}[/"${score.property[0]}"/]-->|"[null]"| PARMWHENNULL${s}(["0.0"])\n`;
+                    break;
+                case 'Match':
+				case 1:
+                    retVal += `${rootNode}[/"${score.property[0]}"/]-->|"[null]"| S${s}SCORE\n`;
+                    break;
+                case 'NonMatch':
+				case 2:
+                    retVal += `${rootNode}[/"${score.property[0]}"/]-->|"[null]"| S${s}NSCORE\n`;
+                    break;
+                case 'Disqualify':
+				case 5:
+                    retVal += `${rootNode}[/"${score.property[0]}"/]-->|"[null]"| PARMWHENNULL${s}[["<i class='fa fa-exclamation'></i> disqualify()"]]\n`;
+                    break;
+					case 'Ignore':
+				case 4:
+                    retVal += `${rootNode}[/"${score.property[0]}"/]-->|"[null]"| PARMWHENNULL${s}(["null"])\n`;
+                    break;
+				default:
+					rootNode = `${rootNode}[/"${score.property[0]}"/]`;
+					break;
+
+            }
+
+            retVal += renderAssertionBlock(rootNode, `S${s}`, score.assert);
+
+            // Assign output
+
+            if (score.partialWeight) {
+                retVal += `S${s}OUT-->|"[true]"| S${s}SCORE(["${score.matchWeight.toPrecision(2)} * ${score.partialWeight.name}(${score.partialWeight.args.join(",")})"])\n`;
+            }
+            else {
+                retVal += `S${s}OUT-->|"[true]"| S${s}SCORE(["${score.matchWeight.toPrecision(2)}"])\n`;
+            }
+            retVal += `S${s}OUT-->|"[false]"| S${s}NSCORE([${score.nonMatchWeight.toPrecision(2)}])\n`;
+
+            retVal += 'end\n';
+            retVal += `style Attribute${s} fill:#fff,stroke:#000\n`;
         }
-      }
-
-      retVal += 'end\n';
-
-      return retVal;
     }
 
-    // Render classification
-    function renderClassificationSubgraph(configuration, only) {
-      var targetResource = configuration.target[0].resource;
-      var retVal = `subgraph Classification\n`;
+    retVal += 'end\n';
 
-      for (var s in configuration.scoring) {
+    return retVal;
+}
 
-        if (only !== undefined && only != s) {
-          continue;
-        }
+/**
+ * @method
+ * @summary Render the classification instructions from the configuration
+ * @param {MatchConfiguration} configuration The matching configuration to emit the classification instructions from
+ * @param {object} actuals When not-null, emit the counts from the actual variable (this is the result of the $test operation)
+ * @returns {string} The MermaidJS graph
+ */
+function renderClassificationSubgraph(configuration) {
+    var targetResource = configuration.target[0].resource;
+    var retVal = `subgraph Classification["<i class='fa fa-random'></i> Classification"]\ndirection TB\n`;
 
-        var score = configuration.scoring[s];
+    // for (var s in configuration.scoring) {
+    //     var score = configuration.scoring[s];
 
-        retVal += `score_${score.id ?? s}-->`;
+    //     retVal += `score_${score.id ?? s}-->`;
+    //     if (actuals) {
+    //         retVal += '|? records|';
+    //     }
+    //     else {
+    //         retVal += `|"${score.matchWeight.toPrecision(2)} / ${score.nonMatchWeight.toPrecision(2)}"|`;
+    //     }
+    //     retVal += `CLASS{"<i class='fa fa-random'></i> Classify"}\n`//[["<i class='fa fa-calculator'></i> sum()"]]\n`;
+    // }
 
-        retVal += `|"${score.matchWeight.toPrecision(2)} / ${score.nonMatchWeight.toPrecision(2)}"|`;
+    retVal += "Scoring==>CLASS{{\"<i class='fa fa-random'></i> Classify\"}}\n";
+    // retVal += 'SUMCLS-->CLASS{Classify}\n';
 
-        retVal += `CLASS{"<i class='fa fa-brain'></i> Classify"}\n`//[["<i class='fa fa-calculator'></i> sum()"]]\n`;
-      }
+        retVal += `CLASS-->|"[< ${configuration.nonmatchThreshold}]"| NON["<i class='fa fa-times'></i> Non Match"]\n`;
+        retVal += `CLASS-->|"[< ${configuration.matchThreshold}]"| PROB["<i class='fa fa-question'></i> Probable Match"]\n`;
+        retVal += `CLASS-->|"[]> ${configuration.matchThreshold}]"| MATCH["<i class='fa fa-check'></i> Match"]\n`;
 
-      // retVal += 'SUMCLS-->CLASS{Classify}\n';
-      retVal += `CLASS-->|"< ${configuration.nonmatchThreshold}"| NON["<i class='fa fa-times'></i> Non Match"]\n`;
-      retVal += `CLASS-->|"< ${configuration.matchThreshold}"| PROB["<i class='fa fa-question'></i> Probable Match"]\n`;
-      retVal += `CLASS-->|"> ${configuration.matchThreshold}"| MATCH["<i class='fa fa-check'></i> Match"]\n`;
-      retVal += 'style NON fill:#f99,stroke:#900\n';
-      retVal += 'style PROB fill:#ff9,stroke:#990\n';
-      retVal += 'style MATCH fill:#9f9,stroke:#090\n';
-      retVal += 'end\n';
-      return retVal;
-    }
+    retVal += 'style NON fill:#f99,stroke:#900\n';
+    retVal += 'style PROB fill:#ff9,stroke:#990\n';
+    retVal += 'style MATCH fill:#9f9,stroke:#090\n';
+    retVal += 'end\n';
+    return retVal;
+}
+	mermaid.mermaidAPI.initialize({ theme: "default", flowchartConfig: { width: "100%", htmlLabels: !0, curve: "linear" }, securityLevel: "loose", startOnLoad: !0 });
+var graphData = "flowchart TB\n";
+graphData += renderBlockingSubgraph(configuration);
+graphData += renderScoringSubgraph(configuration, false);
+graphData += renderClassificationSubgraph(configuration);
+graphData += "style Scoring fill:#eff,stroke:#0ff\n";
+graphData += "style Blocking fill:#efe,stroke:#0f0\n";
+graphData += "style Classification fill:#fef,stroke:#f0f\n";
+mermaid.mermaidAPI.render("overallMatchDiv", graphData, (e => document.getElementById("overallMatchSvg").innerHTML = e));
 
-    mermaid.mermaidAPI.initialize({
-      "theme": "default",
-      flowchartConfig: {
-        width: '100%',
-        htmlLabels: true,
-        curve: 'linear'
-      },
-      securityLevel: 'loose',
-      startOnLoad: true
-    });
+graphData = "flowchart TB\n";
+graphData += renderBlockingSubgraph(configuration, true);
+graphData += "style Blocking fill:#efe,stroke:#0f0\n";
+mermaid.mermaidAPI.render("blockingDiv", graphData, (e => document.getElementById("blockingSvg").innerHTML = e));
 
-    // Render match configuration for the object
-    var graphData = `flowchart LR\n`;
-    graphData += renderBlockingSubgraph(configuration);
-    graphData += renderScoringSubgraph(configuration, true);
-    graphData += renderClassificationSubgraph(configuration);
-    graphData += 'style Scoring fill:#eff,stroke:#0ff\n';
-    graphData += 'style Blocking fill:#efe,stroke:#0f0\n';
-    graphData += 'style Classification fill:#fef,stroke:#f0f\n';
-    mermaid.mermaidAPI.render('overallMatchDiv', graphData, (svg) => document.getElementById('overallMatchSvg').innerHTML = svg);
+document.querySelectorAll(".explainsvg").forEach((e => {
+    var r = e.id.substring(4);
+    a = "flowchart LR\n";
+    a += renderScoringSubgraph(configuration, true, r - 1);
+	                a += 'Blocking[["<i class=\'fa fa-database\'></i> Blocking"]]-->Scoring\n';
 
-    var graphData = `flowchart TB\n`;
-    graphData += renderBlockingSubgraph(configuration);
-    graphData += 'style Blocking fill:#efe,stroke:#0f0\n';
-    mermaid.mermaidAPI.render('blockingDiv', graphData, (svg) => document.getElementById('blockingSvg').innerHTML = svg);
+    a += "style Scoring fill:#eff,stroke:#0ff\n", mermaid.mermaidAPI.render(`div_${r}`, a, (r => e.innerHTML = r))
+}));
 
-    document.querySelectorAll(".explainsvg").forEach((s) => {
-
-      var id = s.id.substring(4);
-      var graphData = `flowchart TB\n`;
-      graphData += renderScoringSubgraph(configuration, false, id - 1 );
-      graphData += renderClassificationSubgraph(configuration, id - 1);
-      graphData += 'style Scoring fill:#eff,stroke:#0ff\n';
-      graphData += 'style Classification fill:#fef,stroke:#f0f\n';
-      mermaid.mermaidAPI.render(`div_${id}`, graphData, (svg) => s.innerHTML = svg);
-
-
-    });
-
-
-   
          ]]>
     </xsl:variable>
     <html>
@@ -298,7 +397,6 @@
         </title>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous" />
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
-
       </head>
       <body class="w-50 m-auto">
         <a name="top" />
@@ -339,7 +437,6 @@
                   </ul>
                 </li>
               </xsl:for-each>
-
             </ul>
           </li>
           <li>
@@ -386,7 +483,6 @@
           <li>
             <a href="#a3">4. Classification</a>
           </li>
-
         </ul>
         <h2>
           <a name="a0" />1. Metadata
@@ -517,7 +613,6 @@
         <script type="text/javascript">
           <xsl:value-of disable-output-escaping="yes" select="$mermaidScript"></xsl:value-of>
         </script>
-
       </body>
     </html>
   </xsl:template>
@@ -525,7 +620,7 @@
   <xsl:template match="m:blocking" mode="pseudocode">
     <xsl:variable name="indent" select="'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;'" />
     <code class="bg-dark text-light d-block">
-      def block_<xsl:value-of select="position()" />($input):<br />
+      def Block<xsl:value-of select="position() - 1" />($input):<br />
       <xsl:value-of disable-output-escaping="yes" select="$indent" />var $records = [];<br />
       <xsl:for-each select="m:filter">
         <xsl:choose>
@@ -557,10 +652,10 @@
       </xsl:if>
       def <xsl:choose>
         <xsl:when test="@id">
-          score_<xsl:value-of select="@id" />
+          <xsl:value-of select="@id" />
         </xsl:when>
         <xsl:otherwise>
-          score_<xsl:value-of select="position()" />
+          Attribute<xsl:value-of select="position() - 1" />
         </xsl:otherwise>
       </xsl:choose>($input, $blocked, $context):<br />
       <xsl:value-of select="$indent" disable-output-escaping="yes" />var $a = get($input, '<xsl:value-of select="translate(@property, ' ', '|')" />');<br />
@@ -700,10 +795,15 @@
     <h3>
       <a name="score_{@id}" />
       <a name="a2{position()}" />
-      3.<xsl:value-of select="position()" />. <xsl:value-of select="@property" />
-      <xsl:if test="@id">
-        (<xsl:value-of select="@id" />)
-      </xsl:if>
+      <a name="score{position() - 1}" />
+      3.<xsl:value-of select="position()" />. <xsl:choose>
+        <xsl:when test="@id">
+          <xsl:value-of select="@id" />
+        </xsl:when>
+        <xsl:otherwise>
+          Attribute<xsl:value-of select="position() - 1" />
+        </xsl:otherwise>
+      </xsl:choose> (<xsl:value-of select="@property" />)
     </h3>
     <h4>
       <a name="a2{position()}0" />
@@ -714,7 +814,7 @@
       <div id="div_{position()}" class="explainDiv">-</div>
       <div id="svg_{position()}" class="explainSvg">-</div>
     </center>
-    
+
     <h4>
       <a name="a2{position()}1" />
 
@@ -955,14 +1055,14 @@
     <h3>
       <a name="a1{position()}" />
 
-      2.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position()" />
+      2.<xsl:value-of select="position()" />. Blocking Instruction <xsl:value-of select="position() - 1" />
     </h3>
     <h4>
       <a name="a1{position()}1" />
 
       2.<xsl:value-of select="position()" />.1. Summary
     </h4>
-    <table class="match-blocking-table">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th>When</th>
