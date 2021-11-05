@@ -106,7 +106,7 @@
         then the mermaid JS graphs will be rendered
   -->
   <xsl:param name="m:jsonConfig" />
-
+  <xsl:param name="m:indentChars" select="'&lt;i class=&quot;fa fa-fw&quot;&gt;&lt;/i&gt;'" />
   <!-- MSXSL Script to assist in rendering pseudocode graphs -->
   <msxsl:script implements-prefix="f" language="C#">
     <![CDATA[
@@ -400,34 +400,33 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
   </xsl:template>
 
   <xsl:template match="m:blocking" mode="pseudocode">
-    <xsl:variable name="indent" select="'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;'" />
     <code class="bg-dark text-light d-block">
       def Block<xsl:value-of select="position() - 1" />($input):<br />
-      <xsl:value-of disable-output-escaping="yes" select="$indent" />var $records = [];<br />
+      <xsl:value-of disable-output-escaping="yes" select="$m:indentChars" />var $records = [];<br />
       <xsl:for-each select="m:filter">
         <xsl:choose>
           <xsl:when test="@when">
-            <xsl:value-of disable-output-escaping="yes" select="$indent" />if (get($input, '<xsl:value-of select="@when" />')) then<br />
-            <xsl:value-of disable-output-escaping="yes" select="concat($indent,$indent)" />$records = $records <xsl:choose>
+            <xsl:value-of disable-output-escaping="yes" select="$m:indentChars" />if (get($input, '<xsl:value-of select="@when" />')) then<br />
+            <xsl:value-of disable-output-escaping="yes" select="concat($m:indentChars,$m:indentChars)" />$records = $records <xsl:choose>
               <xsl:when test="@op = 'or' or position = 1">union with</xsl:when>
               <xsl:otherwise>intersect with</xsl:otherwise>
             </xsl:choose> query(<xsl:value-of select="." />);<br />
-            <xsl:value-of disable-output-escaping="yes" select="$indent" />end if;<br />
+            <xsl:value-of disable-output-escaping="yes" select="$m:indentChars" />end if;<br />
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of disable-output-escaping="yes" select="concat($indent,$indent)" />$records = $records <xsl:choose>
+            <xsl:value-of disable-output-escaping="yes" select="concat($m:indentChars,$m:indentChars)" />$records = $records <xsl:choose>
               <xsl:when test="@op = 'or' or position = 1">union with</xsl:when>
               <xsl:otherwise>intersect with</xsl:otherwise>
             </xsl:choose> query(<xsl:value-of select="." />);<br />
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each>
-      <xsl:value-of disable-output-escaping="yes" select="$indent" />return limit($records, <xsl:value-of select="@maxResults" />);<br />
+      <xsl:value-of disable-output-escaping="yes" select="$m:indentChars" />return limit($records, <xsl:value-of select="@maxResults" />);<br />
       end def;<br />
     </code>
   </xsl:template>
   <xsl:template match="m:attribute" mode="pseudocode">
-    <xsl:variable name="indent" select="'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;'" />
+    <xsl:variable name="indent" select="$m:indentChars" />
     <code class="bg-dark text-light d-block">
       <xsl:if test="@description">
         // <xsl:value-of select="@description" />
@@ -507,12 +506,12 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
       <xsl:when test="@op = 'and' or @op = 'or'">
         <xsl:for-each select="m:assert">
           <xsl:value-of disable-output-escaping="yes" select="$indent" />set $result = $result <xsl:value-of select="../@op" /> <br />
-          <xsl:value-of disable-output-escaping="yes" select="concat($indent, '&amp;nbsp;&amp;nbsp;&amp;nbsp;')" />fn ($a, $b):<br />
+          <xsl:value-of disable-output-escaping="yes" select="concat($indent, $m:indentChars)" />fn ($a, $b):<br />
           <xsl:apply-templates select="." mode="pseudocode">
-            <xsl:with-param name="indent" select="concat($indent, '&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')" />
+            <xsl:with-param name="indent" select="concat($indent, $m:indentChars)" />
           </xsl:apply-templates>
-          <xsl:value-of disable-output-escaping="yes" select="concat($indent, '&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')" />return $result;<br />
-          <xsl:value-of disable-output-escaping="yes" select="concat($indent, '&amp;nbsp;&amp;nbsp;&amp;nbsp;')" />end fn;<br />
+          <xsl:value-of disable-output-escaping="yes" select="concat($indent,$m:indentChars)" />return $result;<br />
+          <xsl:value-of disable-output-escaping="yes" select="concat($indent, $m:indentChars)" />end fn;<br />
         </xsl:for-each>
       </xsl:when>
 
