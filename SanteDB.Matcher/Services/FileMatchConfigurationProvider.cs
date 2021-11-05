@@ -68,6 +68,9 @@ namespace SanteDB.Matcher.Services
         // The policy enforcement service
         private IPolicyEnforcementService m_pepService;
 
+        // Localization service
+        private ILocalizationService m_localizationService;
+
         // Tracer
         private Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
 
@@ -84,11 +87,11 @@ namespace SanteDB.Matcher.Services
         /// <summary>
         /// Process the file directory
         /// </summary>
-        public FileMatchConfigurationProvider(IConfigurationManager configurationManager, IPolicyEnforcementService pepService)
+        public FileMatchConfigurationProvider(IConfigurationManager configurationManager, IPolicyEnforcementService pepService, ILocalizationService localizationService)
         {
             this.m_pepService = pepService;
             this.m_configuration = configurationManager.GetSection<FileMatchConfigurationSection>();
-
+            this.m_localizationService = localizationService;
             // When application has started
             ApplicationServiceContext.Current.Started += (o, e) =>
             {
@@ -189,35 +192,43 @@ namespace SanteDB.Matcher.Services
 
             if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out ConfigCacheObject configData))
             {
-                //
-                var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
-                if (savePath == null)
-                    throw new InvalidOperationException("Cannot find a read/write configuration path");
+                // Lookup by UUID
 
-                // Set select metadata
-                if (configuration is MatchConfiguration mci)
+                if (this.m_matchConfigurations.Any(o => o.Value.Configuration.Uuid == configuration.Uuid))
                 {
-                    mci.Metadata.CreationTime = DateTime.Now;
-                    mci.Metadata.CreatedBy = AuthenticationContext.Current.Principal.Identity.Name;
-                    mci.Metadata.Version = 1;
+                    throw new InvalidOperationException(this.m_localizationService.FormatString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
                 }
                 else
                 {
-                    configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                    var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
+                    if (savePath == null)
+                        throw new InvalidOperationException("Cannot find a read/write configuration path");
+
+                    // Set select metadata
+                    if (configuration is MatchConfiguration mci)
                     {
-                        CreationTime = DateTime.Now,
-                        CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
+                        mci.Metadata.CreationTime = DateTime.Now;
+                        mci.Metadata.CreatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+                        mci.Metadata.Version = 1;
+                    }
+                    else
+                    {
+                        configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                        {
+                            CreationTime = DateTime.Now,
+                            CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
+                        };
+                    }
+
+                    configData = new ConfigCacheObject()
+                    {
+                        Configuration = configuration,
+                        OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Uuid.ToString()), "xml")
                     };
+
+                    if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
+                        throw new InvalidOperationException("Storing configuration has failed");
                 }
-
-                configData = new ConfigCacheObject()
-                {
-                    Configuration = configuration,
-                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Uuid.ToString()), "xml")
-                };
-
-                if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
-                    throw new InvalidOperationException("Storing configuration has failed");
             }
             else if (configuration is MatchConfiguration mc)
             {

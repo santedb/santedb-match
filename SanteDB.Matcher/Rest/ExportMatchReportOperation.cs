@@ -103,6 +103,7 @@ namespace SanteDB.Matcher.Rest
             RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.htm\"");
             using (var ms = new MemoryStream())
             {
+                // Save configuration to XML
                 configuration.Save(ms);
                 ms.Seek(0, SeekOrigin.Begin);
                 // Now export
@@ -111,7 +112,6 @@ namespace SanteDB.Matcher.Rest
                     using (var xw = XmlWriter.Create(RestOperationContext.Current.OutgoingResponse.OutputStream))
                     {
                         var args = new XsltArgumentList();
-
                         args.AddParam("jsonConfig", "http://santedb.org/matcher", JsonConvert.SerializeObject((object)configuration));
                         this.m_transform.Transform(xr, args, xw);
                     }
