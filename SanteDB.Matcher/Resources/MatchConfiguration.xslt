@@ -174,7 +174,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
         <ul>
           <li>
             <a href="#a0">1. Metadata</a>
-            <xsl:if test="$m:jsonConfig != null">
+            <xsl:if test="$m:jsonConfig != ''">
               <ul>
                 <li>
                   <a href="#a00">1.0. Explain Diagram</a>
@@ -185,7 +185,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
           <li>
             <a href="#a1">2. Blocking</a>
             <ul>
-              <xsl:if test="$m:jsonConfig != null">
+              <xsl:if test="$m:jsonConfig">
 
                 <li>
                   <a href="#a10">2.0. Explain Diagram</a>
@@ -223,7 +223,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
                     </xsl:if>
                   </a>
                   <ul>
-                    <xsl:if test="$m:jsonConfig != null">
+                    <xsl:if test="$m:jsonConfig">
                       <li>
                         <a href="#a2{position()}0">
                           3.<xsl:value-of select="position()" />.0 Explain Diagram
@@ -334,17 +334,19 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
             </tr>
           </tbody>
         </table>
-        <h3>
-          <a name="a00">1.0 Explain Diagram</a>
-        </h3>
-        <center>
-          <div id="overallMatchDiv">-</div>
-          <div id="overallMatchSvg">- WAIT -</div>
-        </center>
+        <xsl:if test="$m:jsonConfig">
+          <h3>
+            <a name="a00">1.0 Explain Diagram</a>
+          </h3>
+          <center>
+            <div id="overallMatchDiv">-</div>
+            <div id="overallMatchSvg">- WAIT -</div>
+          </center>
+        </xsl:if>
         <h2>
           <a name="a1" />2. Blocking
         </h2>
-        <xsl:if test="$m:jsonConfig != null">
+        <xsl:if test="$m:jsonConfig">
 
           <h3>
             <a name="a10">2.0 Explain Diagram</a>
@@ -386,7 +388,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
         </div>
         <a href="#top">Back to Top</a>
 
-        <xsl:if test="$m:jsonConfig != null">
+        <xsl:if test="$m:jsonConfig">
 
           <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js">
             <![CDATA[// Mermaid Include]]>
@@ -586,7 +588,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
         </xsl:otherwise>
       </xsl:choose> (<xsl:value-of select="@property" />)
     </h3>
-    <xsl:if test="$m:jsonConfig != null">
+    <xsl:if test="$m:jsonConfig">
 
       <h4>
         <a name="a2{position()}0" />
