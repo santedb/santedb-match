@@ -2,43 +2,44 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
-using System.IO;
-using System.Linq;
+
 using NUnit.Framework;
 using SanteDB.Core;
 using SanteDB.Core.Data;
 using SanteDB.Core.Interfaces;
+using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.EntityLoader;
 using SanteDB.Core.Model.Roles;
-using SanteDB.Core.Matching;
+using SanteDB.Core.Services;
 using SanteDB.Core.TestFramework;
 using SanteDB.Matcher.Matchers;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace SanteDB.Matcher.Test
 {
     [TestFixture(Category = "Matching")]
     public class MatcherTest
     {
-
         /// <summary>
         /// Initialize the test class
         /// </summary>
@@ -96,7 +97,6 @@ namespace SanteDB.Matcher.Test
             Assert.AreEqual(2, blocks.Count());
         }
 
-
         /// <summary>
         /// Test that matching patients are blocked
         /// </summary>
@@ -126,7 +126,6 @@ namespace SanteDB.Matcher.Test
             Assert.AreEqual(5, output.Count());
         }
 
-
         /// <summary>
         /// Test that when a HIN matches, and name matches, but the DOB does not match the patient is identified as a match
         /// </summary>
@@ -153,12 +152,16 @@ namespace SanteDB.Matcher.Test
                     new Core.Model.Entities.EntityAddress(AddressUseKeys.Direct, "483 Some Different Street", "Hamilton", "ON", "CA", "L8K5NN")
                 }
             };
-            patient = patient.LoadConcepts();
-            var blocks = matchService.Block(patient, "test.complex", null);
-            Assert.AreEqual(113, blocks.Count());
-            var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(1, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
 
+            patient = patient.LoadConcepts();
+
+            var blocks = matchService.Block(patient, "test.complex", null);
+
+            Assert.AreEqual(113, blocks.Count());
+
+            var output = matchService.Classify(patient, blocks, "test.complex");
+
+            Assert.AreEqual(1, output.Count(o => o.Classification == RecordMatchClassification.Match));
         }
 
         /// <summary>
@@ -198,12 +201,17 @@ namespace SanteDB.Matcher.Test
                     new Core.Model.Entities.EntityRelationship(EntityRelationshipTypeKeys.Birthplace, Guid.Parse("8f4c9122-7661-4c7c-9069-4a572a965b3f"))
                 }
             };
+
             patient = patient.LoadConcepts();
+
             var blocks = matchService.Block(patient, "test.complex", null);
+
             Assert.AreEqual(140, blocks.Count());
+
             var output = matchService.Classify(patient, blocks, "test.complex");
-            Assert.AreEqual(3, output.Where(o => o.Classification == RecordMatchClassification.Match).Count());
-            Assert.AreEqual(9, output.Where(o => o.Classification == RecordMatchClassification.Probable).Count());
+
+            Assert.AreEqual(3, output.Count(o => o.Classification == RecordMatchClassification.Match));
+            Assert.AreEqual(9, output.Count(o => o.Classification == RecordMatchClassification.Probable));
         }
     }
 }

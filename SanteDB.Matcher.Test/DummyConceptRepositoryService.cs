@@ -19,18 +19,14 @@
  * Date: 2021-8-5
  */
 using SanteDB.Core.Event;
-using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.Query;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Test
 {
@@ -57,8 +53,8 @@ namespace SanteDB.Matcher.Test
             { EntityClassKeys.Patient, new Concept() { Mnemonic = "Patient"} },
             { EntityClassKeys.Person, new Concept() { Mnemonic = "Person"} },
             { DeterminerKeys.Specific, new Concept() { Mnemonic = "Specific" } },
-            {  EntityRelationshipTypeKeys.Birthplace, new Concept() { Mnemonic = "Birthplace" } },
-            {  EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Mother" } },
+            { EntityRelationshipTypeKeys.Birthplace, new Concept() { Mnemonic = "Birthplace" } },
+            { EntityRelationshipTypeKeys.Mother, new Concept() { Mnemonic = "Mother" } }
         };
 
         public string ServiceName => throw new NotImplementedException();

@@ -2,26 +2,28 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Security;
+using SanteDB.Core.Security.Services;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
@@ -39,14 +41,35 @@ namespace SanteDB.Matcher.Services
     /// </summary>
     public class FileMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
+        /// <summary>
+        /// Configuration cache object
+        /// </summary>
+        private class ConfigCacheObject
+        {
+            /// <summary>
+            /// Gets or sets the original file path
+            /// </summary>
+            public String OriginalFilePath { get; set; }
+
+            /// <summary>
+            /// Gets or sets the configuration
+            /// </summary>
+            public dynamic Configuration { get; set; }
+        }
 
         /// <summary>
         /// Name and record matching configuration
         /// </summary>
-        private ConcurrentDictionary<String, dynamic> m_matchConfigurations;
+        private ConcurrentDictionary<String, ConfigCacheObject> m_matchConfigurations;
 
         // Gets the configuration
         private FileMatchConfigurationSection m_configuration = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<FileMatchConfigurationSection>();
+
+        // The policy enforcement service
+        private IPolicyEnforcementService m_pepService;
+
+        // Localization service
+        private ILocalizationService m_localizationService;
 
         // Tracer
         private Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
@@ -62,17 +85,25 @@ namespace SanteDB.Matcher.Services
         public string ServiceName => "File Based Match Configuration Provider";
 
         /// <summary>
-        /// Process the file directory 
+        /// Process the file directory
         /// </summary>
-        public FileMatchConfigurationProvider()
+        public FileMatchConfigurationProvider(IConfigurationManager configurationManager, IPolicyEnforcementService pepService, ILocalizationService localizationService)
         {
+            this.m_pepService = pepService;
+            this.m_configuration = configurationManager.GetSection<FileMatchConfigurationSection>();
+            this.m_localizationService = localizationService;
             // When application has started
             ApplicationServiceContext.Current.Started += (o, e) =>
             {
                 try
                 {
-                    if (this.m_configuration == null) return;
-                    this.m_matchConfigurations = new ConcurrentDictionary<string, dynamic>();
+                    if (this.m_configuration == null)
+                    {
+                        this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
+                        return;
+                    }
+
+                    this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
                     this.m_tracer.TraceInfo("Loading match configurations...");
                     foreach (var configDir in this.m_configuration.FilePath)
                     {
@@ -86,26 +117,41 @@ namespace SanteDB.Matcher.Services
                             this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
                         }
                         else
+                        {
                             foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
                             {
                                 this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
                                 try
                                 {
+                                    MatchConfiguration config = null;
                                     using (var fs = System.IO.File.OpenRead(fileName))
                                     {
-                                        var config = MatchConfiguration.Load(fs);
-                                        this.m_matchConfigurations.TryAdd(config.Id, new
-                                        {
-                                            OriginalFilePath = fileName,
-                                            Configuration = config
-                                        });
+                                        config = MatchConfiguration.Load(fs);
                                     }
+
+                                    var originalPath = fileName;
+                                    if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out Guid uuid) || uuid != config.Uuid) // Migrate the config
+                                    {
+                                        originalPath = Path.Combine(configDir.Path, $"{config.Uuid}.xml");
+                                        File.Move(fileName, originalPath);
+                                        using (var fs = File.Create(originalPath))
+                                        {
+                                            config.Save(fs);
+                                        }
+                                    }
+
+                                    this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
+                                    {
+                                        OriginalFilePath = originalPath,
+                                        Configuration = config
+                                    });
                                 }
                                 catch (Exception ex)
                                 {
                                     this.m_tracer.TraceWarning("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
                                 }
                             }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -122,7 +168,7 @@ namespace SanteDB.Matcher.Services
         /// <returns>The loaded configuration</returns>
         public IRecordMatchingConfiguration GetConfiguration(string name)
         {
-            if (this.m_matchConfigurations.TryGetValue(name, out dynamic configData))
+            if (this.m_matchConfigurations.TryGetValue(name, out ConfigCacheObject configData))
             {
                 if (this.m_configuration.CacheFiles)
                     return configData.Configuration as IRecordMatchingConfiguration;
@@ -142,27 +188,53 @@ namespace SanteDB.Matcher.Services
         /// <returns>The updated configuration</returns>
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
-            if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out dynamic configData))
+            this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+
+            if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out ConfigCacheObject configData))
             {
-                var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
-                if (savePath == null)
-                    throw new InvalidOperationException("Cannot find a read/write configuration path");
+                // Lookup by UUID
 
-                // Set select metadata
-                configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                if (this.m_matchConfigurations.Any(o => o.Value.Configuration.Uuid == configuration.Uuid))
                 {
-                    CreationTime = DateTimeOffset.Now,
-                    CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
-                };
-
-                configData = new
+                    throw new InvalidOperationException(this.m_localizationService.FormatString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
+                }
+                else
                 {
-                    Configuration = configuration,
-                    OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, Guid.NewGuid().ToString()), "xml")
-                };
+                    var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
+                    if (savePath == null)
+                        throw new InvalidOperationException("Cannot find a read/write configuration path");
 
-                if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
-                    throw new InvalidOperationException("Storing configuration has failed");
+                    // Set select metadata
+                    if (configuration is MatchConfiguration mci)
+                    {
+                        mci.Metadata.CreationTime = DateTime.Now;
+                        mci.Metadata.CreatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+                        mci.Metadata.Version = 1;
+                    }
+                    else
+                    {
+                        configuration.Metadata = new MatchConfigurationMetadata(configuration.Metadata)
+                        {
+                            CreationTime = DateTime.Now,
+                            CreatedBy = AuthenticationContext.Current.Principal.Identity.Name
+                        };
+                    }
+
+                    configData = new ConfigCacheObject()
+                    {
+                        Configuration = configuration,
+                        OriginalFilePath = Path.ChangeExtension(Path.Combine(savePath.Path, configuration.Uuid.ToString()), "xml")
+                    };
+
+                    if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
+                        throw new InvalidOperationException("Storing configuration has failed");
+                }
+            }
+            else if (configuration is MatchConfiguration mc)
+            {
+                mc.Metadata.UpdatedTime = DateTime.Now;
+                mc.Metadata.UpdatedBy = AuthenticationContext.Current.Principal.Identity.Name;
+                mc.Metadata.Version++;
             }
 
             // Open for writing and write the configuration
@@ -170,11 +242,22 @@ namespace SanteDB.Matcher.Services
             {
                 using (var fs = System.IO.File.Create(configData.OriginalFilePath))
                 {
-                    if (configuration is MatchConfiguration)
-                        (configuration as MatchConfiguration).Save(fs);
-                    else if (configuration is MatchConfigurationCollection)
-                        (configuration as MatchConfigurationCollection).Save(fs);
+                    if (configuration is MatchConfiguration mc)
+                    {
+                        // is the user changing the state
+                        if (mc.Metadata.State != configData.Configuration.Metadata.State)
+                        {
+                            this.m_pepService.Demand(PermissionPolicyIdentifiers.ActivateMatchConfiguration);
+                        }
+
+                        mc.Save(fs);
+                    }
+                    else if (configuration is MatchConfigurationCollection mcc)
+                        mcc.Save(fs);
                 }
+
+                configData.Configuration = configuration;
+
                 return configData.Configuration;
             }
             catch (Exception e)
@@ -188,7 +271,9 @@ namespace SanteDB.Matcher.Services
         /// </summary>
         public IRecordMatchingConfiguration DeleteConfiguration(string name)
         {
-            if (this.m_matchConfigurations.TryRemove(name, out dynamic configData))
+            this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+
+            if (this.m_matchConfigurations.TryRemove(name, out ConfigCacheObject configData))
             {
                 try
                 {
