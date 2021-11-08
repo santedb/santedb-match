@@ -67,7 +67,7 @@ namespace SanteDB.Matcher.Matchers
     public abstract class BaseRecordMatchingService : IRecordMatchingService, IMatchReportFactory
     {
         // Tracer
-        protected Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
+        protected readonly Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
 
         /// <summary>
         /// Service name

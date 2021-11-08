@@ -40,7 +40,7 @@ namespace SanteDB.Matcher.Services
     public sealed class AssemblyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         // Tracer
-        private Tracer m_tracer = Tracer.GetTracer(typeof(AssemblyMatchConfigurationProvider));
+        private readonly Tracer m_tracer = Tracer.GetTracer(typeof(AssemblyMatchConfigurationProvider));
 
         // Configurations
         private List<IRecordMatchingConfiguration> m_configurations = new List<IRecordMatchingConfiguration>();

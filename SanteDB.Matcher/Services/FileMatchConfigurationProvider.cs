@@ -72,7 +72,7 @@ namespace SanteDB.Matcher.Services
         private ILocalizationService m_localizationService;
 
         // Tracer
-        private Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
+        private readonly Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
 
         /// <summary>
         /// Gets the configurations known to this configuration provider
@@ -196,7 +196,7 @@ namespace SanteDB.Matcher.Services
 
                 if (this.m_matchConfigurations.Any(o => o.Value.Configuration.Uuid == configuration.Uuid))
                 {
-                    throw new InvalidOperationException(this.m_localizationService.FormatString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
+                    throw new InvalidOperationException(this.m_localizationService.GetString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
                 }
                 else
                 {
