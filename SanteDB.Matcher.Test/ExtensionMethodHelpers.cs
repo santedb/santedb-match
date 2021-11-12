@@ -20,12 +20,14 @@
  */
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.DataTypes;
 
 namespace SanteDB.Matcher.Test
 {
+    [ExcludeFromCodeCoverage]
     public static class ExtensionMethodHelpers
     {
         /// <summary>

@@ -32,11 +32,13 @@ using SanteDB.Core.Services;
 using SanteDB.Core.TestFramework;
 using SanteDB.Matcher.Matchers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
 namespace SanteDB.Matcher.Test
 {
+    [ExcludeFromCodeCoverage]
     [TestFixture(Category = "Matching")]
     public class MatcherTest
     {

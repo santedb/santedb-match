@@ -22,6 +22,7 @@
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Dummy configuration provider
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class DummyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         public string ServiceName => "Fake News Record Matching";

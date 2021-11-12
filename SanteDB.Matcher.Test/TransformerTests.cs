@@ -18,15 +18,15 @@
  * User: fyfej
  * Date: 2021-8-5
  */
-using System;
 using NUnit.Framework;
-using SanteDB.Matcher.Model;
 using SanteDB.Matcher.Transforms;
 using SanteDB.Matcher.Transforms.Date;
 using SanteDB.Matcher.Transforms.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SanteDB.Matcher.Test
 {
+    [ExcludeFromCodeCoverage]
     [TestFixture(Category = "Matching")]
     public class TransformerTests
     {
