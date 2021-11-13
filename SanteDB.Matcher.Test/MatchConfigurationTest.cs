@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NUnit.Framework;
 using SanteDB.Core.Model.Roles;
@@ -29,6 +30,7 @@ using SanteDB.Matcher.Model;
 
 namespace SanteDB.Matcher.Test
 {
+    [ExcludeFromCodeCoverage]
     [TestFixture(Category = "Matching")]
     public class MatchConfigurationTest
     {

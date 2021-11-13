@@ -26,6 +26,7 @@ using SanteDB.Core.Model.Query;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Security.Principal;
 
@@ -34,6 +35,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Repository service for concepts
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class DummyConceptRepositoryService : IDataPersistenceService<Concept>
     {
         private Dictionary<Guid, Concept> m_concepts = new Dictionary<Guid, Concept>()
