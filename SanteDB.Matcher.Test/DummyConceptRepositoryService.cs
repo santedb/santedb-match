@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core.Event;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
@@ -35,7 +36,6 @@ namespace SanteDB.Matcher.Test
     /// </summary>
     public class DummyConceptRepositoryService : IDataPersistenceService<Concept>
     {
-
         private Dictionary<Guid, Concept> m_concepts = new Dictionary<Guid, Concept>()
         {
             { NameUseKeys.OfficialRecord, new Concept() { Mnemonic = "OfficialRecord" } },
@@ -59,19 +59,41 @@ namespace SanteDB.Matcher.Test
 
         public string ServiceName => throw new NotImplementedException();
 
-       
         public event EventHandler<DataPersistingEventArgs<Concept>> Inserting;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Inserted;
+
         public event EventHandler<DataPersistingEventArgs<Concept>> Updating;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Updated;
+
         public event EventHandler<DataPersistingEventArgs<Concept>> Obsoleting;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Obsoleted;
+
         public event EventHandler<DataRetrievingEventArgs<Concept>> Retrieving;
+
         public event EventHandler<DataRetrievedEventArgs<Concept>> Retrieved;
+
         public event EventHandler<QueryRequestEventArgs<Concept>> Querying;
+
         public event EventHandler<QueryResultEventArgs<Concept>> Queried;
 
+        public event EventHandler<DataPersistedEventArgs<Concept>> Deleted;
+
+        public event EventHandler<DataPersistingEventArgs<Concept>> Deleting;
+
         public long Count(Expression<Func<Concept, bool>> p, IPrincipal authContext = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Delete(Guid key, TransactionMode mode, IPrincipal principal, DeleteMode deletionMode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal, DeleteMode deletionMode)
         {
             throw new NotImplementedException();
         }

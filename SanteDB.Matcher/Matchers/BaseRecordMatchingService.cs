@@ -92,7 +92,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="ignoreKeys">The keys to ignore for blocking</param>
         /// <param name="configurationName">The name of the configuration to use</param>
         /// <returns>The blocked records</returns>
-        public virtual IEnumerable<T> Block<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
+        public virtual IQueryResultSet<T> Block<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
         {
             this.m_tracer.TraceVerbose("Will block {0} on configuration {1}", input, configurationName);
 
@@ -126,18 +126,20 @@ namespace SanteDB.Matcher.Matchers
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
                 }
 
-                IEnumerable<T> retVal = null;
+                IQueryResultSet<T> retVal = null;
 
                 foreach (var b in strongConfig.Blocking)
                 {
                     if (retVal == null)
-                        retVal = this.DoBlock<T>(input, b, ignoreKeys).ToArray();
+                        retVal = this.DoBlock<T>(input, b, ignoreKeys);
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
 #if DEBUG
                         this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys));
+
 #if DEBUG
                         this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -147,14 +149,23 @@ namespace SanteDB.Matcher.Matchers
 #if DEBUG
                         this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+
+                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys));
+
 #if DEBUG
                         this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
                     }
                 }
 
-                return ignoreKeys == null ? retVal : retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
+                if (ignoreKeys != null)
+                {
+                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
+                }
+                else
+                {
+                    return retVal;
+                }
             }
             catch (Exception e)
             {
@@ -166,7 +177,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Perform the block operation
         /// </summary>
-        private IEnumerable<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
+        private IQueryResultSet<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys) where T : IdentifiedData
         {
             // Load the persistence service
             var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
@@ -227,7 +238,7 @@ namespace SanteDB.Matcher.Matchers
             // Do we skip when no conditions?
             if (!qfilter.Any())
             {
-                yield break;
+                return new MemoryQueryResultSet<T>(new List<T>());
             }
 
             // Add ignore clauses
@@ -248,19 +259,11 @@ namespace SanteDB.Matcher.Matchers
 
             // Query control variables for iterating result sets
             int tr = 1;
-            var batch = block.BatchSize;
-            if (batch == 0) { batch = 100; }
 
             // Set the authentication context
             using (AuthenticationContext.EnterSystemContext())
             {
-                int ofs = 0;
-                while (ofs < tr)
-                {
-                    foreach (var itm in persistenceService.Find(linq, ofs, batch, out tr))
-                        yield return itm;
-                    ofs += batch;
-                }
+                return persistenceService.Find(linq);
             }
         }
 

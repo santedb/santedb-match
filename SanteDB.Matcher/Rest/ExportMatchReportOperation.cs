@@ -77,7 +77,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Query the object
         /// </summary>
-        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
+        public IQueryResultSet Query(Type scopingType, object scopingKey, NameValueCollection filter)
         {
             if (this.m_transform == null)
             {
@@ -117,7 +117,6 @@ namespace SanteDB.Matcher.Rest
                     }
                 }
             }
-            totalCount = 0;
             return null;
         }
 

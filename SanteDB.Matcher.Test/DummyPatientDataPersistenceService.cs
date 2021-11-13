@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using SanteDB.Core.Interfaces;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Collection;
@@ -38,13 +39,11 @@ using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Test
 {
-
     /// <summary>
     /// Dummy data persistence service
     /// </summary>
     public class DummyPatientDataPersistenceService : IRepositoryService<Patient>, IAliasProvider
     {
-
         public String ServiceName => "Fake Patient Repository";
 
         // Sample Patients
@@ -58,16 +57,9 @@ namespace SanteDB.Matcher.Test
             this.LoadPatientData();
         }
 
-
-        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query)
+        public IQueryResultSet<Patient> Find(Expression<Func<Patient, bool>> query)
         {
-            return this.m_patients.Where(query.Compile());
-        }
-
-        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults, params ModelSort<Patient>[] order)
-        {
-            totalResults = this.m_patients.Count(query.Compile());
-            return this.m_patients.Where(query.Compile()).Skip(offset).Take(count ?? 100);
+            return new MemoryQueryResultSet<Patient>(this.m_patients.Where(query.Compile()));
         }
 
         public Patient Get(Guid key)
@@ -88,19 +80,23 @@ namespace SanteDB.Matcher.Test
                     return new ComponentAlias[] {
                         new ComponentAlias("samantha", 1.0)
                     };
+
                 case "samantha":
                     return new ComponentAlias[] {
                         new ComponentAlias("sam", 1.0)
                     };
+
                 case "samira":
                     return new ComponentAlias[] {
                         new ComponentAlias("sam", 0.5)
                     };
+
                 case "william":
                     return new ComponentAlias[] {
                         new ComponentAlias("bill", 1.0),
                         new ComponentAlias("will", 1.0)
                     };
+
                 case "robert":
                     return new ComponentAlias[]
                     {
@@ -131,7 +127,6 @@ namespace SanteDB.Matcher.Test
         /// </summary>
         private void LoadPatientData()
         {
-
             var placeRefs = new Dictionary<String, Guid>()
             {
                 { "Clinic1", Guid.Parse("049df673-384f-4dcf-91b2-53b232a5e277") },
@@ -186,8 +181,6 @@ namespace SanteDB.Matcher.Test
             }
 
             this.m_patients = patients.AsParallel().Select(p => p.LoadConcepts()).ToList();
-
-
         }
 
         public void AddAlias(string name, string alias, double weight)
@@ -201,6 +194,11 @@ namespace SanteDB.Matcher.Test
         }
 
         public IDictionary<string, IEnumerable<ComponentAlias>> GetAllAliases(String filter, int offset, int? count, out int totalResults)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults, params ModelSort<Patient>[] orderBy)
         {
             throw new NotImplementedException();
         }
