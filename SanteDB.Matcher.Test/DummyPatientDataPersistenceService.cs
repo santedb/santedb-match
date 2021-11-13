@@ -29,6 +29,7 @@ using SanteDB.Core.Model.Roles;
 using SanteDB.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,6 +43,7 @@ namespace SanteDB.Matcher.Test
     /// <summary>
     /// Dummy data persistence service
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class DummyPatientDataPersistenceService : IRepositoryService<Patient>, IAliasProvider
     {
 
