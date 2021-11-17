@@ -69,7 +69,9 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                 {
                     ApproxSearchOptions = new List<ApproxSearchOption>()
                     {
-                        new ApproxPatternOption() { Enabled = true, IgnoreCase = true }
+                        new ApproxPatternOption() { Enabled = true, IgnoreCase = true },
+                        new ApproxPhoneticOption() { Enabled = true, Algorithm = ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone },
+                        new ApproxDifferenceOption() { Enabled = true, MaxDifference = 1 }
                     }
                 };
 
