@@ -2,22 +2,23 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using System;
 
 namespace SanteDB.Matcher.Transforms.Date
@@ -52,37 +53,46 @@ namespace SanteDB.Matcher.Transforms.Date
                     case "y":
                         retVal = ((DateTime)a).Year - ((DateTime)b).Year;
                         break;
+
                     case "M":
                         retVal = (((DateTime)a).Year * 12 + ((DateTime)a).Month) -
                             (((DateTime)b).Year * 12 + ((DateTime)b).Month);
                         break;
+
                     case "d":
                         retVal = data.TotalDays;
                         break;
+
                     case "w":
                         retVal = data.TotalDays / 7;
                         break;
+
                     case "q":
                         retVal = ((((DateTime)a).Year * 12 + ((DateTime)a).Month) -
                             (((DateTime)b).Year * 12 + ((DateTime)b).Month)) / 4;
                         break;
+
                     case "h":
                         retVal = data.TotalHours;
                         break;
+
                     case "m":
                         retVal = data.TotalMinutes;
                         break;
+
                     case "s":
                         retVal = data.TotalSeconds;
                         break;
+
                     case "t":
                         retVal = data.Ticks;
                         break;
+
                     default:
                         throw new InvalidOperationException($"Don't uderstand timespan part {parms[0]}");
                 }
 
-                if (parms.Length == 2 && parms[1].Equals(true))
+                if (parms.Length == 2 && Boolean.TryParse(parms[1].ToString(), out bool abs) && abs)
                     return Math.Abs(retVal);
                 else
                     return retVal;

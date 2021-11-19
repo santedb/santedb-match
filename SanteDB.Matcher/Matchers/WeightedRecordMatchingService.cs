@@ -118,30 +118,32 @@ namespace SanteDB.Matcher.Matchers
                 // unsuccessful, we want to exclude CITY.
                 attributeResult.RemoveAll(o => !o.Attribute.When.All(w =>
                 {
-                    var attScore = attributeResult.First(r => r.Attribute.Id == w.AttributeRef).Score;
-                    switch (w.Operator)
-                    {
-                        case BinaryOperatorType.NotEqual:
-                            return attScore != w.Value;
+                    var attScore = attributeResult.First(r => r.Attribute.Id == w.AttributeRef);
+                    // TODO: Allow cascaded operators to specify a value
+                    //switch (w.Operator)
+                    //{
+                    //    case BinaryOperatorType.NotEqual:
+                    //        return attScore != w.Value;
 
-                        case BinaryOperatorType.Equal:
-                            return attScore == w.Value;
+                    //    case BinaryOperatorType.Equal:
+                    //        return attScore == w.Value;
 
-                        case BinaryOperatorType.GreaterThan:
-                            return attScore > w.Value;
+                    //    case BinaryOperatorType.GreaterThan:
+                    //        return attScore > w.Value;
 
-                        case BinaryOperatorType.GreaterThanOrEqual:
-                            return attScore >= w.Value;
+                    //    case BinaryOperatorType.GreaterThanOrEqual:
+                    //        return attScore >= w.Value;
 
-                        case BinaryOperatorType.LessThan:
-                            return attScore < w.Value;
+                    //    case BinaryOperatorType.LessThan:
+                    //        return attScore < w.Value;
 
-                        case BinaryOperatorType.LessThanOrEqual:
-                            return attScore <= w.Value;
+                    //    case BinaryOperatorType.LessThanOrEqual:
+                    //        return attScore <= w.Value;
 
-                        default:
-                            throw new InvalidOperationException($"Cannot use operator {w.Operator} on when");
-                    }
+                    //    default:
+                    //        throw new InvalidOperationException($"Cannot use operator {w.Operator} on when");
+                    //}
+                    return attScore?.Evaluated == true && attScore?.Score > 0;
                 })); // Remove all failed attributes
                 var score = attributeResult.Sum(v => v.Score);
 
