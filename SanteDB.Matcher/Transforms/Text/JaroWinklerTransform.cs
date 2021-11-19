@@ -19,6 +19,7 @@
  * Date: 2021-8-5
  */
 
+using SanteDB.Core.Model;
 using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
@@ -47,6 +48,8 @@ namespace SanteDB.Matcher.Transforms.Text
                 return ((String)a).JaroWinkler((String)b);
             else if (a is IEnumerable aEnum && b is IEnumerable bEnum)
                 return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.JaroWinkler(sb)));
+            else if (a is IdentifiedData aId && b is IdentifiedData bId)
+                return aId.ToDisplay().SimilarityTo(bId.ToDisplay());
             else
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
         }

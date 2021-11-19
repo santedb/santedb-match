@@ -96,7 +96,7 @@ namespace SanteDB.Matcher.Transforms.Date
                         throw new InvalidOperationException($"Don't uderstand timespan part {parms[0]}");
                 }
 
-                if (parms.Length == 2 && parms[1].Equals(true))
+                if (parms.Length == 2 && Boolean.TryParse(parms[1].ToString(), out bool abs) && abs)
                     return Math.Abs(retVal);
                 else
                     return retVal;
