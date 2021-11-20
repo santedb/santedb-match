@@ -20,12 +20,16 @@
  */
 
 using System;
+using System.ComponentModel;
 
 namespace SanteDB.Matcher.Transforms.Date
 {
     /// <summary>
     /// Represents a transform that calculates the difference between the input date and comparison date
     /// </summary>
+    [Description("Subtract date A from date B - indicating the desired interval portion (w, d, h, etc.)"), DisplayName("Date Difference")]
+    [TransformArgument(typeof(String), "part", "The part of the resulting interval to return (y = Year, M = month, d = Days, w = Weeks, q = Quarters, etc.)", false)]
+    [TransformArgument(typeof(Boolean), "absolute", "True if absolute value should be returned", false)]
     public class DateDifferenceTransform : IBinaryDataTransformer
     {
         /// <summary>

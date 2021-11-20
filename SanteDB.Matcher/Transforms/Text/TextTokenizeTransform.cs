@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace SanteDB.Matcher.Transforms.Text
@@ -28,6 +29,8 @@ namespace SanteDB.Matcher.Transforms.Text
     /// <summary>
     /// Takes a name and tokenizes it
     /// </summary>
+    [Description("Tokenize the input strings based on the provided delimeter"), DisplayName("Tokenize")]
+    [TransformArgument(typeof(String), "delimiter", "Characters which should be used to tokenize the string", true)]
     public class TextTokenizeTransform : IUnaryDataTransformer
     {
         /// <summary>

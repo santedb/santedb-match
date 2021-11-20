@@ -23,6 +23,7 @@ using SanteDB.Core.Model;
 using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 
 namespace SanteDB.Matcher.Transforms.Text
@@ -30,6 +31,7 @@ namespace SanteDB.Matcher.Transforms.Text
     /// <summary>
     /// Represents a transform which reports the similarity
     /// </summary>
+    [Description("Calculate the similarity of the two strings using the levenshtein string difference as a proportion of the total string"), DisplayName("Similarity To")]
     public class SimilarityTransform : IBinaryDataTransformer
     {
         /// <summary>

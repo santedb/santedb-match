@@ -23,6 +23,7 @@ using SanteDB.Core.Model;
 using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 
 namespace SanteDB.Matcher.Transforms.Text
@@ -30,6 +31,7 @@ namespace SanteDB.Matcher.Transforms.Text
     /// <summary>
     /// Jaro-Winkler text transformation
     /// </summary>
+    [Description("Calculate a Jaro-Winkler value (a difference between A and B) from 0..1"), DisplayName("Jaro-Winkler")]
     public class JaroWinklerTransform : IBinaryDataTransformer
     {
         /// <summary>

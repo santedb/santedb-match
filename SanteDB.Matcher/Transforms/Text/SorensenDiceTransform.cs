@@ -23,6 +23,7 @@ using SanteDB.Core.Model;
 using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 
 namespace SanteDB.Matcher.Transforms.Text
@@ -30,6 +31,7 @@ namespace SanteDB.Matcher.Transforms.Text
     /// <summary>
     /// Calculates the sorensen dice difference
     /// </summary>
+    [Description("Calculate the sorensen-dice difference between the inputs"), DisplayName("Sorensen Dice")]
     public class SorensenDiceTransform : IBinaryDataTransformer
     {
         /// <summary>
