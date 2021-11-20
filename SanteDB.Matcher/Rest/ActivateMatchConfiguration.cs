@@ -1,6 +1,7 @@
 ﻿using RestSrvr;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Model.Parameters;
 using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
@@ -52,7 +53,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Invoke the specified operation
         /// </summary>
-        public object Invoke(Type scopingType, object scopingKey, ApiOperationParameterCollection parameters)
+        public object Invoke(Type scopingType, object scopingKey, ParameterCollection parameters)
         {
             var configuration = this.m_matchConfiguration.GetConfiguration(scopingKey.ToString());
             if (configuration == null || !(configuration is MatchConfiguration matchConfiguration))
