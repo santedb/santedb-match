@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
+using SanteDB.Core.Model.Parameters;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Transforms;
 using SanteDB.Rest.Common;
@@ -161,7 +162,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Invoke the method
         /// </summary>
-        public object Invoke(Type scopingType, object scopingKey, ApiOperationParameterCollection parameters)
+        public object Invoke(Type scopingType, object scopingKey, ParameterCollection parameters)
         {
             return TransformerFactory.Current.GetTransformers().Select(o => new TransformerInfo(o.Key, o.Value)).ToList();
         }
