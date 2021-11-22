@@ -36,7 +36,6 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         public MatchAttributeWhenCondition()
         {
-            this.Operator = BinaryOperatorType.LessThan;
         }
 
         /// <summary>
@@ -44,17 +43,5 @@ namespace SanteDB.Matcher.Definition
         /// </summary>
         [XmlAttribute("ref"), JsonProperty("ref")]
         public string AttributeRef { get; set; }
-
-        /// <summary>
-        /// Operator for classifier
-        /// </summary>
-        [XmlAttribute("op"), JsonProperty("op")]
-        public BinaryOperatorType Operator { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value of the comparator
-        /// </summary>
-        [XmlAttribute("value"), JsonProperty("value")]
-        public double Value { get; set; }
     }
 }
