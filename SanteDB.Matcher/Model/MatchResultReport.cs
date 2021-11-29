@@ -22,6 +22,7 @@
 using Newtonsoft.Json;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
+using SanteDB.Core.Model.Entities;
 using SanteDB.Matcher.Matchers;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace SanteDB.Matcher.Model
         {
             this.Score = match.Score;
             this.Strength = match.Strength;
-            this.Record = match.Record;
+            this.Record = match.Record.Key.GetValueOrDefault();
             this.Classification = match.Classification;
             this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
             this.Method = match.Method;
@@ -73,7 +74,7 @@ namespace SanteDB.Matcher.Model
         /// Gets the record
         /// </summary>
         [XmlElement("record"), JsonProperty("record")]
-        public IdentifiedData Record { get; set; }
+        public Guid Record { get; set; }
 
         /// <summary>
         /// Gets the classification

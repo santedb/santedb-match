@@ -22,6 +22,7 @@
 using Newtonsoft.Json;
 using SanteDB.Core.Model;
 using SanteDB.Core.Model.Acts;
+using SanteDB.Core.Model.Attributes;
 using SanteDB.Core.Model.Entities;
 using SanteDB.Core.Model.Roles;
 using System;
@@ -51,8 +52,31 @@ namespace SanteDB.Matcher.Model
     [XmlInclude(typeof(DeviceEntity))]
     [XmlInclude(typeof(UserEntity))]
     [XmlInclude(typeof(ApplicationEntity))]
+    [ResourceCollection]
     public class MatchReport : IdentifiedData
     {
+        /// <summary>
+        /// Serialization ctor
+        /// </summary>
+        public MatchReport()
+        {
+        }
+
+        /// <summary>
+        /// Run a match report
+        /// </summary>
+        public MatchReport(IdentifiedData input)
+        {
+            this.Input = input.Clone();
+            if (this.Input is Entity ent)
+            {
+                ent.Relationships.Clear();
+                ent.Participations.Clear();
+                ent.Notes.Clear();
+                ent.Extensions.Clear();
+            }
+        }
+
         /// <summary>
         /// The input
         /// </summary>
