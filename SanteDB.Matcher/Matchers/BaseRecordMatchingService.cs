@@ -279,7 +279,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public object CreateMatchReport(Type recordType, object input, IEnumerable<IRecordMatchResult> matches)
         {
-            return new MatchReport(input as IdentifiedData)
+            return new MatchReport()
             {
                 Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors))).ToList()
             };

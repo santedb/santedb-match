@@ -63,25 +63,10 @@ namespace SanteDB.Matcher.Model
         }
 
         /// <summary>
-        /// Run a match report
-        /// </summary>
-        public MatchReport(IdentifiedData input)
-        {
-            this.Input = input.Clone();
-            if (this.Input is Entity ent)
-            {
-                ent.Relationships.Clear();
-                ent.Participations.Clear();
-                ent.Notes.Clear();
-                ent.Extensions.Clear();
-            }
-        }
-
-        /// <summary>
         /// The input
         /// </summary>
         [XmlElement("input"), JsonProperty("input")]
-        public IdentifiedData Input { get; set; }
+        public Guid Input { get; set; }
 
         /// <summary>
         /// The results for the matches
