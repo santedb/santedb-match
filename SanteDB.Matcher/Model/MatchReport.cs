@@ -75,6 +75,12 @@ namespace SanteDB.Matcher.Model
         public List<MatchResultReport> Results { get; set; }
 
         /// <summary>
+        /// Gets the diagnostics for this match report
+        /// </summary>
+        [XmlElement("diagnostics"), JsonProperty("diagnostics")]
+        public MatchDiagnostics Diagnostics { get; set; }
+
+        /// <summary>
         /// Gets the date of modification
         /// </summary>
         public override DateTimeOffset ModifiedOn => DateTimeOffset.Now;
