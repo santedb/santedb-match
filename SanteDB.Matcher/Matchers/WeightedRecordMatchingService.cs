@@ -56,7 +56,7 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
             }
             catch (Exception e)
             {
@@ -114,7 +114,6 @@ namespace SanteDB.Matcher.Matchers
                                 Activator.CreateInstance(selectorExpression.Method.ReturnType) :
                                 null;
                             var result = AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
-                            collector.LogSample("result", result);
                             return result;
                         });
                         var bestScore = attributeScores.OrderByDescending(o => o.CalculatedScore).FirstOrDefault();
@@ -126,7 +125,6 @@ namespace SanteDB.Matcher.Matchers
                         else
                         {
                             var result = new MatchVector(v, v.Id ?? bestScore.PropertyName, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
-                            collector?.LogSample("vector", result);
                             return result;
                         }
                     }
@@ -186,7 +184,6 @@ namespace SanteDB.Matcher.Matchers
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 var retVal = new MatchResult<T>(block, score, strength, configurationName, classification, RecordMatchMethod.Weighted, attributeResult);
 
-                collector?.LogSample("classification", retVal);
                 return retVal;
             }
             catch (Exception e)

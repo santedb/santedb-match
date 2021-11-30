@@ -117,55 +117,57 @@ namespace SanteDB.Matcher.Diagnostics
     internal sealed class MatchActionDiagnosticInfo
     {
         /// <summary>
+        /// Creates a new match action diagnostic information structure
+        /// </summary>
+        public MatchActionDiagnosticInfo()
+        {
+            this.EndOfAction = null;
+            this.Data = new List<MatchSampleDiagnosticInfo>();
+            this.Actions = new List<MatchActionDiagnosticInfo>();
+        }
+
+        /// <summary>
         /// Create match action info from block
         /// </summary>
         /// <param name="block">The block to create the action information for</param>
-        public MatchActionDiagnosticInfo(MatchBlock block)
+        public MatchActionDiagnosticInfo(MatchBlock block) : this()
         {
             this.ActionType = "blocking-instruction";
             this.ActionData = block.Filter.Select(o => o.Expression).ToArray();
             this.StartOfAction = DateTimeOffset.Now;
-            this.EndOfAction = null;
-            this.Data = new List<MatchSampleDiagnosticInfo>();
         }
 
         /// <summary>
         /// Create match action info from block
         /// </summary>
         /// <param name="blockRecord">The block to create the action information for</param>
-        public MatchActionDiagnosticInfo(IdentifiedData blockRecord)
+        public MatchActionDiagnosticInfo(IdentifiedData blockRecord) : this()
         {
             this.ActionType = "classify-block";
             this.ActionData = new string[] { blockRecord.ToString() };
             this.StartOfAction = DateTimeOffset.Now;
-            this.EndOfAction = null;
-            this.Data = new List<MatchSampleDiagnosticInfo>();
         }
 
         /// <summary>
         /// Create match action info from block
         /// </summary>
         /// <param name="attribute">The attribute</param>
-        public MatchActionDiagnosticInfo(MatchAttribute attribute)
+        public MatchActionDiagnosticInfo(MatchAttribute attribute) : this()
         {
             this.ActionType = "evaluate-attribute";
             this.ActionData = attribute.Property.Union(new string[] { attribute.Id }).ToArray();
             this.StartOfAction = DateTimeOffset.Now;
-            this.EndOfAction = null;
-            this.Data = new List<MatchSampleDiagnosticInfo>();
         }
 
         /// <summary>
         /// Create match action info from block
         /// </summary>
         /// <param name="attributeId">The attribute</param>
-        public MatchActionDiagnosticInfo(String attributeId)
+        public MatchActionDiagnosticInfo(String attributeId) : this()
         {
             this.ActionType = attributeId;
             this.ActionData = null;
             this.StartOfAction = DateTimeOffset.Now;
-            this.EndOfAction = null;
-            this.Data = new List<MatchSampleDiagnosticInfo>();
         }
 
         /// <summary>
@@ -192,6 +194,11 @@ namespace SanteDB.Matcher.Diagnostics
         /// Gets the data in the action
         /// </summary>
         public List<MatchSampleDiagnosticInfo> Data { get; private set; }
+
+        /// <summary>
+        /// Gets the data in the action
+        /// </summary>
+        public List<MatchActionDiagnosticInfo> Actions { get; private set; }
 
         /// <summary>
         /// End the action
@@ -242,7 +249,7 @@ namespace SanteDB.Matcher.Diagnostics
         private MatchSessionDiagnosticInfo m_session;
 
         // Current action
-        private MatchActionDiagnosticInfo m_currentAction;
+        private Stack<MatchActionDiagnosticInfo> m_currentAction = new Stack<MatchActionDiagnosticInfo>();
 
         // Current stage
         private MatchStageDiagnosticInfo m_currentStage;
@@ -256,7 +263,7 @@ namespace SanteDB.Matcher.Diagnostics
             {
                 throw new InvalidOperationException("No session data captured");
             }
-            else if (this.m_session.EndOfSession.HasValue)
+            else if (!this.m_session.EndOfSession.HasValue)
             {
                 throw new InvalidOperationException("Session has not finished");
             }
@@ -282,13 +289,12 @@ namespace SanteDB.Matcher.Diagnostics
         /// <inheritdoc/>
         public void LogEndAction()
         {
-            if (this.m_currentAction == null)
+            if (!this.m_currentAction.Any())
             {
                 throw new InvalidOperationException("No active action");
             }
 
-            this.m_currentAction.End();
-            this.m_currentAction = null;
+            this.m_currentAction.Pop().End();
         }
 
         /// <inheritdoc/>
@@ -310,7 +316,7 @@ namespace SanteDB.Matcher.Diagnostics
             {
                 throw new InvalidOperationException("No current action to log against");
             }
-            this.m_currentAction.Data.Add(new MatchSampleDiagnosticInfo(key, data));
+            this.m_currentAction.Peek().Data.Add(new MatchSampleDiagnosticInfo(key, data));
         }
 
         /// <inheritdoc/>
@@ -336,38 +342,46 @@ namespace SanteDB.Matcher.Diagnostics
         /// <inheritdoc/>
         public void LogStartAction(object counterTag)
         {
+            MatchActionDiagnosticInfo current = null;
             if (this.m_currentStage == null)
             {
                 throw new InvalidOperationException("No stage has been started");
             }
-            else if (this.m_currentAction != null)
+            else if(this.m_currentAction.Any())
             {
-                throw new InvalidOperationException("Current action has not been ended via LogEndAction");
+                current = this.m_currentAction.Peek();
             }
 
             switch (counterTag)
             {
                 case IdentifiedData id:
-                    this.m_currentAction = new MatchActionDiagnosticInfo(id);
+                    this.m_currentAction.Push(new MatchActionDiagnosticInfo(id));
                     break;
 
                 case MatchBlock mb:
-                    this.m_currentAction = new MatchActionDiagnosticInfo(mb);
+                    this.m_currentAction.Push(new MatchActionDiagnosticInfo(mb));
                     break;
 
                 case MatchAttribute ma:
-                    this.m_currentAction = new MatchActionDiagnosticInfo(ma);
+                    this.m_currentAction.Push(new MatchActionDiagnosticInfo(ma));
                     break;
 
                 case String st:
-                    this.m_currentAction = new MatchActionDiagnosticInfo(st);
+                    this.m_currentAction.Push(new MatchActionDiagnosticInfo(st));
                     break;
 
                 default:
                     throw new InvalidOperationException($"Don't know how to log action {counterTag.GetType()}");
             }
 
-            this.m_currentStage.Actions.Add(this.m_currentAction);
+            if (current != null)
+            {
+                current.Actions.Add(this.m_currentAction.Peek());
+            }
+            else
+            {
+                this.m_currentStage.Actions.Add(this.m_currentAction.Peek());
+            }
         }
 
         /// <inheritdoc/>

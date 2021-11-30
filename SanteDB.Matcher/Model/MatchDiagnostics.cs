@@ -155,6 +155,7 @@ namespace SanteDB.Matcher.Model
             this.ActionType = diagnosticsInfo.ActionType;
             this.ActionIdentification = diagnosticsInfo.ActionData;
             this.Data = new List<MatchDiagnosticsSampleData>(diagnosticsInfo.Data.Select(o => new MatchDiagnosticsSampleData(o)));
+            this.Actions = new List<MatchDiagnosticsActionData>(diagnosticsInfo.Actions.Select(o => new MatchDiagnosticsActionData(o)));
         }
 
         /// <summary>
@@ -186,6 +187,12 @@ namespace SanteDB.Matcher.Model
         /// </summary>
         [XmlElement("data"), JsonProperty("data")]
         public List<MatchDiagnosticsSampleData> Data { get; set; }
+
+        /// <summary>
+        /// Gets the child actions
+        /// </summary>
+        [XmlElement("child"), JsonProperty("children")]
+        public List<MatchDiagnosticsActionData> Actions { get; set; }
     }
 
     /// <summary>

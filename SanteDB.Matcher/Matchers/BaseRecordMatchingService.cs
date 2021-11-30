@@ -134,13 +134,13 @@ namespace SanteDB.Matcher.Matchers
                 foreach (var b in strongConfig.Blocking)
                 {
                     if (retVal == null)
-                        retVal = this.DoBlock<T>(input, b, ignoreKeys).ToArray();
+                        retVal = this.DoBlock<T>(input, b, ignoreKeys, collector).ToArray();
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
 #if DEBUG
                         this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys, collector), new IdentifiedComparator<T>()).ToArray();
 #if DEBUG
                         this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -150,7 +150,7 @@ namespace SanteDB.Matcher.Matchers
 #if DEBUG
                         this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
 #endif
-                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys), new IdentifiedComparator<T>()).ToArray();
+                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys, collector), new IdentifiedComparator<T>()).ToArray();
 #if DEBUG
                         this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
 #endif
@@ -268,7 +268,7 @@ namespace SanteDB.Matcher.Matchers
                     while (ofs < tr)
                     {
                         var records = persistenceService.Find(linq, ofs, batch, out tr);
-                        collector.LogSample(linq.ToString(), tr);
+                        collector?.LogSample(linq.ToString(), tr);
                         foreach (var itm in records)
                             yield return itm;
                         ofs += batch;
