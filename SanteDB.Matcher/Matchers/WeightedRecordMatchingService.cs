@@ -46,21 +46,26 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Classify the records using the specified configuration
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName, IRecordMatchingDiagnosticSession collector = null)
         {
             try
             {
+                collector?.LogStartStage("scoring");
                 if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
                 var strongConfig = this.GetConfiguration<T>(configurationName);
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.AsParallel().AsOrdered().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold)).ToList();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
             }
             catch (Exception e)
             {
                 this.m_tracer.TraceError("Error classifying {0} with configuration {1} : {2}", input, configurationName, e.Message);
                 throw new MatchingException($"Error classifying {input} with configuration {configurationName}", e);
+            }
+            finally
+            {
+                collector?.LogEndStage();
             }
         }
 
@@ -87,30 +92,46 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="configurationName">The name of the configuration used</param>
         /// <param name="evaluationType">The evaluation type</param>
         /// <param name="matchThreshold">The matching threshold</param>
-        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, string configurationName, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold) where T : IdentifiedData
+        /// <param name="collector">The diagnostics collector to use</param>
+        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, string configurationName, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             try
             {
+                collector?.LogStartAction(block);
                 var attributeResult = attributes.Select(v =>
                 {
-                    this.m_tracer.TraceVerbose("Initializing attribute {0}", v);
-                    // Initialize the weights and such for the attribute
-                    var attributeScores = v.GetPropertySelectors<T>().Select(selector =>
+                    try
                     {
-                        Func<T, dynamic> selectorExpression = (Func<T, dynamic>)selector.Value;
-                        object aValue = selectorExpression(input),
-                            bValue = selectorExpression(block);
-                        var defaultInstance = selectorExpression.Method.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
-                            Activator.CreateInstance(selectorExpression.Method.ReturnType) :
-                            null;
-                        return AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
-                    });
-                    var bestScore = attributeScores.OrderByDescending(o => o.CalculatedScore).FirstOrDefault();
+                        collector?.LogStartAction(v);
+                        this.m_tracer.TraceVerbose("Initializing attribute {0}", v);
+                        // Initialize the weights and such for the attribute
+                        var attributeScores = v.GetPropertySelectors<T>().Select(selector =>
+                        {
+                            Func<T, dynamic> selectorExpression = (Func<T, dynamic>)selector.Value;
+                            object aValue = selectorExpression(input),
+                                bValue = selectorExpression(block);
+                            var defaultInstance = selectorExpression.Method.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
+                                Activator.CreateInstance(selectorExpression.Method.ReturnType) :
+                                null;
+                            var result = AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
+                            return result;
+                        });
+                        var bestScore = attributeScores.OrderByDescending(o => o.CalculatedScore).FirstOrDefault();
 
-                    if (bestScore == null || !bestScore.CalculatedScore.HasValue)
-                        return null;
-                    else
-                        return new MatchVector(v, v.Id ?? bestScore.PropertyName, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
+                        if (bestScore == null || !bestScore.CalculatedScore.HasValue)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            var result = new MatchVector(v, v.Id ?? bestScore.PropertyName, bestScore.CalculatedScore.Value, bestScore.Evaluated, bestScore.A, bestScore.B);
+                            return result;
+                        }
+                    }
+                    finally
+                    {
+                        collector?.LogEndAction();
+                    }
                 }).OfType<MatchVector>().ToList();
 
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
@@ -170,15 +191,26 @@ namespace SanteDB.Matcher.Matchers
                 this.m_tracer.TraceError("Error classifying result set (mt={0}, nmt={1}) - {2}", matchThreshold, nonMatchThreshold, e.Message);
                 throw new MatchingException($"Error classifying result set", e);
             }
+            finally
+            {
+                collector?.LogEndAction();
+            }
         }
 
         /// <summary>
         /// Block and match records based on their match result
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList)
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList, IRecordMatchingDiagnosticSession collector = null)
         {
-            var result = this.Classify(input, base.Block(input, configurationName, ignoreList), configurationName);
-            return result;
+            try
+            {
+                collector?.LogStart(configurationName);
+                return this.Classify(input, base.Block(input, configurationName, ignoreList, collector), configurationName, collector);
+            }
+            finally
+            {
+                collector?.LogEnd();
+            }
         }
     }
 }

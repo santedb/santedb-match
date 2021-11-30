@@ -42,17 +42,33 @@ namespace SanteDB.Matcher.Matchers
         /// Classify the specified inputs
         /// </summary>
         /// <remarks>This particular record matching service only uses the blocking portion of configuration so all blocked records are considered matches</remarks>
-        public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName)
+        public override IEnumerable<IRecordMatchResult<T>> Classify<T>(T input, IEnumerable<T> blocks, string configurationName, IRecordMatchingDiagnosticSession collector = null)
         {
-            return blocks.Select(o => new MatchResult<T>(o, 1.0, 1.0, configurationName, RecordMatchClassification.Match, RecordMatchMethod.Simple, null));
+            try
+            {
+                collector?.LogStartStage("scoring");
+                return blocks.Select(o => new MatchResult<T>(o, 1.0, 1.0, configurationName, RecordMatchClassification.Match, RecordMatchMethod.Simple, null));
+            }
+            finally
+            {
+                collector?.LogEndStage();
+            }
         }
 
         /// <summary>
         /// Performs a block and match operation
         /// </summary>
-        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList)
+        public override IEnumerable<IRecordMatchResult<T>> Match<T>(T input, string configurationName, IEnumerable<Guid> ignoreList, IRecordMatchingDiagnosticSession collector = null)
         {
-            return this.Classify(input, this.Block(input, configurationName, ignoreList), configurationName);
+            try
+            {
+                collector?.LogStart(configurationName);
+                return this.Classify(input, this.Block(input, configurationName, ignoreList), configurationName, collector);
+            }
+            finally
+            {
+                collector?.LogEnd();
+            }
         }
     }
 }
