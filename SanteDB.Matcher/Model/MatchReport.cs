@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Model
     [XmlInclude(typeof(DeviceEntity))]
     [XmlInclude(typeof(UserEntity))]
     [XmlInclude(typeof(ApplicationEntity))]
-    [ResourceCollection]
+    [AddDependentSerializersAttribute]
     public class MatchReport : IdentifiedData
     {
         /// <summary>
