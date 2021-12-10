@@ -26,6 +26,7 @@ using SanteDB.Matcher.Matchers;
 using SanteDB.Matcher.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SanteDB.Matcher.Docker
@@ -33,6 +34,7 @@ namespace SanteDB.Matcher.Docker
     /// <summary>
     /// Docker feature for matching configuration
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class MatchingDockerFeature : IDockerFeature
     {
 

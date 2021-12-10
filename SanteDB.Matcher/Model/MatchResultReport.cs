@@ -2,25 +2,27 @@
  * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. You may 
- * obtain a copy of the License at 
- * 
- * http://www.apache.org/licenses/LICENSE-2.0 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
- * License for the specific language governing permissions and limitations under 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * User: fyfej
  * Date: 2021-8-5
  */
+
 using Newtonsoft.Json;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
+using SanteDB.Core.Model.Entities;
 using SanteDB.Matcher.Matchers;
 using System;
 using System.Collections.Generic;
@@ -35,7 +37,6 @@ namespace SanteDB.Matcher.Model
     [JsonObject, XmlType(nameof(MatchResultReport), Namespace = "http://santedb.org/matcher")]
     public class MatchResultReport : IdentifiedData
     {
-
         /// <summary>
         /// Default ctor for serialization
         /// </summary>
@@ -50,12 +51,11 @@ namespace SanteDB.Matcher.Model
         {
             this.Score = match.Score;
             this.Strength = match.Strength;
-            this.Record = match.Record.Key.Value;
+            this.Record = match.Record.Key.GetValueOrDefault();
             this.Classification = match.Classification;
             this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
             this.Method = match.Method;
             this.ConfigurationName = match.ConfigurationName;
-
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace SanteDB.Matcher.Model
         public Guid Record { get; set; }
 
         /// <summary>
-        /// Gets the classification 
+        /// Gets the classification
         /// </summary>
         [XmlElement("classification"), JsonProperty("classification")]
         public RecordMatchClassification Classification { get; set; }
@@ -95,7 +95,7 @@ namespace SanteDB.Matcher.Model
         public RecordMatchMethod Method { get; set; }
 
         /// <summary>
-        /// The configuration name 
+        /// The configuration name
         /// </summary>
         [XmlElement("configuration"), JsonProperty("configuration")]
         public string ConfigurationName { get; set; }
