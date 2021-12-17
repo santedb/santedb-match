@@ -23,6 +23,8 @@ using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
+using SanteDB.Core.Model.Constants;
+using SanteDB.Core.Model.Interfaces;
 using SanteDB.Core.Model.Query;
 using SanteDB.Core.Model.Serialization;
 using SanteDB.Core.Security;
@@ -255,6 +257,17 @@ namespace SanteDB.Matcher.Matchers
                     { "input", ((Func<T>)(() => input)) }
                 }, safeNullable: true, lazyExpandVariables: false);
 
+                // Add status keys
+                if (typeof(IHasState).IsAssignableFrom(typeof(T)))
+                {
+                    var stateAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(T).GetProperty(nameof(IHasState.StatusConceptKey)));
+                    foreach (var stateKey in StatusKeys.ActiveStates)
+                    {
+
+                        linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
+                            Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?))), linq.Body), linq.Parameters[0]);
+                    }
+                }
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
                 // Query control variables for iterating result sets
