@@ -187,7 +187,6 @@ namespace SanteDB.Matcher.Matchers
         private IQueryResultSet<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             // Load the persistence service
-            int tr = 1;
             try
             {
                 collector?.LogStartAction(block);
@@ -246,11 +245,11 @@ namespace SanteDB.Matcher.Matchers
                     }
                 }
 
-            // Do we skip when no conditions?
-            if (!qfilter.Any())
-            {
-                return new MemoryQueryResultSet<T>(new List<T>());
-            }
+                // Do we skip when no conditions?
+                if (!qfilter.Any())
+                {
+                    return new MemoryQueryResultSet<T>(new List<T>());
+                }
 
                 // Add ignore clauses
                 if (ignoreKeys?.Any() == true)
@@ -268,16 +267,21 @@ namespace SanteDB.Matcher.Matchers
 
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
-            // Query control variables for iterating result sets
+                // Query control variables for iterating result sets
 
-            // Set the authentication context
-            using (AuthenticationContext.EnterSystemContext())
-            {
+                // Set the authentication context
+                using (AuthenticationContext.EnterSystemContext())
+                {
                     var retVal = persistenceService.Find(linq);
                     collector?.LogSample(linq.ToString(), retVal.Count());
                     return retVal;
                 }
             }
+            finally
+            {
+                collector?.LogEndAction();
+            }
+        }
 
         /// <summary>
         /// Classiries the specified blocks into matching results
