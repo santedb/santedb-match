@@ -61,7 +61,7 @@ namespace SanteDB.Matcher.Test
 
         public string ServiceName => throw new NotImplementedException();
 
-       
+#pragma warning disable CS0067
         public event EventHandler<DataPersistingEventArgs<Concept>> Inserting;
         public event EventHandler<DataPersistedEventArgs<Concept>> Inserted;
         public event EventHandler<DataPersistingEventArgs<Concept>> Updating;
@@ -72,6 +72,7 @@ namespace SanteDB.Matcher.Test
         public event EventHandler<DataRetrievedEventArgs<Concept>> Retrieved;
         public event EventHandler<QueryRequestEventArgs<Concept>> Querying;
         public event EventHandler<QueryResultEventArgs<Concept>> Queried;
+#pragma warning restore CS0067
 
         public long Count(Expression<Func<Concept, bool>> p, IPrincipal authContext = null)
         {
