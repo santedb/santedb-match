@@ -23,32 +23,52 @@ using System.Xml.Serialization;
 namespace SanteDB.Matcher.Definition
 {
     /// <summary>
-    /// Gets or sets the binary expression operator
+    /// Gets or sets the types of binary operators that can be applied in a matching configuration
     /// </summary>
+    /// <remarks>A binary statement as defined in <see cref="MatchBlock"/> or <see cref="MatchAttributeAssertion"/> dictates how the $input
+    /// and $block values are evaluated.</remarks>
     [XmlType(nameof(BinaryOperatorType), Namespace = "http://santedb.org/matcher")]
     public enum BinaryOperatorType
     {
+        /// <summary>
+        /// $input and $block must equal
+        /// </summary>
         [XmlEnum("eq")]
         Equal,
+        /// <summary>
+        /// $input must be less than $block
+        /// </summary>
         [XmlEnum("lt")]
         LessThan,
+        /// <summary>
+        /// $input must be less than or equal to $block
+        /// </summary>
         [XmlEnum("lte")]
         LessThanOrEqual,
+        /// <summary>
+        /// $input must be greater than $block
+        /// </summary>
         [XmlEnum("gt")]
         GreaterThan,
+        /// <summary>
+        /// $input must be greater than or equal to $block
+        /// </summary>
         [XmlEnum("gte")]
         GreaterThanOrEqual,
+        /// <summary>
+        /// $input must not be equal to $block
+        /// </summary>
         [XmlEnum("ne")]
         NotEqual,
+        /// <summary>
+        /// Used when an assertion contains multiple statements. Each statement in the block must be true
+        /// </summary>
         [XmlEnum("and")]
         AndAlso,
+        /// <summary>
+        /// Used when an assertion contains multiple statements. One of the statements in the block must true
+        /// </summary>
         [XmlEnum("or")]
-        OrElse,
-        [XmlEnum("add")]
-        Add,
-        [XmlEnum("sub")]
-        Subtract,
-        [XmlEnum("is")]
-        TypeIs
+        OrElse
     }
 }
