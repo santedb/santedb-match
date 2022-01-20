@@ -28,7 +28,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <summary>
     /// Represents the PostgreSQL soundex function
     /// </summary>
-    public class PostgresDoubleMetaphoneFunction : IDbFilterFunction, IDbIndexFunction
+    public class PostgresDoubleMetaphoneFunction : IDbFilterFunction
     {
         /// <summary>
         /// Gets the name of the function
@@ -39,13 +39,6 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// Provider 
         /// </summary>
         public string Provider => "pgsql";
-
-        /// <inheritdoc/>
-        public SqlStatement CreateIndex(String indexName, String tableName, String column)
-        {
-            // Create the index
-            return new SqlStatement("CREATE INDEX ").Append(indexName).Append(" ON ").Append(tableName).Append($" USING BTREE (DMETAPHONE({column})::TEXT)");
-        }
 
         /// <summary>
         /// Creates the SQL statement

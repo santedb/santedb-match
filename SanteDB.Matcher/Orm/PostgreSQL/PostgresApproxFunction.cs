@@ -75,7 +75,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                     }
                 };
 
-            var filter = new SqlStatement();
+            var filter = new SqlStatement(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxDifferenceOption difference)
