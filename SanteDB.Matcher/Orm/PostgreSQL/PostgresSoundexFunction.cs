@@ -34,7 +34,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// or
     /// ?name.component.value=:(soundex|Fyfe)&lt;3
     /// </example>
-    public class PostgresSoundexFunction : IDbFilterFunction
+    public class PostgresSoundexFunction : IDbFilterFunction, IDbIndexFunction
     {
         /// <summary>
         /// Gets the name of the function
@@ -45,6 +45,13 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// Provider 
         /// </summary>
         public string Provider => "pgsql";
+
+        /// <inheritdoc/>
+        public SqlStatement CreateIndex(String indexName, String tableName, String column)
+        {
+            // Create the index
+            return new SqlStatement("CREATE INDEX ").Append(indexName).Append(" ON ").Append(tableName).Append($" USING BTREE (SOUNDEX({column})::TEXT)");
+        }
 
         /// <summary>
         /// Creates the SQL statement
@@ -60,6 +67,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
             else
                 return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(value, operandType));
         }
+
     }
 
 }
