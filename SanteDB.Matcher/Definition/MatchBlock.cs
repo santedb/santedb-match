@@ -35,7 +35,7 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// True if the raw persistence layer should be used
         /// </summary>
-        [XmlAttribute("useLowerLayer")]
+        [XmlAttribute("useLowerLayer"), JsonProperty("useLowerLayer")]
         public bool UseRawPersistenceLayer { get; set; }
 
         /// <summary>
