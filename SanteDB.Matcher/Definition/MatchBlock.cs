@@ -31,6 +31,13 @@ namespace SanteDB.Matcher.Definition
     [XmlType(nameof(MatchBlock), Namespace = "http://santedb.org/matcher"), JsonObject(nameof(MatchBlock))]
     public class MatchBlock
     {
+
+        /// <summary>
+        /// True if the raw persistence layer should be used
+        /// </summary>
+        [XmlAttribute("useLowerLayer"), JsonProperty("useLowerLayer")]
+        public bool UseRawPersistenceLayer { get; set; }
+
         /// <summary>
         /// Gets or sets the description
         /// </summary>

@@ -73,7 +73,7 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
                     }
                 };
 
-            var filter = new SqlStatement(new PostgreSQLProvider());
+            var filter = new SqlStatement(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxPatternOption pattern)

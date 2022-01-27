@@ -46,6 +46,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// </summary>
         public string Provider => "pgsql";
 
+
         /// <summary>
         /// Creates the SQL statement
         /// </summary>
@@ -60,6 +61,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
             else
                 return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(value, operandType));
         }
+
     }
 
 }

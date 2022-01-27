@@ -184,10 +184,6 @@ namespace SanteDB.Matcher.Matchers
             try
             {
                 collector?.LogStartAction(block);
-                var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
-                if (persistenceService == null)
-                    throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
                 // Perpare filter
                 var filter = block.Filter;
                 NameValueCollection qfilter = new NameValueCollection();
@@ -250,6 +246,7 @@ namespace SanteDB.Matcher.Matchers
                 {
                     qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
+                qfilter.Add("id", $"!{input.Key}");
 
                 // Make LINQ query
                 // NOTE: We can't build and store this since input is a closure
@@ -282,11 +279,35 @@ namespace SanteDB.Matcher.Matchers
                     int ofs = 0;
                     while (ofs < tr)
                     {
-                        var records = persistenceService.Find(linq, ofs, batch, out tr);
-                        collector?.LogSample(linq.ToString(), tr);
-                        foreach (var itm in records)
-                            yield return itm;
-                        ofs += batch;
+
+                        if (block.UseRawPersistenceLayer)
+                        {
+                            var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
+                            if (persistenceService == null)
+                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
+
+                            var records = persistenceService.Query(linq, ofs, batch, out tr, AuthenticationContext.SystemPrincipal);
+                            collector?.LogSample(linq.ToString(), tr);
+                            foreach (var itm in records)
+                                yield return itm;
+                            ofs += batch;
+                        }
+                        else
+                        {
+                            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
+                            if (persistenceService == null)
+                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
+
+                            var records = persistenceService.Find(linq, ofs, batch, out tr);
+                            collector?.LogSample(linq.ToString(), tr);
+                            foreach (var itm in records)
+                            {
+                                if(itm.Key != input.Key &&
+                                    !ignoreKeys.Contains(itm.Key.Value))
+                                    yield return itm;
+                            }
+                            ofs += batch;
+                        }
                     }
                 }
             }
