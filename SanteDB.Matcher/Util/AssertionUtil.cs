@@ -220,10 +220,7 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                if (subVal.Evaluated)
                                     retVal &= subVal.Result;
-                                else
-                                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
                             }
                             break;
                         }
@@ -232,10 +229,7 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                if (subVal.Evaluated)
                                     retVal |= subVal.Result;
-                                else
-                                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
                             }
                             break;
                         }
