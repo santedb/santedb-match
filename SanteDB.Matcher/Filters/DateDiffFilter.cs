@@ -66,8 +66,8 @@ namespace SanteDB.Matcher.Filters
             if (parms[0].NodeType == ExpressionType.Constant)
             {
                 constVal = parms[0] as ConstantExpression;
-                if (constVal == null || "null".Equals(constVal.Value.ToString()))
-                    parms[0] = Expression.Constant(default(DateTime));
+                if (constVal == null || constVal.Value == null || "null".Equals(constVal.Value.ToString()))
+                    throw new InvalidOperationException("Cannot compare a date_diff on a null date");
                 else if (constVal != null && constVal.Value is String && DateTime.TryParseExact(
                     constVal.Value.ToString(), new string[] { "o", "yyyy", "yyyy-MM", "yyyy-MM-dd" },
                     System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
