@@ -61,7 +61,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                 case 0:
                     return current.Append($"{filterColumn} % ?", QueryBuilder.CreateParameterValue(parms[0], operandType));
                 case 1: // with levenshtein
-                    return current.Append($"{filterColumn} % ? AND similarity({filterColumn}, ?) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, typeof(Int32)));
+                    return current.Append($"{filterColumn} % ? AND similarity({filterColumn}, ?) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, typeof(double)));
                 default:
                     throw new ArgumentOutOfRangeException("Invalid number of parameters of string diff");
             }
