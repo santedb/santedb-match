@@ -46,7 +46,34 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
-            if (parms.Length != 1) throw new ArgumentOutOfRangeException("levenshtein requires one parameter : value=:(levenshtein|other)comparator");
+            if (parms.Length == 0) throw new ArgumentOutOfRangeException("levenshtein requires one parameter : value=:(levenshtein|other)comparator");
+            return Expression.MakeBinary(comparison,
+                                Expression.Call(this.ExtensionMethod, scope, parms[0]),
+                                valueExpression);
+        }
+    }
+
+    /// <summary>
+    /// Represents the levenshtein filter
+    /// </summary>
+    public class LevenshteinSimilarityFilter : IQueryFilterExtension
+    {
+        /// <summary>
+        /// Gets the name of the filter 
+        /// </summary>
+        public string Name => "similarity_lev";
+
+        /// <summary>
+        /// Gets the extension method
+        /// </summary>
+        public MethodInfo ExtensionMethod => typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.LevenshteinSimilarityTo  ), new Type[] { typeof(String), typeof(String) });
+
+        /// <summary>
+        /// Compose the function
+        /// </summary>
+        public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
+        {
+            if (parms.Length == 0) throw new ArgumentOutOfRangeException("similarity_lev requires one parameter : value=:(similarity_lev|other)comparator");
             return Expression.MakeBinary(comparison,
                                 Expression.Call(this.ExtensionMethod, scope, parms[0]),
                                 valueExpression);

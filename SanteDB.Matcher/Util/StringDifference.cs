@@ -155,5 +155,14 @@ namespace SanteDB.Matcher.Util
             return source.JaroWinkler(target);
         }
 
+        /// <summary>
+        /// Returns the similarty to two string using levenshtein
+        /// </summary>
+        public static double LevenshteinSimilarityTo(this String source, String target)
+        {
+
+            return 1.0 - ((float)source.Levenshtein(target) / Enumerable.Max(new double[] { (double)target.Length, (double)source.Length }));
+        }
+
     }
 }
