@@ -21,6 +21,7 @@
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -34,6 +35,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// or with levenshtein
     /// ?name.component.value=:(similarity|Fyfe)&lt;3
     /// </example>
+    [ExcludeFromCodeCoverage]
     public class PostgresSimilarityFunction : IDbFilterFunction
     {
         /// <summary>

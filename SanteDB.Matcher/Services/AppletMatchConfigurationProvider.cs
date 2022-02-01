@@ -25,6 +25,7 @@ using SanteDB.Core.Matching;
 using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -34,6 +35,7 @@ namespace SanteDB.Matcher.Services
     /// <summary>
     /// Applet match configuration provider loads match configurations from available applets
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class AppletMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
 

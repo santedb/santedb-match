@@ -28,6 +28,7 @@ using SanteDB.Rest.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -58,6 +59,7 @@ namespace SanteDB.Matcher.Rest
     /// Transformer information
     /// </summary>
     [XmlType(nameof(TransformerInfo), Namespace = "http://santedb.org/matching")]
+    [ExcludeFromCodeCoverage]
     internal class TransformerInfo
     {
         /// <summary>
@@ -114,6 +116,7 @@ namespace SanteDB.Matcher.Rest
     /// Transformer information
     /// </summary>
     [XmlType(nameof(TransformerArgumentInfo), Namespace = "http://santedb.org/matching")]
+    [ExcludeFromCodeCoverage]
     internal class TransformerArgumentInfo
     {
         /// <summary>
@@ -162,6 +165,7 @@ namespace SanteDB.Matcher.Rest
     /// <summary>
     /// A rest operation that returns the available transforms
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class AvailableTransformOperations : IApiChildOperation
     {
         /// <summary>

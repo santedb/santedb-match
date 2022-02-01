@@ -26,6 +26,7 @@ using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -36,6 +37,7 @@ namespace SanteDB.Matcher.Services
     /// <summary>
     /// File based match configuration provider
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class AssemblyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         // Tracer

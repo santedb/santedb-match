@@ -21,6 +21,7 @@
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
@@ -28,6 +29,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <summary>
     /// Represents the PostgreSQL soundex function
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class PostgresMetaphoneFunction : IDbFilterFunction
     {
         /// <summary>

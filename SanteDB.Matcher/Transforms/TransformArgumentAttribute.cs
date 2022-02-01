@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SanteDB.Matcher.Transforms
@@ -28,6 +29,7 @@ namespace SanteDB.Matcher.Transforms
     /// Allows a transform to expose it expects an argument
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    [ExcludeFromCodeCoverage]
     public class TransformArgumentAttribute : Attribute
     {
         /// <summary>

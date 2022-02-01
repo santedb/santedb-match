@@ -21,6 +21,7 @@
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
 {
@@ -31,6 +32,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// ?name.component.value=:(soundslike|Betty)
     /// ?name.component.value=:(soundslike|Betty,metaphone)
     /// </example>
+    [ExcludeFromCodeCoverage]
     public class PostgresSoundslikeFunction : IDbFilterFunction
     {
         /// <summary>

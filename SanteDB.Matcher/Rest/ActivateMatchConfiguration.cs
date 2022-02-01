@@ -27,6 +27,7 @@ using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -37,6 +38,7 @@ namespace SanteDB.Matcher.Rest
     /// <summary>
     /// Export matching report operation
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ActivateMatchOperation : IApiChildOperation
     {
         // Match configuration

@@ -27,6 +27,7 @@ using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Postgres;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
@@ -37,6 +38,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <example>
     /// ?name.component.value=:(approx|Betty)
     /// </example>
+    [ExcludeFromCodeCoverage]
     public class PostgresApproxlikeFunction : IDbFilterFunction
     {
         /// <summary>

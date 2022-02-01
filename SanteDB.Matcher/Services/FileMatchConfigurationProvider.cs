@@ -29,6 +29,7 @@ using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -38,6 +39,7 @@ namespace SanteDB.Matcher.Services
     /// <summary>
     /// Represents a configuration provider which is for matching
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class FileMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         /// <summary>

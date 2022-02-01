@@ -21,6 +21,7 @@
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -29,6 +30,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <summary>
     /// Postgrsql string difference function
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class PostgresLevenshteinFunction : IDbFilterFunction
     {
         /// <summary>
@@ -65,6 +67,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <summary>
     /// Postgrsql string difference function
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class PostgresSimilarityLevenshteinFunction : IDbFilterFunction
     {
         /// <summary>
