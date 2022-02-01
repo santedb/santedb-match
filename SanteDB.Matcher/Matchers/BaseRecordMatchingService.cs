@@ -245,7 +245,10 @@ namespace SanteDB.Matcher.Matchers
                 {
                     qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
-                qfilter.Add("id", $"!{input.Key}");
+                if (input.Key.HasValue)
+                {
+                    qfilter.Add("id", $"!{input.Key}");
+                }
 
                 // Make LINQ query
                 // NOTE: We can't build and store this since input is a closure
@@ -259,12 +262,21 @@ namespace SanteDB.Matcher.Matchers
                 if (typeof(IHasState).IsAssignableFrom(typeof(T)))
                 {
                     var stateAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(T).GetProperty(nameof(IHasState.StatusConceptKey)));
+                    Expression statePart = null;
                     foreach (var stateKey in StatusKeys.ActiveStates)
                     {
 
-                        linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
-                            Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?))), linq.Body), linq.Parameters[0]);
+                        if(statePart == null)
+                        {
+                            statePart = Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?)));
+                        }
+                        else
+                        {
+                            statePart = Expression.MakeBinary(ExpressionType.OrElse, Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?))), statePart);
+                        }
                     }
+                    linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
+                            statePart, linq.Body), linq.Parameters[0]);
                 }
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
@@ -301,8 +313,9 @@ namespace SanteDB.Matcher.Matchers
                             collector?.LogSample(linq.ToString(), tr);
                             foreach (var itm in records)
                             {
-                                if(itm.Key != input.Key &&
-                                    !ignoreKeys.Contains(itm.Key.Value))
+                                if(itm.Key.HasValue &&
+                                    itm.Key != input.Key &&
+                                    ignoreKeys?.Contains(itm.Key.Value) != true)
                                     yield return itm;
                             }
                             ofs += batch;

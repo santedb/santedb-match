@@ -48,7 +48,7 @@ namespace SanteDB.Matcher.Transforms.Text
             if (parms.Length == 1)
             {
                 if (input is String inputString)
-                    return (inputString).Substr((int)parms[0], null);
+                    return (inputString). Substr((int)parms[0], null);
                 else if (input is IEnumerable inputEnum)
                     return inputEnum.OfType<string>().Select(o => o.Substr((int)parms[0], null));
                 else
