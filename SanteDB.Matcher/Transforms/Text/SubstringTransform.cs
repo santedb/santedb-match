@@ -18,6 +18,7 @@
  * User: fyfej
  * Date: 2021-8-27
  */
+using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Filters;
 using System;
 using System.Collections;

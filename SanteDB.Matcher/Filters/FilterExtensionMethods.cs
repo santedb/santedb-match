@@ -175,38 +175,7 @@ namespace SanteDB.Matcher.Filters
 
             return meCode.Levenshtein(otherCode);
         }
-        /// <summary>
-        /// Calculate the difference between two dates
-        /// </summary>
-        public static TimeSpan Difference(this DateTime source, DateTime target)
-        {
-            return source.Subtract(target).Duration();
-        }
-
-        /// <summary>
-        /// Calculate the difference between two dates
-        /// </summary>
-        public static TimeSpan Difference(this DateTimeOffset source, DateTimeOffset target)
-        {
-            return source.Subtract(target).Duration();
-        }
-
-
-        /// <summary>
-        /// Gets the first characters
-        /// </summary>
-        public static String Substr(this String me, int start, int? length)
-        {
-            if (length.HasValue && start + length > me.Length)
-                length = me.Length - start;
-            if (start > me.Length)
-                start = me.Length - 1;
-            if (length.HasValue)
-                return me.Substring(start, length.Value);
-            else
-                return me.Substring(start);
-        }
-
+       
         /// <summary>
         /// Determines of other is an alias of me and the strength of the alias
         /// </summary>
