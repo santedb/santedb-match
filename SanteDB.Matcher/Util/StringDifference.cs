@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2021-8-27
  */
 using System;
 using System.Linq;
@@ -152,7 +152,17 @@ namespace SanteDB.Matcher.Util
         public static double SimilarityTo(this String source, String target)
         {
 
-            return (1.0 - (source.Levenshtein(target) / (double)Math.Max(source.Length, target.Length) + 0.000001));
+            return source.JaroWinkler(target);
         }
+
+        /// <summary>
+        /// Returns the similarty to two string using levenshtein
+        /// </summary>
+        public static double LevenshteinSimilarityTo(this String source, String target)
+        {
+
+            return 1.0 - ((float)source.Levenshtein(target) / Enumerable.Max(new double[] { (double)target.Length, (double)source.Length }));
+        }
+
     }
 }

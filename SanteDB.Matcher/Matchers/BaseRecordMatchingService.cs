@@ -1,24 +1,23 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You may
- * obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. You may 
+ * obtain a copy of the License at 
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
+ * License for the specific language governing permissions and limitations under 
  * the License.
- *
+ * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2021-8-27
  */
-
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
@@ -246,7 +245,10 @@ namespace SanteDB.Matcher.Matchers
                 {
                     qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
                 }
-                qfilter.Add("id", $"!{input.Key}");
+                if (input.Key.HasValue)
+                {
+                    qfilter.Add("id", $"!{input.Key}");
+                }
 
                 // Make LINQ query
                 // NOTE: We can't build and store this since input is a closure
@@ -260,12 +262,21 @@ namespace SanteDB.Matcher.Matchers
                 if (typeof(IHasState).IsAssignableFrom(typeof(T)))
                 {
                     var stateAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(T).GetProperty(nameof(IHasState.StatusConceptKey)));
+                    Expression statePart = null;
                     foreach (var stateKey in StatusKeys.ActiveStates)
                     {
 
-                        linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
-                            Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?))), linq.Body), linq.Parameters[0]);
+                        if(statePart == null)
+                        {
+                            statePart = Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?)));
+                        }
+                        else
+                        {
+                            statePart = Expression.MakeBinary(ExpressionType.OrElse, Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?))), statePart);
+                        }
                     }
+                    linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
+                            statePart, linq.Body), linq.Parameters[0]);
                 }
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
@@ -302,8 +313,9 @@ namespace SanteDB.Matcher.Matchers
                             collector?.LogSample(linq.ToString(), tr);
                             foreach (var itm in records)
                             {
-                                if(itm.Key != input.Key &&
-                                    !ignoreKeys.Contains(itm.Key.Value))
+                                if(itm.Key.HasValue &&
+                                    itm.Key != input.Key &&
+                                    ignoreKeys?.Contains(itm.Key.Value) != true)
                                     yield return itm;
                             }
                             ofs += batch;
