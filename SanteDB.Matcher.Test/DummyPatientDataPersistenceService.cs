@@ -157,6 +157,11 @@ namespace SanteDB.Matcher.Test
                         GenderConceptKey = Guid.Parse(data[2].ToLower() == "m" ? "f4e3a6bb-612e-46b2-9f77-ff844d971198" :
                             data[2].ToLower() == "f" ? "094941e9-a3db-48b5-862c-bc289bd7f86c" :
                             "091f27e8-e592-4e81-b5d7-338b7749d8b8"),
+                        StatusConcept = new Concept()
+                        {
+                            Key = StatusKeys.Active,
+                            Mnemonic = "ACTIVE"
+                        },
                         DateOfBirth = DateTime.Parse(data[1]),
                         Names = new List<Core.Model.Entities.EntityName>()
                         {

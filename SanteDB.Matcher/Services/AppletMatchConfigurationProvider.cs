@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2021-8-27
  */
 using SanteDB.Core;
 using SanteDB.Core.Applets.Services;
@@ -25,6 +25,7 @@ using SanteDB.Core.Matching;
 using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -34,6 +35,7 @@ namespace SanteDB.Matcher.Services
     /// <summary>
     /// Applet match configuration provider loads match configurations from available applets
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class AppletMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
 

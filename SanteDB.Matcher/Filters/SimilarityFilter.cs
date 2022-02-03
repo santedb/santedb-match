@@ -19,6 +19,7 @@
  * Date: 2021-8-27
  */
 using SanteDB.Core.Model.Query;
+using SanteDB.Matcher.Util;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,28 +27,36 @@ using System.Reflection;
 namespace SanteDB.Matcher.Filters
 {
     /// <summary>
-    /// The dmetaphone query filter
+    /// The SOUNDEX query filter
     /// </summary>
-    public class DoubleMetaphoneFilter : IQueryFilterExtension
+    public class SimilarityFilter : IQueryFilterExtension
     {
         /// <summary>
         /// Gets the name of the filter
         /// </summary>
-        public string Name => "dmetaphone";
+        public string Name => "similarity";
 
         /// <summary>
         /// Gets the extension method
         /// </summary>
-        public MethodInfo ExtensionMethod => typeof(FilterExtensionMethods).GetRuntimeMethod(nameof(FilterExtensionMethods.DoubleMetaphone), new Type[] { typeof(String) });
+        public MethodInfo ExtensionMethod => typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.SimilarityTo), new Type[] { typeof(String), typeof(String) });
 
         /// <summary>
         /// Compose the LINQ expression
         /// </summary>
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
-            return Expression.MakeBinary(ExpressionType.Equal,
-                Expression.Call(this.ExtensionMethod, scope),
-                Expression.Call(this.ExtensionMethod, valueExpression));
+            if (parms.Length == 1)
+            {
+                var exm = typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.SimilarityTo), new Type[] { typeof(String), typeof(String) });
+                return Expression.MakeBinary(comparison,
+                                Expression.Call(exm, scope, parms[0]),
+                                valueExpression);
+            }
+            else
+            {
+                throw new InvalidOperationException("similarity requires a parameter - example: :(similarity|other)>0.2");
+            }
         }
     }
 }

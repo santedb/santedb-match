@@ -22,6 +22,7 @@ using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace SanteDB.Matcher.Orm.PostgreSQL
@@ -29,37 +30,45 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
     /// <summary>
     /// Represents the PostgreSQL soundex function
     /// </summary>
+    /// <example>
+    /// ?name.component.value=:(similarity)Fyfe
+    /// or with levenshtein
+    /// ?name.component.value=:(similarity|Fyfe)&lt;3
+    /// </example>
     [ExcludeFromCodeCoverage]
-    public class PostgresMetaphoneFunction : IDbFilterFunction
+    public class PostgresSimilarityFunction : IDbFilterFunction
     {
         /// <summary>
         /// Gets the name of the function
         /// </summary>
-        public string Name => "metaphone";
+        public string Name => "similarity";
 
         /// <summary>
         /// Provider 
         /// </summary>
         public string Provider => "pgsql";
 
+
         /// <summary>
         /// Creates the SQL statement
         /// </summary>
-        /// <example>
-        /// ?name.component.value=:(metaphone)Justin
-        /// or
-        /// ?name.component.value=:(metaphone|5)Hamilton
-        /// </example>
         public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
             if (String.IsNullOrEmpty(op)) op = "=";
 
-            if (op != "=") // There is a threshold
-                return current.Append($"metaphone({filterColumn}, {parms[0]}) {op} metaphone(?, {parms[0]})", QueryBuilder.CreateParameterValue(value, operandType));
-            else
-                return current.Append($"metaphone({filterColumn}, 4) {op} metaphone(?, 4)", QueryBuilder.CreateParameterValue(value, operandType));
+            switch (parms.Length)
+            {
+                case 0:
+                    return current.Append($"{filterColumn} % ?", QueryBuilder.CreateParameterValue(parms[0], operandType));
+                case 1: // with levenshtein
+                    return current.Append($"{filterColumn} % ? AND similarity({filterColumn}, ?) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, typeof(double)));
+                default:
+                    throw new ArgumentOutOfRangeException("Invalid number of parameters of string diff");
+            }
         }
+
     }
+
 }
