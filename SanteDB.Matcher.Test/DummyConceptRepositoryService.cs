@@ -149,6 +149,11 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
+        public IQueryResultSet<Concept> Query<TExpression>(Expression<Func<TExpression, bool>> query, IPrincipal principal) where TExpression : Concept
+        {
+            throw new NotImplementedException();
+        }
+
         public Concept Update(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
