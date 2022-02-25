@@ -55,7 +55,14 @@ namespace SanteDB.Matcher.Matchers
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 
-                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                if (blocks.Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
+                {
+                    return blocks.AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                }
+                else
+                {
+                    return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                }
             }
             catch (Exception e)
             {

@@ -235,10 +235,6 @@ namespace SanteDB.Matcher.Matchers
                             {
                                 qfilter.Add(nv.Key, val);
 
-                                if (b.When?.Any(o => o == nv.Key) == true)
-                                {
-                                    qfilter.Add(nv.Key, "null");
-                                }
                             }
                         }
                     }

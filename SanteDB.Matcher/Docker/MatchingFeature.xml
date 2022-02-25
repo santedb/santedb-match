@@ -23,7 +23,7 @@
     <add type="SanteDB.Matcher.Configuration.FileMatchConfigurationSection, SanteDB.Matcher"/>
 
   </sections>
-  <section xsi:type="FileMatchConfigurationSection">
+  <section xsi:type="FileMatchConfigurationSection" cache="true">
     <basePath>
       <add readonly="false">./match</add>
     </basePath>

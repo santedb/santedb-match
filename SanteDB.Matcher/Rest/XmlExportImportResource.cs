@@ -36,21 +36,19 @@ using System.Xml.Xsl;
 namespace SanteDB.Matcher.Rest
 {
     /// <summary>
-    /// Export matching report operation
+    /// Export matching configuration as an XML file
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class ExportMatchReportOperation : IApiChildResourceHandler
+    public class XmlExportImportResource : IApiChildResourceHandler
     {
-        // Transform
-        private XslCompiledTransform m_transform = null;
-
+       
         // Match configuration
         private readonly IRecordMatchingConfigurationService m_matchConfiguration;
 
         /// <summary>
         /// Match report operation
         /// </summary>
-        public ExportMatchReportOperation(IRecordMatchingConfigurationService matchConfigurationService = null)
+        public XmlExportImportResource(IRecordMatchingConfigurationService matchConfigurationService = null)
         {
             this.m_matchConfiguration = matchConfigurationService;
         }
@@ -68,7 +66,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Get the name of this operation
         /// </summary>
-        public string Name => "html";
+        public string Name => "xml";
 
         /// <summary>
         /// Get the property type
@@ -78,14 +76,23 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Capabilities
         /// </summary>
-        public ResourceCapabilityType Capabilities => ResourceCapabilityType.Get;
+        public ResourceCapabilityType Capabilities => ResourceCapabilityType.Search | ResourceCapabilityType.Create;
 
         /// <summary>
         /// Add not supported
         /// </summary>
         public object Add(Type scopingType, object scopingKey, object item)
         {
-            throw new NotSupportedException();
+            if(item is Stream stream)
+            {
+                var configuration = MatchConfiguration.Load(stream);
+                RestOperationContext.Current.OutgoingResponse.StatusCode = 201;
+                return this.m_matchConfiguration.SaveConfiguration(configuration);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot process this request");
+            }
         }
 
         /// <summary>
@@ -99,22 +106,8 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Query the object
         /// </summary>
-        public IQueryResultSet Query(Type scopingType, object scopingKey, NameValueCollection filter)
+        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
         {
-            if (this.m_transform == null)
-            {
-                this.m_transform = new XslCompiledTransform();
-                using (var stream = typeof(ExportMatchReportOperation).Assembly.GetManifestResourceStream("SanteDB.Matcher.Resources.MatchConfiguration.xslt"))
-                {
-                    using (var xr = XmlReader.Create(stream))
-                    {
-                        this.m_transform.Load(xr, new XsltSettings()
-                        {
-                            EnableScript = true
-                        }, null);
-                    }
-                }
-            }
             var configuration = this.m_matchConfiguration?.GetConfiguration(scopingKey.ToString()) as MatchConfiguration;
             if (configuration == null)
             {
@@ -122,23 +115,9 @@ namespace SanteDB.Matcher.Rest
             }
 
             RestOperationContext.Current.OutgoingResponse.ContentType = "text/html";
-            RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.htm\"");
-            using (var ms = new MemoryStream())
-            {
-                // Save configuration to XML
-                configuration.Save(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-                // Now export
-                using (var xr = XmlReader.Create(ms))
-                {
-                    using (var xw = XmlWriter.Create(RestOperationContext.Current.OutgoingResponse.OutputStream))
-                    {
-                        var args = new XsltArgumentList();
-                        args.AddParam("jsonConfig", "http://santedb.org/matcher", JsonConvert.SerializeObject((object)configuration));
-                        this.m_transform.Transform(xr, args, xw);
-                    }
-                }
-            }
+            RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.xml\"");
+            configuration.Save(RestOperationContext.Current.OutgoingResponse.OutputStream);
+            totalCount = 0;
             return null;
         }
 
