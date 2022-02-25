@@ -166,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
 
                 if (ignoreKeys != null)
                 {
-                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
+                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value) && r.Key.Value != input.Key.Value);
                 }
                 else
                 {
@@ -295,6 +295,7 @@ namespace SanteDB.Matcher.Matchers
                 // Set the authentication context
                 using (AuthenticationContext.EnterSystemContext())
                 {
+                    IQueryResultSet<T> results = null;
 
                         if (block.UseRawPersistenceLayer)
                         {
@@ -302,10 +303,8 @@ namespace SanteDB.Matcher.Matchers
                             if (persistenceService == null)
                                 throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
-                            var records = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
-                            collector?.LogSample(linq.ToString(), records.Count());
-                            foreach (var itm in records)
-                                yield return itm;
+                            results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
+                            
                         }
                         else
                         {
@@ -313,16 +312,12 @@ namespace SanteDB.Matcher.Matchers
                             if (persistenceService == null)
                                 throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
-                            var records = persistenceService.Find(linq);
-                            collector?.LogSample(linq.ToString(), records.Count());
-                            foreach (var itm in records)
-                            {
-                                if(itm.Key.HasValue &&
-                                    itm.Key != input.Key &&
-                                    ignoreKeys?.Contains(itm.Key.Value) != true)
-                                    yield return itm;
-                            }
+                            results = persistenceService.Find(linq);
+                            
                     }
+
+                    collector?.LogSample(linq.ToString(), results.Count());
+                    return results;
                 }
             }
             finally

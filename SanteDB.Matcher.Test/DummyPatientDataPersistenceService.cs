@@ -114,7 +114,7 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public Patient Obsolete(Guid key)
+        public Patient Delete(Guid key)
         {
             throw new NotImplementedException();
         }

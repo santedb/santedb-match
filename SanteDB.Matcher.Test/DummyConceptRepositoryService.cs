@@ -92,12 +92,12 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public Concept Delete(Guid key, TransactionMode mode, IPrincipal principal, DeleteMode deletionMode)
+        public Concept Delete(Guid key, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
-        public void DeleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal, DeleteMode deletionMode)
+        public void DeleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
