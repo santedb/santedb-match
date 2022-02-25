@@ -106,7 +106,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Query the object
         /// </summary>
-        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
+        public IQueryResultSet Query(Type scopingType, object scopingKey, NameValueCollection filter)
         {
             var configuration = this.m_matchConfiguration?.GetConfiguration(scopingKey.ToString()) as MatchConfiguration;
             if (configuration == null)
@@ -117,7 +117,6 @@ namespace SanteDB.Matcher.Rest
             RestOperationContext.Current.OutgoingResponse.ContentType = "text/html";
             RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.xml\"");
             configuration.Save(RestOperationContext.Current.OutgoingResponse.OutputStream);
-            totalCount = 0;
             return null;
         }
 
