@@ -162,6 +162,7 @@ namespace SanteDB.Matcher.Test
                             Key = StatusKeys.Active,
                             Mnemonic = "ACTIVE"
                         },
+                        StatusConceptKey = StatusKeys.Active,
                         DateOfBirth = DateTime.Parse(data[1]),
                         Names = new List<Core.Model.Entities.EntityName>()
                         {

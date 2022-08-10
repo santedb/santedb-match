@@ -119,10 +119,9 @@ namespace SanteDB.Matcher.Matchers
                     config = collection.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType) || input.GetType().IsAssignableFrom(t.ResourceType))) ?? config;
                 }
 
-                if (config == null || !(config is MatchConfiguration))
+                if (config == null || !(config is MatchConfiguration strongConfig))
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
 
-                var strongConfig = config as MatchConfiguration;
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
 

@@ -18,6 +18,7 @@
  * User: fyfej
  * Date: 2021-8-27
  */
+using SanteDB.Core.Model;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.Entities;
 using System;
@@ -50,7 +51,7 @@ namespace SanteDB.Matcher.Transforms.Names
             try
             {
                 var partUuid = (Guid)(typeof(NameComponentKeys).GetRuntimeField(parms[0].ToString())?.GetValue(null));
-                return en.Component.Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o => o.Value);
+                return en.LoadProperty(o=>o.Component).Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o => o.Value);
             }
             catch
             {
