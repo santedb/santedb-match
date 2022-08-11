@@ -77,7 +77,7 @@ namespace SanteDB.Matcher.Matchers
         /// Service name
         /// </summary>
         public abstract string ServiceName { get; }
-
+        
         /// <summary>
         /// Static CTOR
         /// </summary>
@@ -339,7 +339,7 @@ namespace SanteDB.Matcher.Matchers
             return new MatchReport()
             {
                 Diagnostics = diagnosticSession?.GetSessionData() as MatchDiagnostics,
-                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.ConfigurationName, o.Classification, o.Method, o.Vectors))).ToList()
+                Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Configuration, o.Classification, o.Method, o.Vectors))).ToList()
             };
         }
 
