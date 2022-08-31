@@ -54,7 +54,7 @@ namespace SanteDB.Matcher.Model
             this.Classification = match.Classification;
             this.Vectors = match.Vectors.Select(o => new VectorResultReport(o)).ToList();
             this.Method = match.Method;
-            this.ConfigurationName = match.ConfigurationName;
+            this.ConfigurationName = match.Configuration.Id;
         }
 
         /// <summary>

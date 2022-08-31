@@ -57,11 +57,11 @@ namespace SanteDB.Matcher.Matchers
 
                 if (blocks.Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
                 {
-                    return blocks.AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                    return blocks.AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
                 }
                 else
                 {
-                    return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, configurationName, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                    return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
                 }
             }
             catch (Exception e)
@@ -95,11 +95,11 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="block">The block which is being classified</param>
         /// <param name="attributes">The match attributes to classify on</param>
         /// <returns>The match classification</returns>
-        /// <param name="configurationName">The name of the configuration used</param>
+        /// <param name="configuration">The name of the configuration used</param>
         /// <param name="evaluationType">The evaluation type</param>
         /// <param name="matchThreshold">The matching threshold</param>
         /// <param name="collector">The diagnostics collector to use</param>
-        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, string configurationName, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
+        private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, IRecordMatchingConfiguration configuration, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             try
             {
@@ -188,7 +188,7 @@ namespace SanteDB.Matcher.Matchers
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
                 else
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
-                var retVal = new MatchResult<T>(block, score, strength, configurationName, classification, RecordMatchMethod.Weighted, attributeResult);
+                var retVal = new MatchResult<T>(block, score, strength, configuration, classification, RecordMatchMethod.Weighted, attributeResult);
 
                 return retVal;
             }
