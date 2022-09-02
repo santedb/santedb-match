@@ -87,7 +87,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "993642-49382938-1986S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "993642-49382938-1986S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -114,7 +114,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "993644-49382738-1986S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "993644-49382738-1986S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -143,7 +143,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("f4e3a6bb-612e-46b2-9f77-ff844d971198"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -181,7 +181,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985D")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985D")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {

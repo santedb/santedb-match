@@ -151,8 +151,8 @@ namespace SanteDB.Matcher.Test
                         Key = Guid.NewGuid(),
                         Identifiers = new List<EntityIdentifier>()
                         {
-                            new EntityIdentifier(new AssigningAuthority("MRN", "MRN", "1.2.3.4"), data[0]),
-                            new EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), data[6])
+                            new EntityIdentifier(new IdentityDomain("MRN", "MRN", "1.2.3.4"), data[0]),
+                            new EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), data[6])
                         },
                         GenderConceptKey = Guid.Parse(data[2].ToLower() == "m" ? "f4e3a6bb-612e-46b2-9f77-ff844d971198" :
                             data[2].ToLower() == "f" ? "094941e9-a3db-48b5-862c-bc289bd7f86c" :
