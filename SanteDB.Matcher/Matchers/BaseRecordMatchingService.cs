@@ -35,6 +35,7 @@ using SanteDB.Matcher.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -226,21 +227,17 @@ namespace SanteDB.Matcher.Matchers
 
                     if (shouldIncludeExpression)
                     {
-                        var nvc = NameValueCollection.ParseQueryString(b.Expression);
+                        var nvc = b.Expression.ParseQueryString();
                         // Build the expression
-                        foreach (var nv in nvc)
+                        foreach (var nv in nvc.AllKeys)
                         {
-                            foreach (var val in nv.Value)
-                            {
-                                qfilter.Add(nv.Key, val);
-
-                            }
+                            qfilter.Add(nv, nvc.GetValues(nv));
                         }
                     }
                 }
 
                 // Do we skip when no conditions?
-                if (!qfilter.Any())
+                if (!qfilter.AllKeys.Any())
                 {
                     return new MemoryQueryResultSet<T>(new List<T>());
                 }
