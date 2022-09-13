@@ -20,6 +20,7 @@
  */
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
+using SanteDB.OrmLite.Providers.Postgres;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -43,7 +44,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Provider 
         /// </summary>
-        public string Provider => "pgsql";
+        public string Provider => PostgreSQLProvider.InvariantName;
 
         /// <summary>
         /// Creates the SQL statement

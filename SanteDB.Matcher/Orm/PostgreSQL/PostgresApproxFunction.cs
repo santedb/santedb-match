@@ -54,7 +54,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Provider
         /// </summary>
-        public string Provider => "pgsql";
+        public string Provider => PostgreSQLProvider.InvariantName;
 
         /// <summary>
         /// Creates the SQL statement

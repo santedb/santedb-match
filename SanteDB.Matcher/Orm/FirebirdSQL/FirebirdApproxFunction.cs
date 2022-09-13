@@ -24,6 +24,7 @@ using SanteDB.Core.Services;
 using SanteDB.Matcher.Configuration;
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
+using SanteDB.OrmLite.Providers.Firebird;
 using SanteDB.OrmLite.Providers.Postgres;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,7 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
         /// <summary>
         /// Provider
         /// </summary>
-        public string Provider => "FirebirdSQL";
+        public string Provider => FirebirdSQLProvider.InvariantName;
 
         /// <summary>
         /// Creates the SQL statement
