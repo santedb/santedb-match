@@ -66,7 +66,7 @@ namespace SanteDB.Matcher.Test
             if (!ApplicationServiceContext.Current.IsRunning)
             {
                 //adoPersistenceService.Start();
-                TestApplicationContext.Current.Start();
+                ApplicationServiceContext.Current.Start();
                 ApplicationServiceContext.Current = ApplicationServiceContext.Current;
             }
         }
