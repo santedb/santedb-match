@@ -44,7 +44,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Initialize the test class
         /// </summary>
-        [SetUp]
+        [OneTimeSetUp]
         public void ClassInitialize()
         {
             AppDomain.CurrentDomain.SetData(
@@ -62,13 +62,6 @@ namespace SanteDB.Matcher.Test
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyPatientDataPersistenceService));
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(WeightedRecordMatchingService));
 
-            // Start the daemon services
-            if (!ApplicationServiceContext.Current.IsRunning)
-            {
-                //adoPersistenceService.Start();
-                ApplicationServiceContext.Current.Start();
-                ApplicationServiceContext.Current = ApplicationServiceContext.Current;
-            }
         }
 
         /// <summary>

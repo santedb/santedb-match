@@ -1,59 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition="'$(VersionNumber)' == ''">
-    <VersionNumber>2.4.0-debug</VersionNumber>
-  </PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E210AD94-8006-4F32-A86D-198CB2D8A9CE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SanteDB.Matcher.Test</RootNamespace>
-    <AssemblyName>SanteDB.Matcher.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+<PropertyGroup Condition="'$(VersionNumber)' == ''">
+    <VersionNumber>3.0-debug</VersionNumber>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+  
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DummyConceptRepositoryService.cs" />
-    <Compile Include="DummyMatchConfigurationProvider.cs" />
-    <Compile Include="DummyPatientDataPersistenceService.cs" />
-    <Compile Include="ExtensionMethodHelpers.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TransformerTests.cs" />
-    <Compile Include="MatchConfigurationTest.cs" />
-    <Compile Include="MatcherTest.cs" />
-  </ItemGroup>
+  
   <ItemGroup>
     <None Include="..\SanteDB.licenseheader">
       <Link>SanteDB.licenseheader</Link>
@@ -66,8 +26,10 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <Import Condition="$(SolutionName.Contains('-ext'))" Project="$(SolutionDir)\santedb-api\SanteDB.Core.TestFramework\SanteDB.Core.TestFramework.targets"/>
   <Choose>
     <When Condition="$(SolutionName.Contains('-ext'))">
+      
       <ItemGroup>
         <ProjectReference Include="..\..\santedb-api\SanteDB.Core.Api\SanteDB.Core.Api.csproj">
           <Project>{3a45f695-47a2-464c-ace6-bdabbfa39fbc}</Project>
@@ -85,6 +47,11 @@
           <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
           <Name>SanteDB.Core.Model</Name>
         </ProjectReference>
+		    <ProjectReference Include="..\..\santedb-api\SanteDB.Core.TestFramework\SanteDB.Core.TestFramework.csproj">
+          <Name>SanteDB.Core.TestFramework</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\santedb-data\SanteDB.Persistence.Data\SanteDB.Persistence.Data.csproj"/>
+        
       </ItemGroup>
     </When>
     <Otherwise>
@@ -92,18 +59,12 @@
         <PackageReference Include="SanteDB.Core.Applets" Version="$(VersionNumber)" />
         <PackageReference Include="SanteDB.Core.Api" Version="$(VersionNumber)" />
         <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.TestFramework" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Persistence.Data" Version="$(VersionNumber)" />
         <PackageReference Include="SanteDB.OrmLite">
           <Version>$(VersionNumber)</Version>
         </PackageReference>
-        <PackageReference Include="SanteDB.Server.Plugin">
-          <Version>$(VersionNumber)</Version>
-        </PackageReference>
-        <PackageReference Include="SanteDB.Server.Plugin.Data">
-          <Version>$(VersionNumber)</Version>
-        </PackageReference>
-        <PackageReference Include="SanteDB.Server.TestFramework">
-          <Version>$(VersionNumber)</Version>
-        </PackageReference>
+       
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -135,10 +96,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SanteDB.Core.TestFramework\SanteDB.Core.TestFramework.csproj">
-      <Project>{ad73db46-cbb3-4746-b406-40fc435ab3db}</Project>
-      <Name>SanteDB.Core.TestFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj">
       <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
       <Name>SanteDB.Matcher</Name>
@@ -147,6 +104,7 @@
   <ItemGroup>
     <None Include="Matching\example.xml" />
   </ItemGroup>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>
