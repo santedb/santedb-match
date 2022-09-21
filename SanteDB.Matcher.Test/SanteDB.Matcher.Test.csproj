@@ -115,7 +115,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
-      <Version>3.13.2</Version>
+      <Version>3.13.3</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
       <Version>0.32.2</Version>
