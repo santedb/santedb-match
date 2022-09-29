@@ -57,11 +57,11 @@ namespace SanteDB.Matcher.Matchers
 
                 if (blocks.Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
                 {
-                    return blocks.AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                    return blocks.ToArray().AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
                 }
                 else
                 {
-                    return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
+                    return blocks.ToArray().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
                 }
             }
             catch (Exception e)
