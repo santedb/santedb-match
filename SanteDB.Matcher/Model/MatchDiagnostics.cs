@@ -19,11 +19,6 @@
  * Date: 2022-5-30
  */
 using Newtonsoft.Json;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Acts;
-using SanteDB.Core.Model.Attributes;
-using SanteDB.Core.Model.Entities;
-using SanteDB.Core.Model.Roles;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Diagnostics;
 using System;

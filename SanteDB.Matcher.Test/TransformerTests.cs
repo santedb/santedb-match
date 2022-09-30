@@ -51,7 +51,7 @@ namespace SanteDB.Matcher.Test
             Assert.IsAssignableFrom<JaroWinklerTransform>(instance);
             Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
 
-            if(instance is IBinaryDataTransformer binary)
+            if (instance is IBinaryDataTransformer binary)
             {
                 var distance = binary.Apply("Oscar", "Ofsar");
                 Assert.LessOrEqual(0.1d, (double)distance);
@@ -65,16 +65,17 @@ namespace SanteDB.Matcher.Test
         [Test]
         public void TestSorensenDiceTransform()
         {
-             var instance = TransformerFactory.Current.CreateTransformer("sorensen_dice");
+            var instance = TransformerFactory.Current.CreateTransformer("sorensen_dice");
             Assert.IsAssignableFrom<SorensenDiceTransform>(instance);
             Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
 
             // Apply
-            if (instance is IBinaryDataTransformer binary) {
+            if (instance is IBinaryDataTransformer binary)
+            {
                 var distance = binary.Apply("Night", "Nacht");
                 Assert.AreEqual(0.25d, distance);
                 distance = binary.Apply("Testing", "Testong");
-                Assert.AreEqual(2.0/3.0, distance);
+                Assert.AreEqual(2.0 / 3.0, distance);
                 distance = binary.Apply("This is a long string", "This is shorter");
                 Assert.AreEqual(0.41379310344827586d, distance);
                 distance = binary.Apply("Bahamas", "Bahamas, The");

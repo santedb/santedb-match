@@ -18,7 +18,6 @@
  * User: fyfej
  * Date: 2022-5-30
  */
-using Newtonsoft.Json;
 using RestSrvr;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
@@ -26,13 +25,9 @@ using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
-using System.Xml;
-using System.Xml.Xsl;
 
 namespace SanteDB.Matcher.Rest
 {
@@ -42,7 +37,7 @@ namespace SanteDB.Matcher.Rest
     [ExcludeFromCodeCoverage]
     public class XmlExportImportResource : IApiChildResourceHandler
     {
-       
+
         // Match configuration
         private readonly IRecordMatchingConfigurationService m_matchConfiguration;
 
@@ -84,7 +79,7 @@ namespace SanteDB.Matcher.Rest
         /// </summary>
         public object Add(Type scopingType, object scopingKey, object item)
         {
-            if(item is Stream stream)
+            if (item is Stream stream)
             {
                 var configuration = MatchConfiguration.Load(stream);
                 RestOperationContext.Current.OutgoingResponse.StatusCode = 201;

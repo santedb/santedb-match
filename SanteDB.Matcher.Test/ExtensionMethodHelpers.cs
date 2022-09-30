@@ -18,11 +18,11 @@
  * User: fyfej
  * Date: 2022-5-30
  */
+using SanteDB.Core.Model;
+using SanteDB.Core.Model.DataTypes;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.DataTypes;
 
 namespace SanteDB.Matcher.Test
 {
@@ -41,14 +41,14 @@ namespace SanteDB.Matcher.Test
                 switch (val)
                 {
                     case IEnumerable enumerable:
-                    {
-                        foreach (var v in enumerable)
                         {
-                            (v as IdentifiedData)?.LoadConcepts();
-                        }
+                            foreach (var v in enumerable)
+                            {
+                                (v as IdentifiedData)?.LoadConcepts();
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     case null when propertyInfo.PropertyType == typeof(Concept):
                         source.LoadProperty<Concept>(propertyInfo.Name);
                         break;

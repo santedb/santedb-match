@@ -51,7 +51,10 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
 
             switch (parms.Length)
             {
@@ -88,7 +91,10 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
 
             switch (parms.Length)
             {

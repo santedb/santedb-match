@@ -46,7 +46,11 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
-            if (parms.Length != 1) throw new ArgumentOutOfRangeException("jaro-winkler requires one parameter : value=:(jarowinkler|other)comparator");
+            if (parms.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException("jaro-winkler requires one parameter : value=:(jarowinkler|other)comparator");
+            }
+
             return Expression.MakeBinary(comparison,
                                 Expression.Call(this.ExtensionMethod, scope, parms[0]),
                                 valueExpression);

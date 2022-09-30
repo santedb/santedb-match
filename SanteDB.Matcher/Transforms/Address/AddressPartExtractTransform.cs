@@ -18,7 +18,6 @@
  * User: fyfej
  * Date: 2022-5-30
  */
-using SanteDB.Core.Model;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.Entities;
 using System;
@@ -46,12 +45,20 @@ namespace SanteDB.Matcher.Transforms.Names
         public object Apply(object input, params object[] parms)
         {
             var en = input as EntityAddress;
-            if (en == null) throw new ArgumentOutOfRangeException(nameof(input), "This transform requires an EntityAddress to be in scope");
-            if (parms.Length != 1) throw new ArgumentNullException("partname", "Exactly one name part type must be specified");
+            if (en == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(input), "This transform requires an EntityAddress to be in scope");
+            }
+
+            if (parms.Length != 1)
+            {
+                throw new ArgumentNullException("partname", "Exactly one name part type must be specified");
+            }
+
             try
             {
                 var partUuid = (Guid)(typeof(AddressComponentKeys).GetRuntimeField(parms[0].ToString())?.GetValue(null));
-                return en.LoadProperty(o=> o.Component).Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o => o.Value);
+                return en.LoadProperty(o => o.Component).Where(o => o.ComponentTypeKey == partUuid || o.ComponentType?.Mnemonic == parms[0].ToString())?.Select(o => o.Value);
             }
             catch
             {

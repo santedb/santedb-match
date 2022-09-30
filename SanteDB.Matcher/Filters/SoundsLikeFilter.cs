@@ -47,15 +47,21 @@ namespace SanteDB.Matcher.Filters
         {
 
             if (parms.Length == 1)
+            {
                 return Expression.MakeBinary(ExpressionType.Equal,
                     Expression.Call(this.ExtensionMethod, scope, parms[0]),
                     Expression.Constant(true));
+            }
             else if (parms.Length == 2)
+            {
                 return Expression.MakeBinary(ExpressionType.Equal,
                     Expression.Call(this.ExtensionMethod, scope, parms[0], parms[1]),
                     Expression.Constant(true));
+            }
             else
+            {
                 throw new ArgumentOutOfRangeException("Invalid number of arguments to the soundslike function.");
+            }
         }
     }
 }

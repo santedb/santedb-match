@@ -36,10 +36,14 @@ namespace SanteDB.Matcher.Util
         {
 
             if (string.IsNullOrEmpty(source))
+            {
                 return string.IsNullOrEmpty(target) ? 0 : target.Length;
+            }
 
             if (string.IsNullOrEmpty(target))
+            {
                 return string.IsNullOrEmpty(source) ? 0 : source.Length;
+            }
 
             source = source.ToLowerInvariant().Trim();
             target = target.ToLowerInvariant().Trim();
@@ -49,8 +53,15 @@ namespace SanteDB.Matcher.Util
 
             var distance = new int[sourceLength + 1, targetLength + 1];
 
-            for (var i = 0; i <= sourceLength; distance[i, 0] = i++) ;
-            for (var j = 0; j <= targetLength; distance[0, j] = j++) ;
+            for (var i = 0; i <= sourceLength; distance[i, 0] = i++)
+            {
+                ;
+            }
+
+            for (var j = 0; j <= targetLength; distance[0, j] = j++)
+            {
+                ;
+            }
 
             for (var i = 1; i <= sourceLength; i++)
             {
@@ -92,7 +103,9 @@ namespace SanteDB.Matcher.Util
             int lLen1 = source.Length;
             int lLen2 = target.Length;
             if (lLen1 == 0)
+            {
                 return lLen2 == 0 ? 1.0 : 0.0;
+            }
 
             int lSearchRange = Math.Max(0, Math.Max(lLen1, lLen2) / 2 - 1);
 
@@ -107,25 +120,46 @@ namespace SanteDB.Matcher.Util
                 int lEnd = Math.Min(i + lSearchRange + 1, lLen2);
                 for (int j = lStart; j < lEnd; ++j)
                 {
-                    if (lMatched2[j]) continue;
-                    if (source[i] != target[j])
+                    if (lMatched2[j])
+                    {
                         continue;
+                    }
+
+                    if (source[i] != target[j])
+                    {
+                        continue;
+                    }
+
                     lMatched1[i] = true;
                     lMatched2[j] = true;
                     ++lNumCommon;
                     break;
                 }
             }
-            if (lNumCommon == 0) return 0.0;
+            if (lNumCommon == 0)
+            {
+                return 0.0;
+            }
 
             int lNumHalfTransposed = 0;
             int k = 0;
             for (int i = 0; i < lLen1; ++i)
             {
-                if (!lMatched1[i]) continue;
-                while (!lMatched2[k]) ++k;
+                if (!lMatched1[i])
+                {
+                    continue;
+                }
+
+                while (!lMatched2[k])
+                {
+                    ++k;
+                }
+
                 if (source[i] != target[k])
+                {
                     ++lNumHalfTransposed;
+                }
+
                 ++k;
             }
             // System.Diagnostics.Debug.WriteLine("numHalfTransposed=" + numHalfTransposed);
@@ -137,12 +171,23 @@ namespace SanteDB.Matcher.Util
                              + lNumCommonD / lLen2
                              + (lNumCommon - lNumTransposed) / lNumCommonD) / 3.0;
 
-            if (lWeight <= 0.7d) return lWeight;
+            if (lWeight <= 0.7d)
+            {
+                return lWeight;
+            }
+
             int lMax = Math.Min(4, Math.Min(target.Length, source.Length));
             int lPos = 0;
             while (lPos < lMax && source[lPos] == target[lPos])
+            {
                 ++lPos;
-            if (lPos == 0) return lWeight;
+            }
+
+            if (lPos == 0)
+            {
+                return lWeight;
+            }
+
             return lWeight + 0.1 * lPos * (1.0 - lWeight);
         }
 

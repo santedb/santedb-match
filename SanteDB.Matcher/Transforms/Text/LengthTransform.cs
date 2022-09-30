@@ -42,11 +42,17 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object input, params object[] parms)
         {
             if (input is String inputString)
+            {
                 return inputString.Length;
+            }
             else if (input is IEnumerable inputEnum)
+            {
                 return inputEnum.OfType<String>().Select(o => o.Length);
+            }
             else
+            {
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
+            }
         }
     }
 }

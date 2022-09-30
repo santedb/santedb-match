@@ -51,11 +51,15 @@ namespace SanteDB.Matcher.Matchers
                 // Get configuration if specified
                 var configService = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>();
                 if (configService == null)
+                {
                     throw new InvalidOperationException("Cannot find configuration service for matching");
+                }
+
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
+                {
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
-
+                }
 
                 return blocks.Select(o => new MatchResult<T>(o, 1.0, 1.0, config, RecordMatchClassification.Match, RecordMatchMethod.Simple, null));
             }

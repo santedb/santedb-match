@@ -18,18 +18,12 @@
  * User: fyfej
  * Date: 2022-5-30
  */
-using SanteDB.Core.Services;
+using SanteDB.Core.Matching;
+using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using SanteDB.Matcher.Model;
-using SanteDB.Matcher.Configuration;
-using SanteDB.Matcher.Definition;
-using SanteDB.Core.Matching;
 using System.Linq.Expressions;
 
 namespace SanteDB.Matcher.Test
@@ -55,11 +49,13 @@ namespace SanteDB.Matcher.Test
         public DummyMatchConfigurationProvider()
         {
             foreach (var n in typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceNames().Where(o => o.Contains(".xml")))
+            {
                 try
                 {
                     this.m_configs.Add(MatchConfiguration.Load(typeof(DummyMatchConfigurationProvider).Assembly.GetManifestResourceStream(n)));
                 }
                 catch { }
+            }
         }
 
         /// <summary>

@@ -18,20 +18,15 @@
  * User: fyfej
  * Date: 2022-5-30
  */
-using RestSrvr;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Parameters;
-using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
-using System.Xml;
-using System.Xml.Xsl;
 
 namespace SanteDB.Matcher.Rest
 {

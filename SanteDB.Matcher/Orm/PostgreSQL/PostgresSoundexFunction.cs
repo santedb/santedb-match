@@ -57,12 +57,20 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
+
             parms = parms.Where(p => !String.IsNullOrEmpty(p)).ToArray();
             if (parms.Length == 1) // There is a threshold
+            {
                 return current.Append($"difference({filterColumn}, ?) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, operandType));
+            }
             else
+            {
                 return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(value, operandType));
+            }
         }
 
     }

@@ -18,14 +18,11 @@
  * User: fyfej
  * Date: 2022-5-30
  */
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using NUnit.Framework;
 using SanteDB.Core.Model.Roles;
-using SanteDB.Matcher.Configuration;
 using SanteDB.Matcher.Definition;
-using SanteDB.Matcher.Model;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace SanteDB.Matcher.Test
 {

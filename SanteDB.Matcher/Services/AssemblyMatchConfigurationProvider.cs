@@ -59,7 +59,9 @@ namespace SanteDB.Matcher.Services
                     this.m_tracer.TraceInfo("Loading configurations from {0}", asmRef);
                     var asm = Assembly.Load(new AssemblyName(asmRef));
                     if (asm == null)
+                    {
                         throw new FileNotFoundException($"Assembly {asmRef} could not be found");
+                    }
                     // Get embedded resource names
                     foreach (var name in asm.GetManifestResourceNames().Where(o => o.EndsWith(".xml")))
                     {

@@ -46,8 +46,13 @@ namespace SanteDB.Matcher.Transforms
             get
             {
                 if (s_current == null)
+                {
                     lock (s_lock)
+                    {
                         s_current = s_current ?? new TransformerFactory();
+                    }
+                }
+
                 return s_current;
             }
         }
@@ -81,8 +86,12 @@ namespace SanteDB.Matcher.Transforms
         public void Add(String name, Type transformerType)
         {
             lock (s_lock)
+            {
                 if (!this.m_dataTransformers.ContainsKey(transformerType.Name))
+                {
                     this.m_dataTransformers.Add(transformerType.Name, transformerType);
+                }
+            }
         }
 
         /// <summary>

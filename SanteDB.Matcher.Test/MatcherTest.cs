@@ -21,7 +21,6 @@
 using NUnit.Framework;
 using SanteDB.Core;
 using SanteDB.Core.Data;
-using SanteDB.Core.Interfaces;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;

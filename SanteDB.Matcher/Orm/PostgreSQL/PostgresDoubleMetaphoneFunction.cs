@@ -50,7 +50,11 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
+
             return current.Append($"((dmetaphone({filterColumn}) {op} dmetaphone(?)) OR (dmetaphone_alt({filterColumn}) {op} dmetaphone_alt(?)))", QueryBuilder.CreateParameterValue(value, operandType), QueryBuilder.CreateParameterValue(value, operandType));
         }
     }

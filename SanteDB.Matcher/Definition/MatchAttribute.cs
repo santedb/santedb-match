@@ -92,7 +92,10 @@ namespace SanteDB.Matcher.Definition
                 if (!this.m_weightM.HasValue)
                 {
                     // U must be set
-                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+                    if (!this.m_u.HasValue || !this.m_m.HasValue)
+                    {
+                        throw new InvalidOperationException("U and M variables must be set");
+                    }
 
                     this.m_weightM = (this.m_m.Value / this.m_u.Value).Ln() / (2.0d).Ln();
                 }
@@ -111,7 +114,11 @@ namespace SanteDB.Matcher.Definition
                 if (!this.m_weightN.HasValue)
                 {
                     // U must be set
-                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+                    if (!this.m_u.HasValue || !this.m_m.HasValue)
+                    {
+                        throw new InvalidOperationException("U and M variables must be set");
+                    }
+
                     this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
                 }
                 return this.m_weightN.Value;

@@ -50,10 +50,16 @@ namespace SanteDB.Matcher.Matchers
             try
             {
                 collector?.LogStartStage("scoring");
-                if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                if (EqualityComparer<T>.Default.Equals(default(T), input))
+                {
+                    throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                }
+
                 var strongConfig = this.GetConfiguration<T>(configurationName);
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(typeof(T))))
+                {
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
+                }
 
                 if (blocks.Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
                 {
@@ -83,7 +89,10 @@ namespace SanteDB.Matcher.Matchers
             var config = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>().GetConfiguration(configurationName);
             var retVal = (config as MatchConfigurationCollection)?.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType))) ?? config as MatchConfiguration;
             if (retVal == null)
+            {
                 throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+            }
+
             return retVal;
         }
 
@@ -182,12 +191,20 @@ namespace SanteDB.Matcher.Matchers
                 // Then the strength is 0.5 of a score of 0 , and 1.0 for a score of 30.392
                 var strength = (double)(score + -minScore) / (double)(maxScore + -minScore);
                 if (Double.IsNaN(strength))
+                {
                     strength = 0;
+                }
+
                 RecordMatchClassification classification = RecordMatchClassification.NonMatch;
                 if (evaluationType == ThresholdEvaluationType.AbsoluteScore)
+                {
                     classification = score > matchThreshold ? RecordMatchClassification.Match : score <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
+                }
                 else
+                {
                     classification = strength > matchThreshold ? RecordMatchClassification.Match : strength <= nonMatchThreshold ? RecordMatchClassification.NonMatch : RecordMatchClassification.Probable;
+                }
+
                 var retVal = new MatchResult<T>(block, score, strength, configuration, classification, RecordMatchMethod.Weighted, attributeResult);
 
                 return retVal;

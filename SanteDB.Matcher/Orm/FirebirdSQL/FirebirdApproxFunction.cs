@@ -25,7 +25,6 @@ using SanteDB.Matcher.Configuration;
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Firebird;
-using SanteDB.OrmLite.Providers.Postgres;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,10 +60,13 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
         public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length != 1)
+            {
                 throw new ArgumentException("Approx requires at least one parameter");
+            }
 
             var config = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<ApproximateMatchingConfigurationSection>();
             if (config == null)
+            {
                 config = new ApproximateMatchingConfigurationSection()
                 {
                     ApproxSearchOptions = new List<ApproxSearchOption>()
@@ -72,6 +74,7 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
                         new ApproxPatternOption() { Enabled = true, IgnoreCase = true }
                     }
                 };
+            }
 
             var filter = new SqlStatement(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
@@ -79,9 +82,13 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
                 if (alg is ApproxPatternOption pattern)
                 {
                     if (pattern.IgnoreCase)
+                    {
                         filter.Or($"LOWER({filterColumn}) like LOWER(?)", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                    }
                     else
+                    {
                         filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                    }
                 }
             }
 

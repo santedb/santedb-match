@@ -55,12 +55,19 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
 
             if (op != "=") // There is a threshold
+            {
                 return current.Append($"metaphone({filterColumn}, {parms[0]}) {op} metaphone(?, {parms[0]})", QueryBuilder.CreateParameterValue(value, operandType));
+            }
             else
+            {
                 return current.Append($"metaphone({filterColumn}, 4) {op} metaphone(?, 4)", QueryBuilder.CreateParameterValue(value, operandType));
+            }
         }
     }
 }

@@ -41,8 +41,15 @@ namespace SanteDB.Matcher.Transforms.Timespan
         public object Apply(object input, params object[] parms)
         {
             // Validate parms
-            if (input == null) throw new ArgumentNullException(nameof(input));
-            if (parms.Length != 1) throw new ArgumentOutOfRangeException(nameof(parms), "Missing facet type");
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (parms.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(parms), "Missing facet type");
+            }
 
             var data = (TimeSpan)input;
             switch (parms[0].ToString())

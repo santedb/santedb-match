@@ -78,14 +78,17 @@ namespace SanteDB.Matcher.Matchers
         /// Service name
         /// </summary>
         public abstract string ServiceName { get; }
-        
+
         /// <summary>
         /// Static CTOR
         /// </summary>
         static BaseRecordMatchingService()
         {
             foreach (var t in typeof(BaseRecordMatchingService).Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
+            {
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
+            }
+
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
 
@@ -105,15 +108,23 @@ namespace SanteDB.Matcher.Matchers
             try
             {
                 collector?.LogStartStage("blocking");
-                if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                if (EqualityComparer<T>.Default.Equals(default(T), input))
+                {
+                    throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                }
 
                 // Get configuration if specified
                 var configService = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>();
                 if (configService == null)
+                {
                     throw new InvalidOperationException("Cannot find configuration service for matching");
+                }
+
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
+                {
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
+                }
 
                 if (config is MatchConfigurationCollection collection)
                 {
@@ -121,10 +132,14 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 if (config == null || !(config is MatchConfiguration strongConfig))
+                {
                     throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+                }
 
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
+                {
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
+                }
 
                 // if there is no blocking config, we need to throw an error
                 if (!strongConfig.Blocking.Any())
@@ -137,7 +152,9 @@ namespace SanteDB.Matcher.Matchers
                 foreach (var b in strongConfig.Blocking)
                 {
                     if (retVal == null)
+                    {
                         retVal = this.DoBlock<T>(input, b, ignoreKeys, collector);
+                    }
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
 #if DEBUG
@@ -268,7 +285,7 @@ namespace SanteDB.Matcher.Matchers
                     foreach (var stateKey in StatusKeys.ActiveStates)
                     {
 
-                        if(statePart == null)
+                        if (statePart == null)
                         {
                             statePart = Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?)));
                         }
@@ -289,23 +306,27 @@ namespace SanteDB.Matcher.Matchers
                 {
                     IQueryResultSet<T> results = null;
 
-                        if (block.UseRawPersistenceLayer)
+                    if (block.UseRawPersistenceLayer)
+                    {
+                        var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
+                        if (persistenceService == null)
                         {
-                            var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
-                            if (persistenceService == null)
-                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
-                            results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
-                            
+                            throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
                         }
-                        else
-                        {
-                            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
-                            if (persistenceService == null)
-                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
 
-                            results = persistenceService.Find(linq);
-                            
+                        results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
+
+                    }
+                    else
+                    {
+                        var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
+                        if (persistenceService == null)
+                        {
+                            throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
+                        }
+
+                        results = persistenceService.Find(linq);
+
                     }
 
                     collector?.LogSample(linq.ToString(), results.Count());

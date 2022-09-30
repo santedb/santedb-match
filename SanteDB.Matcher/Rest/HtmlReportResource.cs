@@ -26,11 +26,9 @@ using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 

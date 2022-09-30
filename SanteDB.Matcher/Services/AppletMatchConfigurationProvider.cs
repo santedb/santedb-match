@@ -85,11 +85,17 @@ namespace SanteDB.Matcher.Services
                         this.m_tracer.TraceInfo("Will load {0}..", amgr.ToString());
 
                         using (var ms = new MemoryStream(amgr.Content as byte[]))
+                        {
                             retVal = MatchConfiguration.Load(ms);
+                        }
 
                         lock (this.m_configurationCache)
+                        {
                             if (!this.m_configurationCache.ContainsKey(name))
+                            {
                                 this.m_configurationCache.Add(name, retVal);
+                            }
+                        }
                     }
                     catch (Exception e)
                     {

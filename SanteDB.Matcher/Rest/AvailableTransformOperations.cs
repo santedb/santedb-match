@@ -22,7 +22,6 @@ using Newtonsoft.Json;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Parameters;
-using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Transforms;
 using SanteDB.Rest.Common;
 using System;
@@ -31,7 +30,6 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Rest

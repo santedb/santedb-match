@@ -52,11 +52,15 @@ namespace SanteDB.Matcher.Filters
             }
 
             if (parms.Length == 1)
+            {
                 return Expression.MakeBinary(comparison,
                     Expression.Call(this.ExtensionMethod, scope, parms[0]),
                     valueExpression);
+            }
             else
+            {
                 throw new ArgumentOutOfRangeException($"Invalid number of parameters to alias function");
+            }
         }
     }
 }

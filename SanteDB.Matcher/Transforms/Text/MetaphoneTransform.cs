@@ -43,11 +43,17 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object input, params object[] parms)
         {
             if (input is String inputString)
+            {
                 return inputString.Metaphone();
+            }
             else if (input is IEnumerable inputEnum)
+            {
                 return inputEnum.OfType<String>().Select(o => o.Metaphone());
+            }
             else
+            {
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
+            }
         }
     }
 }

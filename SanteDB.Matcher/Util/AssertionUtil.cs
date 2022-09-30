@@ -133,9 +133,10 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Executes a transform
         /// </summary>
-        /// <param name="transform">The transform to run</param>
+        /// <param name="transformName">The transform to run</param>
         /// <param name="aValue">The A value to pass to the transform</param>
         /// <param name="bValue">The B value to pass to the transform</param>
+        /// <param name="transformParameters">The parameters to pass to the transform</param>
         /// <returns>The result of the transform to be assigned back to the scope (or to the values in the case of unary transforms)</returns>
         internal static object ExecuteTransform(String transformName, object[] transformParameters, ref object aValue, ref object bValue)
         {
@@ -164,10 +165,14 @@ namespace SanteDB.Matcher.Util
                         return (transformer as IBinaryDataTransformer).Apply(aValue, bValue, transformParameters);
                     }
                     else
+                    {
                         throw new InvalidOperationException("Invalid type of transform");
+                    }
                 }
                 else
+                {
                     throw new KeyNotFoundException($"Transform {transformName} is not registered");
+                }
             }
             catch (Exception e)
             {
@@ -195,21 +200,32 @@ namespace SanteDB.Matcher.Util
                 foreach (var xform in assertion.Transforms)
                 {
                     if (a == null || b == null)
+                    {
                         break;
+                    }
+
                     scope = ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b) ?? scope;
                 }
                 if (a == null || b == null)
+                {
                     return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                }
                 else if (a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
+                {
                     return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                }
 
                 // Scope as enum
                 if (scope is IEnumerable enumScope)
                 {
                     if (!enumScope.OfType<Object>().Any()) // No results - cannot evaluate
+                    {
                         return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                    }
                     else
+                    {
                         scope = enumScope.OfType<Object>().Max();
+                    }
                 }
 
                 var retVal = true;
@@ -220,7 +236,7 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                    retVal &= subVal.Result;
+                                retVal &= subVal.Result;
                             }
                             break;
                         }
@@ -229,34 +245,50 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                    retVal |= subVal.Result;
+                                retVal |= subVal.Result;
                             }
                             break;
                         }
                     case BinaryOperatorType.Equal:
                         if (assertion.ValueSpecified)
+                        {
                             retVal = scope.Equals(assertion.Value);
+                        }
                         else
                         {
                             if (a == b) // reference equality
+                            {
                                 retVal = true;
+                            }
                             else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                            {
                                 retVal = aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            }
                             else
+                            {
                                 retVal = a.Equals(b);
+                            }
                         }
                         break;
                     case BinaryOperatorType.NotEqual:
                         if (assertion.ValueSpecified)
+                        {
                             retVal = !scope.Equals(assertion.Value);
+                        }
                         else
                         {
                             if (a == null)
+                            {
                                 retVal = b != null;
+                            }
                             else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                            {
                                 retVal = !aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            }
                             else
+                            {
                                 retVal = !a.Equals(b);
+                            }
                         }
                         break;
                     case BinaryOperatorType.GreaterThan:
@@ -284,7 +316,10 @@ namespace SanteDB.Matcher.Util
                 {
                     a = aValue; b = bValue;
                     foreach (var xform in attribute.Measure.Transforms)
+                    {
                         ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b);
+                    }
+
                     var measureResult = ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
                     if (measureResult is IEnumerable enumMeasure)
                     {

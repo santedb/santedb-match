@@ -110,7 +110,9 @@ namespace SanteDB.Matcher.Test
                 return tr;
             }
             else
+            {
                 return null;
+            }
         }
 
         public Concept Get(Guid key, Guid versionKey)

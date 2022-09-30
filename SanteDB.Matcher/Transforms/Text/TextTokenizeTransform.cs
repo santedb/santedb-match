@@ -43,7 +43,9 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object input, params object[] parms)
         {
             if (parms.Length != 1)
+            {
                 throw new ArgumentException("Require token delimiter parameter");
+            }
 
             // Processed tokens for the name
             List<String> tokens = new List<string>() { (String)input };

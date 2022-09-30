@@ -52,7 +52,9 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length == 1)
+            {
                 return current.Append($"metaphone({filterColumn}, 4) = metaphone(?, 4)", QueryBuilder.CreateParameterValue(parms[0], operandType));
+            }
             else
             {
                 switch (parms[1])

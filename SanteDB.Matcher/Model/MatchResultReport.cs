@@ -21,7 +21,6 @@
 using Newtonsoft.Json;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
-using SanteDB.Core.Model.Entities;
 using SanteDB.Matcher.Matchers;
 using System;
 using System.Collections.Generic;
