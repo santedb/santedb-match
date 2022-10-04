@@ -130,7 +130,7 @@ namespace SanteDB.Matcher.Matchers
                                 null;
                             var result = AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
                             return result;
-                        });
+                        }).ToArray();
                         var bestScore = attributeScores.OrderByDescending(o => o.CalculatedScore).FirstOrDefault();
 
                         if (bestScore == null || !bestScore.CalculatedScore.HasValue)
