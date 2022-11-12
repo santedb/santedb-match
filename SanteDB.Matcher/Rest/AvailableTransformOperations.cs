@@ -38,7 +38,7 @@ namespace SanteDB.Matcher.Rest
     /// The type of transformer
     /// </summary>
     [XmlType(nameof(TransformerType), Namespace = "http://santedb.org/matching")]
-    internal enum TransformerType
+    public enum TransformerType
     {
         /// <summary>
         /// The transform is binary (works with two operands)
@@ -58,7 +58,7 @@ namespace SanteDB.Matcher.Rest
     /// </summary>
     [XmlType(nameof(TransformerInfo), Namespace = "http://santedb.org/matching")]
     [ExcludeFromCodeCoverage]
-    internal class TransformerInfo
+    public class TransformerInfo
     {
         /// <summary>
         /// Serialization ctor
@@ -115,7 +115,7 @@ namespace SanteDB.Matcher.Rest
     /// </summary>
     [XmlType(nameof(TransformerArgumentInfo), Namespace = "http://santedb.org/matching")]
     [ExcludeFromCodeCoverage]
-    internal class TransformerArgumentInfo
+    public class TransformerArgumentInfo
     {
         /// <summary>
         /// CTOR for argument serialization
