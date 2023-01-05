@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -157,38 +158,15 @@ namespace SanteDB.Matcher.Matchers
                     }
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
-#if DEBUG
-                        this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-
                         retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys, collector));
-
-#if DEBUG
-                        this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
                     }
                     else if (b.Operator == BinaryOperatorType.OrElse)
                     {
-#if DEBUG
-                        this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-
                         retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys, collector));
-
-#if DEBUG
-                        this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
                     }
                 }
 
-                if (ignoreKeys != null)
-                {
-                    return retVal.Where(r => !ignoreKeys.Contains(r.Key.Value) && r.Key.Value != input.Key.Value);
-                }
-                else
-                {
-                    return retVal;
-                }
+                return retVal;
             }
             catch (Exception e)
             {
@@ -210,6 +188,8 @@ namespace SanteDB.Matcher.Matchers
             try
             {
                 collector?.LogStartAction(block);
+
+
                 // Perpare filter
                 var filter = block.Filter;
                 NameValueCollection qfilter = new NameValueCollection();
@@ -259,14 +239,9 @@ namespace SanteDB.Matcher.Matchers
                     return new MemoryQueryResultSet<T>(new List<T>());
                 }
 
-                // Add ignore clauses
-                if (ignoreKeys?.Any() == true)
-                {
-                    qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
-                }
                 if (input.Key.HasValue)
                 {
-                    qfilter.Add("id", $"!{input.Key}");
+                    ignoreKeys = ignoreKeys.Union(new Guid[] { input.Key.Value });
                 }
 
                 // Make LINQ query
@@ -297,6 +272,16 @@ namespace SanteDB.Matcher.Matchers
                     linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
                             statePart, linq.Body), linq.Parameters[0]);
                 }
+
+                if (ignoreKeys.Any())
+                {
+                    var ignoreList = Expression.Constant(ignoreKeys.Select(o => (Guid?)o).ToArray());
+                    var keyAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(IdentifiedData).GetProperty(nameof(IdentifiedData.Key)));
+                    var containsExpression = Expression.Call(null, (MethodInfo)typeof(Enumerable).GetGenericMethod(nameof(Enumerable.Contains), new Type[] { typeof(Guid?) }, new Type[] { typeof(IEnumerable<Guid?>), typeof(Guid?) }), ignoreList, keyAccess);
+                    linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso, Expression.Not(containsExpression), linq.Body), linq.Parameters[0]);
+                }
+
+
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
                 // Query control variables for iterating result sets
@@ -316,6 +301,14 @@ namespace SanteDB.Matcher.Matchers
 
                         results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
 
+                        try
+                        {
+                            results.Any();
+                        }
+                        catch
+                        {
+                            System.Diagnostics.Debugger.Break();
+                        }
                     }
                     else
                     {
@@ -328,6 +321,8 @@ namespace SanteDB.Matcher.Matchers
                         results = persistenceService.Find(linq);
 
                     }
+
+
 
                     collector?.LogSample(linq.ToString(), results.Count());
                     return results;
@@ -354,8 +349,10 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public object CreateMatchReport(Type recordType, object input, IEnumerable<IRecordMatchResult> matches, IRecordMatchingDiagnosticSession diagnosticSession = null)
         {
+
             return new MatchReport()
             {
+                Input = (input as IIdentifiedResource)?.Key ?? Guid.Empty,
                 Diagnostics = diagnosticSession?.GetSessionData() as MatchDiagnostics,
                 Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Configuration, o.Classification, o.Method, o.Vectors))).ToList()
             };

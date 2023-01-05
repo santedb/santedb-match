@@ -60,8 +60,8 @@ namespace SanteDB.Matcher.Matchers
                 {
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
                 }
-
-                if (blocks.Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
+                
+                if (blocks.AsResultSet().Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
                 {
                     return blocks.ToArray().AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
                 }
