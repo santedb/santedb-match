@@ -83,6 +83,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
                         }
                         catch
                         {
+                            Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceInfo("Loading Spellfix");
                             connection.LoadExtension("spellfix");
                         }
 
@@ -94,6 +95,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
                 }
                 catch (Exception e) when (e.Message == "SQL logic error")
                 {
+                    Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
                     return false;
                 }
                 catch (Exception e)
@@ -103,6 +105,8 @@ namespace SanteDB.Matcher.Orm.Sqlite
                 }
 
             }
+            Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - Missing Library");
+
             return false;
         }
     }
