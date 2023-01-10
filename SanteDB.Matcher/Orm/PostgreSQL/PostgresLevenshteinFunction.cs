@@ -77,7 +77,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Gets thje provider name
         /// </summary>
-        public string Provider => "pgsql";
+        public string Provider => PostgreSQLProvider.InvariantName;
 
         /// <summary>
         /// Gets the name of the filter

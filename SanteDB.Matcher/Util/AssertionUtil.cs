@@ -44,8 +44,24 @@ namespace SanteDB.Matcher.Util
             this.PropertyName = propertyName;
             this.Evaluated = evaluated;
             this.CalculatedScore = calculatedScore;
-            this.A = aValue;
-            this.B = bValue;
+
+            if (aValue is IEnumerable ae && !(aValue is String))
+            {
+                this.A = ae.OfType<Object>().FirstOrDefault();
+            }
+            else
+            {
+                this.A = aValue;
+            }
+
+            if (bValue is IEnumerable be && !(bValue is String))
+            {
+                this.B = be.OfType<Object>().FirstOrDefault();
+            }
+            else
+            {
+                this.B = bValue;
+            }
             this.Result = result;
         }
 
@@ -208,11 +224,11 @@ namespace SanteDB.Matcher.Util
                 }
                 if (a == null || b == null)
                 {
-                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
                 }
                 else if (a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
                 {
-                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
                 }
 
                 // Scope as enum
@@ -220,7 +236,7 @@ namespace SanteDB.Matcher.Util
                 {
                     if (!enumScope.OfType<Object>().Any()) // No results - cannot evaluate
                     {
-                        return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                        return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
                     }
                     else
                     {
@@ -250,7 +266,7 @@ namespace SanteDB.Matcher.Util
                             break;
                         }
                     case BinaryOperatorType.Equal:
-                        if (assertion.ValueSpecified)
+                        if (assertion.ValueSpecified && scope != null)
                         {
                             retVal = scope.Equals(assertion.Value);
                         }
@@ -311,6 +327,7 @@ namespace SanteDB.Matcher.Util
                 m_tracer.TraceVerbose("ASSERT - {0} {1} {2} => {3}", aValue, assertion.Operator, bValue, retVal);
 #endif
                 var weightedScore = retVal ? attribute.MatchWeight : attribute.NonMatchWeight;
+                object matchedA = a, matchedB = b;
                 // Is there a partial measure applied? only apply if the match assertion was correct
                 if (attribute.Measure != null && retVal)
                 {
@@ -336,7 +353,7 @@ namespace SanteDB.Matcher.Util
 
                 m_tracer.TraceInfo("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
 
-                return new AssertionResult(propertyName, true, retVal, weightedScore, aValue, bValue);
+                return new AssertionResult(propertyName, true, retVal, weightedScore, matchedA, matchedB);
             }
             catch (Exception e)
             {

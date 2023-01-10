@@ -53,15 +53,9 @@ namespace SanteDB.Matcher.Util
 
             var distance = new int[sourceLength + 1, targetLength + 1];
 
-            for (var i = 0; i <= sourceLength; distance[i, 0] = i++)
-            {
-                ;
-            }
+            for (var i = 0; i <= sourceLength; distance[i, 0] = i++) ;
 
-            for (var j = 0; j <= targetLength; distance[0, j] = j++)
-            {
-                ;
-            }
+            for (var j = 0; j <= targetLength; distance[0, j] = j++) ;
 
             for (var i = 1; i <= sourceLength; i++)
             {
@@ -72,10 +66,7 @@ namespace SanteDB.Matcher.Util
                 }
             }
 
-            //return distance[sourceLength, targetLength];
-
-            double stepsToSame = distance[sourceLength, targetLength];
-            return stepsToSame;
+            return distance[sourceLength, targetLength];
 
         }
 
