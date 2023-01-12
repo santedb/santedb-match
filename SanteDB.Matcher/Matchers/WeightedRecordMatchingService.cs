@@ -60,15 +60,9 @@ namespace SanteDB.Matcher.Matchers
                 {
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
                 }
-                
-                if (blocks.AsResultSet().Count() > Environment.ProcessorCount * 4 && Environment.ProcessorCount > 4)
-                {
-                    return blocks.ToArray().AsParallel().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
-                }
-                else
-                {
-                    return blocks.ToArray().Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
-                }
+
+                blocks = blocks.ToArray();
+                return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
             }
             catch (Exception e)
             {
@@ -154,7 +148,8 @@ namespace SanteDB.Matcher.Matchers
                 // unsuccessful, we want to exclude CITY.
                 attributeResult.RemoveAll(o => !o.Attribute.When.All(w =>
                 {
-                    var attScore = attributeResult.First(r => r.Attribute.Id == w.AttributeRef);
+                    var attScore = attributeResult.FirstOrDefault(r => r.Attribute.Id == w.AttributeRef);
+                    
                     // TODO: Allow cascaded operators to specify a value
                     //switch (w.Operator)
                     //{
@@ -179,7 +174,7 @@ namespace SanteDB.Matcher.Matchers
                     //    default:
                     //        throw new InvalidOperationException($"Cannot use operator {w.Operator} on when");
                     //}
-                    return attScore?.Evaluated == true && attScore?.Score > 0;
+                    return attScore == null || attScore.Evaluated && attScore.Score > 0;
                 })); // Remove all failed attributes
                 var score = attributeResult.Sum(v => v.Score);
 

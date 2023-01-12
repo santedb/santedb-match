@@ -287,6 +287,7 @@ namespace SanteDB.Matcher.Matchers
                 // Query control variables for iterating result sets
 
                 // Set the authentication context
+                using(DataPersistenceControlContext.Create(LoadMode.QuickLoad))
                 using (AuthenticationContext.EnterSystemContext())
                 {
                     IQueryResultSet<T> results = null;
