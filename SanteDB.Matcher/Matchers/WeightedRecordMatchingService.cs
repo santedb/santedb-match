@@ -116,11 +116,10 @@ namespace SanteDB.Matcher.Matchers
                         // Initialize the weights and such for the attribute
                         var attributeScores = v.GetPropertySelectors<T>().Select(selector =>
                         {
-                            Func<T, dynamic> selectorExpression = (Func<T, dynamic>)selector.Value;
-                            object aValue = selectorExpression(input),
-                                bValue = selectorExpression(block);
-                            var defaultInstance = selectorExpression.Method.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
-                                Activator.CreateInstance(selectorExpression.Method.ReturnType) :
+                            object aValue = selector.Value(input),
+                                bValue = selector.Value(block);
+                            var defaultInstance = selector.Value.Method.ReturnType.GetConstructors().Any(c => c.GetParameters().Length == 0) ?
+                                Activator.CreateInstance(selector.Value.Method.ReturnType) :
                                 null;
                             var result = AssertionUtil.ExecuteAssertion(selector.Key, v.Assertion, v, aValue, bValue);
                             return result;

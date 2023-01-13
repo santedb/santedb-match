@@ -189,7 +189,6 @@ namespace SanteDB.Matcher.Matchers
             {
                 collector?.LogStartAction(block);
 
-
                 // Perpare filter
                 var filter = block.Filter;
                 NameValueCollection qfilter = new NameValueCollection();
@@ -302,14 +301,6 @@ namespace SanteDB.Matcher.Matchers
 
                         results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
 
-                        try
-                        {
-                            results.Any();
-                        }
-                        catch
-                        {
-                            System.Diagnostics.Debugger.Break();
-                        }
                     }
                     else
                     {

@@ -21,6 +21,7 @@
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Query;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace SanteDB.Matcher.Definition
         private double? m_weightN = null;
         private double? m_weightM = null;
 
-        private ConcurrentDictionary<Type, IDictionary<String, Delegate>> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary<String, Delegate>>();
+        private ConcurrentDictionary<Type, IDictionary> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary>();
 
         /// <summary>
         /// The identifier for the attribute
@@ -134,19 +135,19 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Property selector helper
         /// </summary>
-        public IDictionary<String, Delegate> GetPropertySelectors<T>()
+        public IDictionary<String, Func<T, dynamic>> GetPropertySelectors<T>()
         {
-            if (!this.m_propertySelectors.TryGetValue(typeof(T), out IDictionary<String, Delegate> retVal))
+            if (!this.m_propertySelectors.TryGetValue(typeof(T), out IDictionary retVal))
             {
                 retVal = this.Property.ToDictionary(o => o, o =>
                 {
                     var selector = QueryExpressionParser.BuildPropertySelector<T>(o, true);
                     var param = Expression.Parameter(typeof(T));
-                    return (Delegate)Expression.Lambda<Func<T, dynamic>>(Expression.Convert(Expression.Invoke(selector, param), typeof(Object)), param).Compile();
+                    return Expression.Lambda<Func<T, dynamic>>(Expression.Convert(Expression.Invoke(selector, param), typeof(Object)), param).Compile();
                 });
                 this.m_propertySelectors.TryAdd(typeof(T), retVal);
             }
-            return retVal;
+            return retVal as IDictionary<String, Func<T, dynamic>>;
         }
 
         /// <summary>
