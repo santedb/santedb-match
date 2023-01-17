@@ -59,7 +59,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Creates the SQL statement
         /// </summary>
-        public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
+        public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length != 1)
             {
@@ -80,7 +80,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                 };
             }
 
-            var filter = new SqlStatement(current.DbProvider);
+            var filter = new SqlStatementBuilder(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxDifferenceOption difference)

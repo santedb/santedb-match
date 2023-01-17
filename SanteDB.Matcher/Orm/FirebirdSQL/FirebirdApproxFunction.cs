@@ -57,7 +57,7 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
         /// <summary>
         /// Creates the SQL statement
         /// </summary>
-        public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
+        public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length != 1)
             {
@@ -76,23 +76,23 @@ namespace SanteDB.Matcher.Orm.FirebirdSQL
                 };
             }
 
-            var filter = new SqlStatement(current.DbProvider);
+            var filterBuilder = new SqlStatementBuilder(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxPatternOption pattern)
                 {
                     if (pattern.IgnoreCase)
                     {
-                        filter.Or($"LOWER({filterColumn}) like LOWER(?)", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                        filterBuilder.Or($"LOWER({filterColumn}) like LOWER(?)", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
                     }
                     else
                     {
-                        filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                        filterBuilder.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
                     }
                 }
             }
 
-            return current.Append("(").Append(filter).Append(")");
+            return current.Append("(").Append(filterBuilder.Statement).Append(")");
         }
     }
 }

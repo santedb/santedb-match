@@ -55,7 +55,7 @@ namespace SanteDB.Matcher.Definition
             {
                 if (this.m_type == null)
                 {
-                    this.m_type = typeof(Patient).Assembly.ExportedTypes.FirstOrDefault(o => o.GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
+                    this.m_type = typeof(Patient).Assembly.GetExportedTypesSafe().FirstOrDefault(o => o.GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
                 }
 
                 return this.m_type;

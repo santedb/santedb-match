@@ -62,7 +62,7 @@ namespace SanteDB.Matcher.Transforms
         /// </summary>
         private TransformerFactory()
         {
-            this.m_dataTransformers = typeof(TransformerFactory).Assembly.ExportedTypes
+            this.m_dataTransformers = typeof(TransformerFactory).Assembly.GetExportedTypesSafe()
                 .Where(o => typeof(IDataTransformer).IsAssignableFrom(o) && !o.IsAbstract && !o.IsInterface)
                 .ToDictionary(o => (Activator.CreateInstance(o) as IDataTransformer).Name, o => o);
         }

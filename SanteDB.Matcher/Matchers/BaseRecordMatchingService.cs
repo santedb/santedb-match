@@ -85,7 +85,7 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         static BaseRecordMatchingService()
         {
-            foreach (var t in typeof(BaseRecordMatchingService).Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
+            foreach (var t in typeof(BaseRecordMatchingService).Assembly.GetExportedTypesSafe().Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
             {
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
             }
@@ -272,7 +272,7 @@ namespace SanteDB.Matcher.Matchers
                             statePart, linq.Body), linq.Parameters[0]);
                 }
 
-                if (ignoreKeys.Any())
+                if (ignoreKeys?.Any() == true)
                 {
                     var ignoreList = Expression.Constant(ignoreKeys.Select(o => (Guid?)o).ToArray());
                     var keyAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(IdentifiedData).GetProperty(nameof(IdentifiedData.Key)));
@@ -286,7 +286,7 @@ namespace SanteDB.Matcher.Matchers
                 // Query control variables for iterating result sets
 
                 // Set the authentication context
-                using(DataPersistenceControlContext.Create(LoadMode.QuickLoad))
+                using(DataPersistenceControlContext.Create(LoadMode.SyncLoad))
                 using (AuthenticationContext.EnterSystemContext())
                 {
                     IQueryResultSet<T> results = null;
