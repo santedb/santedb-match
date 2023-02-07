@@ -154,19 +154,20 @@ namespace SanteDB.Matcher.Matchers
                 {
                     if (retVal == null)
                     {
-                        retVal = this.DoBlock<T>(input, b, ignoreKeys, collector);
+                        retVal = this.DoBlock<T>(input, b, collector);
                     }
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys, collector));
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, collector));
                     }
                     else if (b.Operator == BinaryOperatorType.OrElse)
                     {
-                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys, collector));
+                        retVal = retVal.Union(this.DoBlock<T>(input, b, collector));
                     }
                 }
 
-                return retVal;
+                var ignoreKeyArray = ignoreKeys.ToArray();
+                return retVal.Where(o=>!ignoreKeyArray.Contains(o.Key.Value));
             }
             catch (Exception e)
             {
@@ -182,7 +183,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Perform the block operation
         /// </summary>
-        private IQueryResultSet<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
+        private IQueryResultSet<T> DoBlock<T>(T input, MatchBlock block, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             // Load the persistence service
             try
@@ -238,10 +239,6 @@ namespace SanteDB.Matcher.Matchers
                     return new MemoryQueryResultSet<T>(new List<T>());
                 }
 
-                if (input.Key.HasValue)
-                {
-                    ignoreKeys = ignoreKeys.Union(new Guid[] { input.Key.Value });
-                }
 
                 // Make LINQ query
                 // NOTE: We can't build and store this since input is a closure
@@ -271,15 +268,6 @@ namespace SanteDB.Matcher.Matchers
                     linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
                             statePart, linq.Body), linq.Parameters[0]);
                 }
-
-                if (ignoreKeys?.Any() == true)
-                {
-                    var ignoreList = Expression.Constant(ignoreKeys.Select(o => (Guid?)o).ToArray());
-                    var keyAccess = Expression.MakeMemberAccess(linq.Parameters[0], typeof(IdentifiedData).GetProperty(nameof(IdentifiedData.Key)));
-                    var containsExpression = Expression.Call(null, (MethodInfo)typeof(Enumerable).GetGenericMethod(nameof(Enumerable.Contains), new Type[] { typeof(Guid?) }, new Type[] { typeof(IEnumerable<Guid?>), typeof(Guid?) }), ignoreList, keyAccess);
-                    linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso, Expression.Not(containsExpression), linq.Body), linq.Parameters[0]);
-                }
-
 
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 

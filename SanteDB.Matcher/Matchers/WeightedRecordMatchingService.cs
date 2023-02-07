@@ -21,6 +21,7 @@
 using SanteDB.Core;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model;
+using SanteDB.Core.Model.Query;
 using SanteDB.Core.Services;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
@@ -49,6 +50,11 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
+                if(blocks is IQueryResultSet)
+                {
+                    blocks = blocks.ToArray();
+                }
+
                 collector?.LogStartStage("scoring");
                 if (EqualityComparer<T>.Default.Equals(default(T), input))
                 {
@@ -61,7 +67,6 @@ namespace SanteDB.Matcher.Matchers
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
                 }
 
-                blocks = blocks.ToArray();
                 return blocks.Select(b => this.ClassifyInternal(input, b, strongConfig.Scoring, strongConfig, strongConfig.ClassificationMethod, strongConfig.MatchThreshold, strongConfig.NonMatchThreshold, collector)).ToList();
             }
             catch (Exception e)
