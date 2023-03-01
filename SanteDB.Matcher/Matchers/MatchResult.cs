@@ -196,7 +196,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>
-        public double Score { get; private set; }
-
+        public double Score { get; internal set; }
+        
     }
 }

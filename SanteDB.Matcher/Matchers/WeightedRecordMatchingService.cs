@@ -150,36 +150,25 @@ namespace SanteDB.Matcher.Matchers
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
                 // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was
                 // unsuccessful, we want to exclude CITY.
-                attributeResult.RemoveAll(o => !o.Attribute.When.All(w =>
+                for(var i = 0; i < attributeResult.Count; i++)
                 {
-                    var attScore = attributeResult.FirstOrDefault(r => r.Attribute.Id == w.AttributeRef);
-                    
-                    // TODO: Allow cascaded operators to specify a value
-                    //switch (w.Operator)
-                    //{
-                    //    case BinaryOperatorType.NotEqual:
-                    //        return attScore != w.Value;
-
-                    //    case BinaryOperatorType.Equal:
-                    //        return attScore == w.Value;
-
-                    //    case BinaryOperatorType.GreaterThan:
-                    //        return attScore > w.Value;
-
-                    //    case BinaryOperatorType.GreaterThanOrEqual:
-                    //        return attScore >= w.Value;
-
-                    //    case BinaryOperatorType.LessThan:
-                    //        return attScore < w.Value;
-
-                    //    case BinaryOperatorType.LessThanOrEqual:
-                    //        return attScore <= w.Value;
-
-                    //    default:
-                    //        throw new InvalidOperationException($"Cannot use operator {w.Operator} on when");
-                    //}
-                    return attScore == null || attScore.Evaluated && attScore.Score > 0;
-                })); // Remove all failed attributes
+                    if (!attributeResult[i].Attribute.When.All(w => {
+                        var attScore = attributeResult.FirstOrDefault(r => r?.Attribute.Id == w.AttributeRef);
+                        return attScore == null || attScore.Evaluated && attScore.Score > 0;
+                    }))
+                    {
+                        var newScore = AssertionUtil.GetNullScore(attributeResult[i].Attribute);
+                        if(newScore.HasValue)
+                        {
+                            attributeResult[i].Score = newScore.Value;
+                        }
+                        else
+                        {
+                            attributeResult[i] = null;
+                        }
+                    }
+                }
+                attributeResult.RemoveAll(o => o == null);
                 var score = attributeResult.Sum(v => v.Score);
 
                 // The attribute scores which are produced will be from SUM(NonMatchWeight) .. SUM(MatchWeight)

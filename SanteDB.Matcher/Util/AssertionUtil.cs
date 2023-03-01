@@ -125,7 +125,7 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Get the null score
         /// </summary>
-        private static double? GetNullScore(MatchAttribute attribute)
+        internal static double? GetNullScore(MatchAttribute attribute)
         {
             switch (attribute.WhenNull)
             {
