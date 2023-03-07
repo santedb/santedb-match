@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using System;
 using System.ComponentModel;
@@ -40,9 +40,14 @@ namespace SanteDB.Matcher.Transforms.Numeric
         public object Apply(object input, params object[] parms)
         {
             if (input is int)
+            {
                 return Math.Abs((int)input);
+            }
             else if (input is double)
+            {
                 return Math.Abs((double)input);
+            }
+
             throw new InvalidOperationException($"Cannot absolute value of type {input.GetType().Name}");
         }
     }

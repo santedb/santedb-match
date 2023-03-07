@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using System;
 using System.ComponentModel;
@@ -42,12 +42,22 @@ namespace SanteDB.Matcher.Transforms.Date
         public object Apply(object input, params object[] parms)
         {
             // Validate parms
-            if (input == null) throw new ArgumentNullException(nameof(input));
-            if (parms.Length != 1) throw new ArgumentOutOfRangeException(nameof(parms), "Missing facet type");
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (parms.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(parms), "Missing facet type");
+            }
 
             // Get strong input
             if (input is DateTimeOffset || input is DateTimeOffset?)
+            {
                 input = ((DateTimeOffset)input).DateTime;
+            }
+
             var data = (DateTime)input;
             bool epoch = parms.Length == 2 && parms[1].Equals(true);
 

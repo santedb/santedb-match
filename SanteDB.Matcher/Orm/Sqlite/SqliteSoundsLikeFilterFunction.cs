@@ -16,58 +16,49 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2022-5-30
+ * Date: 2021-8-27
  */
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
-using SanteDB.OrmLite.Providers.Postgres;
+using SanteDB.OrmLite.Providers.Sqlite;
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 
-namespace SanteDB.Matcher.Orm.PostgreSQL
+namespace SanteDB.Matcher.Orm.Sqlite
 {
     /// <summary>
-    /// Represents the PostgreSQL soundex function
+    /// Soundex filter function
     /// </summary>
-    [ExcludeFromCodeCoverage]
-    public class PostgresMetaphoneFunction : IDbFilterFunction
+    public class SqliteSoundslikeFunction : IDbFilterFunction
     {
         /// <summary>
-        /// Gets the name of the function
+        /// Get the name of the function
         /// </summary>
-        public string Name => "metaphone";
+        public string Name => "soundslike";
 
         /// <summary>
-        /// Provider 
+        /// Get the provider name
         /// </summary>
-        public string Provider => PostgreSQLProvider.InvariantName;
+        public string Provider => SqliteProvider.InvariantName;
 
         /// <summary>
-        /// Creates the SQL statement
+        /// Create SQL statement
         /// </summary>
-        /// <example>
-        /// ?name.component.value=:(metaphone)Justin
-        /// or
-        /// ?name.component.value=:(metaphone|5)Hamilton
-        /// </example>
         public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
-            var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
-            String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op))
-            {
-                op = "=";
-            }
 
-            if (op != "=") // There is a threshold
-            {
-                return current.Append($"metaphone({filterColumn}, {parms[0]}) {op} metaphone(?, {parms[0]})", QueryBuilder.CreateParameterValue(value, operandType));
-            }
+            if (parms.Length == 1)
+                return current.Append($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], operandType));
             else
             {
-                return current.Append($"metaphone({filterColumn}, 4) {op} metaphone(?, 4)", QueryBuilder.CreateParameterValue(value, operandType));
+                switch (parms[1])
+                {
+                    case "soundex":
+                        return current.Append($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], operandType));
+                    default:
+                        throw new NotSupportedException($"Sounds-like algorithm {parms[1]} is not supported");
+                }
             }
         }
+
     }
 }

@@ -16,10 +16,9 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Model.Query;
-using SanteDB.Matcher.Filters;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -48,23 +47,37 @@ namespace SanteDB.Matcher.Transforms.Text
             if (parms.Length == 1)
             {
                 if (input is String inputString)
-                    return (inputString). Substr((int)parms[0], null);
+                {
+                    return (inputString).Substr((int)parms[0], null);
+                }
                 else if (input is IEnumerable inputEnum)
+                {
                     return inputEnum.OfType<string>().Select(o => o.Substr((int)parms[0], null));
+                }
                 else
+                {
                     throw new InvalidOperationException("Cannot process this transformation on this type of input");
+                }
             }
             else if (parms.Length == 2)
             {
                 if (input is String inputString)
+                {
                     return (inputString).Substr((int)parms[0], (int)parms[1]);
+                }
                 else if (input is IEnumerable inputEnum)
+                {
                     return inputEnum.OfType<string>().Select(o => o.Substr((int)parms[0], (int)parms[1]));
+                }
                 else
+                {
                     throw new InvalidOperationException("Cannot process this transformation on this type of input");
+                }
             }
             else
+            {
                 throw new ArgumentOutOfRangeException("substr transform only supports one or two parameters");
+            }
         }
     }
 }

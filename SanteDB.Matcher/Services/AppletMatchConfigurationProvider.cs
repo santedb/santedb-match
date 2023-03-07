@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Applets.Services;
@@ -85,11 +85,17 @@ namespace SanteDB.Matcher.Services
                         this.m_tracer.TraceInfo("Will load {0}..", amgr.ToString());
 
                         using (var ms = new MemoryStream(amgr.Content as byte[]))
+                        {
                             retVal = MatchConfiguration.Load(ms);
+                        }
 
                         lock (this.m_configurationCache)
+                        {
                             if (!this.m_configurationCache.ContainsKey(name))
+                            {
                                 this.m_configurationCache.Add(name, retVal);
+                            }
+                        }
                     }
                     catch (Exception e)
                     {

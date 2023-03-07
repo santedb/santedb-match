@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Model.Query;
 using System;
@@ -46,7 +46,10 @@ namespace SanteDB.Matcher.Filters
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
             if (parms.Length != 1)
+            {
                 throw new ArgumentException("Approx requires parameter - use :(approx|value)");
+            }
+
             return Expression.MakeBinary(ExpressionType.Equal,
                 Expression.Call(this.ExtensionMethod, scope, parms[0]),
                 Expression.Constant(true));

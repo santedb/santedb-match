@@ -16,11 +16,12 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Query;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace SanteDB.Matcher.Definition
         private double? m_weightN = null;
         private double? m_weightM = null;
 
-        private ConcurrentDictionary<Type, IDictionary<String, Delegate>> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary<String, Delegate>>();
+        private ConcurrentDictionary<Type, IDictionary> m_propertySelectors = new ConcurrentDictionary<Type, IDictionary>();
 
         /// <summary>
         /// The identifier for the attribute
@@ -92,7 +93,10 @@ namespace SanteDB.Matcher.Definition
                 if (!this.m_weightM.HasValue)
                 {
                     // U must be set
-                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+                    if (!this.m_u.HasValue || !this.m_m.HasValue)
+                    {
+                        throw new InvalidOperationException("U and M variables must be set");
+                    }
 
                     this.m_weightM = (this.m_m.Value / this.m_u.Value).Ln() / (2.0d).Ln();
                 }
@@ -111,7 +115,11 @@ namespace SanteDB.Matcher.Definition
                 if (!this.m_weightN.HasValue)
                 {
                     // U must be set
-                    if (!this.m_u.HasValue || !this.m_m.HasValue) throw new InvalidOperationException("U and M variables must be set");
+                    if (!this.m_u.HasValue || !this.m_m.HasValue)
+                    {
+                        throw new InvalidOperationException("U and M variables must be set");
+                    }
+
                     this.m_weightN = ((1 - this.m_m.Value) / (1 - this.m_u.Value)).Ln() / (2.0d).Ln();
                 }
                 return this.m_weightN.Value;
@@ -127,19 +135,19 @@ namespace SanteDB.Matcher.Definition
         /// <summary>
         /// Property selector helper
         /// </summary>
-        public IDictionary<String, Delegate> GetPropertySelectors<T>()
+        public IDictionary<String, Func<T, dynamic>> GetPropertySelectors<T>()
         {
-            if (!this.m_propertySelectors.TryGetValue(typeof(T), out IDictionary<String, Delegate> retVal))
+            if (!this.m_propertySelectors.TryGetValue(typeof(T), out IDictionary retVal))
             {
                 retVal = this.Property.ToDictionary(o => o, o =>
                 {
                     var selector = QueryExpressionParser.BuildPropertySelector<T>(o, true);
                     var param = Expression.Parameter(typeof(T));
-                    return (Delegate)Expression.Lambda<Func<T, dynamic>>(Expression.Convert(Expression.Invoke(selector, param), typeof(Object)), param).Compile();
+                    return Expression.Lambda<Func<T, dynamic>>(Expression.Convert(Expression.Invoke(selector, param), typeof(Object)), param).Compile();
                 });
                 this.m_propertySelectors.TryAdd(typeof(T), retVal);
             }
-            return retVal;
+            return retVal as IDictionary<String, Func<T, dynamic>>;
         }
 
         /// <summary>

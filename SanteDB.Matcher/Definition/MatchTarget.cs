@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Model.Roles;
@@ -54,7 +54,10 @@ namespace SanteDB.Matcher.Definition
             get
             {
                 if (this.m_type == null)
-                    this.m_type = typeof(Patient).Assembly.ExportedTypes.FirstOrDefault(o => o.GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
+                {
+                    this.m_type = typeof(Patient).Assembly.GetExportedTypesSafe().FirstOrDefault(o => o.GetCustomAttribute<XmlRootAttribute>()?.ElementName == this.ResourceXml);
+                }
+
                 return this.m_type;
             }
         }

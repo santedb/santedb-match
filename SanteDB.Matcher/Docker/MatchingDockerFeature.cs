@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Configuration;
 using SanteDB.Core.Exceptions;
@@ -66,7 +66,9 @@ namespace SanteDB.Matcher.Docker
             // Add the file match configuration service
             var serviceConfiguration = configuration.GetSection<ApplicationServiceContextConfigurationSection>().ServiceProviders;
             if (!serviceConfiguration.Any(s => s.Type == typeof(FileMatchConfigurationProvider)))
+            {
                 serviceConfiguration.Add(new TypeReferenceConfiguration(typeof(FileMatchConfigurationProvider)));
+            }
 
             // Did the hoster specify a matcher they want to use?
             if (settings.TryGetValue(ModeSetting, out string matcher))
@@ -84,8 +86,9 @@ namespace SanteDB.Matcher.Docker
                 }
             }
             else
+            {
                 serviceConfiguration.Add(new TypeReferenceConfiguration(typeof(WeightedRecordMatchingService)));
-
+            }
         }
     }
 }

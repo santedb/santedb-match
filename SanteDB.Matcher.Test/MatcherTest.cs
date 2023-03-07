@@ -1,28 +1,26 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You may
- * obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. You may 
+ * obtain a copy of the License at 
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
+ * License for the specific language governing permissions and limitations under 
  * the License.
- *
+ * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2022-5-30
  */
-
 using NUnit.Framework;
 using SanteDB.Core;
 using SanteDB.Core.Data;
-using SanteDB.Core.Interfaces;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
@@ -45,7 +43,7 @@ namespace SanteDB.Matcher.Test
         /// <summary>
         /// Initialize the test class
         /// </summary>
-        [SetUp]
+        [OneTimeSetUp]
         public void ClassInitialize()
         {
             AppDomain.CurrentDomain.SetData(
@@ -63,13 +61,6 @@ namespace SanteDB.Matcher.Test
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(DummyPatientDataPersistenceService));
             ApplicationServiceContext.Current.GetService<IServiceManager>().AddServiceProvider(typeof(WeightedRecordMatchingService));
 
-            // Start the daemon services
-            if (!ApplicationServiceContext.Current.IsRunning)
-            {
-                //adoPersistenceService.Start();
-                TestApplicationContext.Current.Start();
-                ApplicationServiceContext.Current = ApplicationServiceContext.Current;
-            }
         }
 
         /// <summary>
@@ -87,7 +78,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "993642-49382938-1986S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "993642-49382938-1986S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -114,7 +105,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "993644-49382738-1986S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "993644-49382738-1986S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -143,7 +134,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("f4e3a6bb-612e-46b2-9f77-ff844d971198"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985S")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985S")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {
@@ -181,7 +172,7 @@ namespace SanteDB.Matcher.Test
                 GenderConceptKey = Guid.Parse("094941e9-a3db-48b5-862c-bc289bd7f86c"),
                 Identifiers = new System.Collections.Generic.List<Core.Model.DataTypes.EntityIdentifier>()
                 {
-                    new Core.Model.DataTypes.EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985D")
+                    new Core.Model.DataTypes.EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), "496447-080506-1985D")
                 },
                 Names = new System.Collections.Generic.List<Core.Model.Entities.EntityName>()
                 {

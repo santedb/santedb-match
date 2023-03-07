@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Util;
@@ -46,7 +46,11 @@ namespace SanteDB.Matcher.Filters
         /// </summary>
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
-            if (parms.Length != 1) throw new ArgumentOutOfRangeException("jaro-winkler requires one parameter : value=:(jarowinkler|other)comparator");
+            if (parms.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException("jaro-winkler requires one parameter : value=:(jarowinkler|other)comparator");
+            }
+
             return Expression.MakeBinary(comparison,
                                 Expression.Call(this.ExtensionMethod, scope, parms[0]),
                                 valueExpression);

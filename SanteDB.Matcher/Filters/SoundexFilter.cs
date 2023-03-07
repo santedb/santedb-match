@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Model.Query;
 using System;
@@ -46,11 +46,15 @@ namespace SanteDB.Matcher.Filters
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
             if (valueExpression is ConstantExpression ce && ce.Value == null) // This will always return false since we cannot do a soundex on a null
+            {
                 return Expression.MakeBinary(ExpressionType.Equal, scope, valueExpression);
+            }
             else
+            {
                 return Expression.MakeBinary(ExpressionType.Equal,
                     Expression.Call(this.ExtensionMethod, scope),
                     Expression.Call(this.ExtensionMethod, valueExpression));
+            }
         }
     }
 }

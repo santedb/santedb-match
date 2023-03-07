@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-11-29
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Matching;
@@ -26,7 +26,6 @@ using SanteDB.Matcher.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SanteDB.Matcher.Diagnostics
 {
@@ -367,7 +366,7 @@ namespace SanteDB.Matcher.Diagnostics
             {
                 throw new InvalidOperationException("No stage has been started");
             }
-            else if(this.m_currentAction.Any())
+            else if (this.m_currentAction.Any())
             {
                 current = this.m_currentAction.Peek();
             }

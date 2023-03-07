@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,11 +16,8 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2022-5-30
  */
-using SanteDB.Core.Interfaces;
-using SanteDB.Core.Model;
-using SanteDB.Core.Model.Collection;
 using SanteDB.Core.Model.Constants;
 using SanteDB.Core.Model.DataTypes;
 using SanteDB.Core.Model.Entities;
@@ -33,20 +30,15 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SanteDB.Matcher.Test
 {
-
     /// <summary>
     /// Dummy data persistence service
     /// </summary>
     [ExcludeFromCodeCoverage]
     public class DummyPatientDataPersistenceService : IRepositoryService<Patient>, IAliasProvider
     {
-
         public String ServiceName => "Fake Patient Repository";
 
         // Sample Patients
@@ -60,16 +52,9 @@ namespace SanteDB.Matcher.Test
             this.LoadPatientData();
         }
 
-
-        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query)
+        public IQueryResultSet<Patient> Find(Expression<Func<Patient, bool>> query)
         {
-            return this.m_patients.Where(query.Compile());
-        }
-
-        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults, params ModelSort<Patient>[] order)
-        {
-            totalResults = this.m_patients.Count(query.Compile());
-            return this.m_patients.Where(query.Compile()).Skip(offset).Take(count ?? 100);
+            return new MemoryQueryResultSet<Patient>(this.m_patients.Where(query.Compile()));
         }
 
         public Patient Get(Guid key)
@@ -90,19 +75,23 @@ namespace SanteDB.Matcher.Test
                     return new ComponentAlias[] {
                         new ComponentAlias("samantha", 1.0)
                     };
+
                 case "samantha":
                     return new ComponentAlias[] {
                         new ComponentAlias("sam", 1.0)
                     };
+
                 case "samira":
                     return new ComponentAlias[] {
                         new ComponentAlias("sam", 0.5)
                     };
+
                 case "william":
                     return new ComponentAlias[] {
                         new ComponentAlias("bill", 1.0),
                         new ComponentAlias("will", 1.0)
                     };
+
                 case "robert":
                     return new ComponentAlias[]
                     {
@@ -118,7 +107,7 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public Patient Obsolete(Guid key)
+        public Patient Delete(Guid key)
         {
             throw new NotImplementedException();
         }
@@ -133,7 +122,6 @@ namespace SanteDB.Matcher.Test
         /// </summary>
         private void LoadPatientData()
         {
-
             var placeRefs = new Dictionary<String, Guid>()
             {
                 { "Clinic1", Guid.Parse("049df673-384f-4dcf-91b2-53b232a5e277") },
@@ -156,8 +144,8 @@ namespace SanteDB.Matcher.Test
                         Key = Guid.NewGuid(),
                         Identifiers = new List<EntityIdentifier>()
                         {
-                            new EntityIdentifier(new AssigningAuthority("MRN", "MRN", "1.2.3.4"), data[0]),
-                            new EntityIdentifier(new AssigningAuthority("HIN", "Health Insurance", "1.2.3.4.56"), data[6])
+                            new EntityIdentifier(new IdentityDomain("MRN", "MRN", "1.2.3.4"), data[0]),
+                            new EntityIdentifier(new IdentityDomain("HIN", "Health Insurance", "1.2.3.4.56"), data[6])
                         },
                         GenderConceptKey = Guid.Parse(data[2].ToLower() == "m" ? "f4e3a6bb-612e-46b2-9f77-ff844d971198" :
                             data[2].ToLower() == "f" ? "094941e9-a3db-48b5-862c-bc289bd7f86c" :
@@ -167,6 +155,7 @@ namespace SanteDB.Matcher.Test
                             Key = StatusKeys.Active,
                             Mnemonic = "ACTIVE"
                         },
+                        StatusConceptKey = StatusKeys.Active,
                         DateOfBirth = DateTime.Parse(data[1]),
                         Names = new List<Core.Model.Entities.EntityName>()
                         {
@@ -193,8 +182,6 @@ namespace SanteDB.Matcher.Test
             }
 
             this.m_patients = patients.AsParallel().Select(p => p.LoadConcepts()).ToList();
-
-
         }
 
         public void AddAlias(string name, string alias, double weight)
@@ -208,6 +195,11 @@ namespace SanteDB.Matcher.Test
         }
 
         public IDictionary<string, IEnumerable<ComponentAlias>> GetAllAliases(String filter, int offset, int? count, out int totalResults)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Patient> Find(Expression<Func<Patient, bool>> query, int offset, int? count, out int totalResults, params ModelSort<Patient>[] orderBy)
         {
             throw new NotImplementedException();
         }

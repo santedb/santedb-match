@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using System;
 using System.ComponentModel;
@@ -41,12 +41,21 @@ namespace SanteDB.Matcher.Transforms.Date
         /// </summary>
         public object Apply(object a, object b, params object[] parms)
         {
-            if (a == null) throw new ArgumentNullException(nameof(a));
-            if (b == null) throw new ArgumentNullException(nameof(b));
+            if (a == null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b == null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
 
             // Get strong instances
             if (parms.Length == 0)
+            {
                 return ((DateTime)a - (DateTime)b);
+            }
             else
             {
                 var data = ((DateTime)a - (DateTime)b);
@@ -96,9 +105,13 @@ namespace SanteDB.Matcher.Transforms.Date
                 }
 
                 if (parms.Length == 2 && Boolean.TryParse(parms[1].ToString(), out bool abs) && abs)
+                {
                     return Math.Abs(retVal);
+                }
                 else
+                {
                     return retVal;
+                }
             }
         }
     }

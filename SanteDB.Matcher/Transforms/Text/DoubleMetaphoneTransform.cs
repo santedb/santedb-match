@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Matcher.Filters;
 using System;
@@ -43,11 +43,17 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object input, params object[] parms)
         {
             if (input is String inputString)
+            {
                 return inputString.DoubleMetaphone();
+            }
             else if (input is IEnumerable inputEnum)
+            {
                 return inputEnum.OfType<String>().Select(o => o.DoubleMetaphone());
+            }
             else
+            {
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
+            }
         }
     }
 }

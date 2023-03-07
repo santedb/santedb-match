@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Matching;
@@ -196,7 +196,7 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Gets the score assigned to this assertion
         /// </summary>
-        public double Score { get; private set; }
-
+        public double Score { get; internal set; }
+        
     }
 }

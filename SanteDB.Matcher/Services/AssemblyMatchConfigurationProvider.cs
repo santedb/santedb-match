@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
@@ -41,7 +41,7 @@ namespace SanteDB.Matcher.Services
     public sealed class AssemblyMatchConfigurationProvider : IRecordMatchingConfigurationService
     {
         // Tracer
-        private Tracer m_tracer = Tracer.GetTracer(typeof(AssemblyMatchConfigurationProvider));
+        private readonly Tracer m_tracer = Tracer.GetTracer(typeof(AssemblyMatchConfigurationProvider));
 
         // Configurations
         private List<IRecordMatchingConfiguration> m_configurations = new List<IRecordMatchingConfiguration>();
@@ -59,7 +59,9 @@ namespace SanteDB.Matcher.Services
                     this.m_tracer.TraceInfo("Loading configurations from {0}", asmRef);
                     var asm = Assembly.Load(new AssemblyName(asmRef));
                     if (asm == null)
+                    {
                         throw new FileNotFoundException($"Assembly {asmRef} could not be found");
+                    }
                     // Get embedded resource names
                     foreach (var name in asm.GetManifestResourceNames().Where(o => o.EndsWith(".xml")))
                     {

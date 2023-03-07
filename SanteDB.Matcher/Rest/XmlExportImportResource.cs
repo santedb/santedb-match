@@ -16,9 +16,8 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-10-28
+ * Date: 2022-5-30
  */
-using Newtonsoft.Json;
 using RestSrvr;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
@@ -26,12 +25,9 @@ using SanteDB.Core.Model.Query;
 using SanteDB.Matcher.Definition;
 using SanteDB.Rest.Common;
 using System;
-using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
-using System.Xml;
-using System.Xml.Xsl;
 
 namespace SanteDB.Matcher.Rest
 {
@@ -41,7 +37,7 @@ namespace SanteDB.Matcher.Rest
     [ExcludeFromCodeCoverage]
     public class XmlExportImportResource : IApiChildResourceHandler
     {
-       
+
         // Match configuration
         private readonly IRecordMatchingConfigurationService m_matchConfiguration;
 
@@ -83,7 +79,7 @@ namespace SanteDB.Matcher.Rest
         /// </summary>
         public object Add(Type scopingType, object scopingKey, object item)
         {
-            if(item is Stream stream)
+            if (item is Stream stream)
             {
                 var configuration = MatchConfiguration.Load(stream);
                 RestOperationContext.Current.OutgoingResponse.StatusCode = 201;
@@ -106,7 +102,7 @@ namespace SanteDB.Matcher.Rest
         /// <summary>
         /// Query the object
         /// </summary>
-        public IEnumerable<object> Query(Type scopingType, object scopingKey, NameValueCollection filter, int offset, int count, out int totalCount)
+        public IQueryResultSet Query(Type scopingType, object scopingKey, NameValueCollection filter)
         {
             var configuration = this.m_matchConfiguration?.GetConfiguration(scopingKey.ToString()) as MatchConfiguration;
             if (configuration == null)
@@ -117,7 +113,6 @@ namespace SanteDB.Matcher.Rest
             RestOperationContext.Current.OutgoingResponse.ContentType = "text/html";
             RestOperationContext.Current.OutgoingResponse.Headers.Add("Content-Disposition", $"attachment; filename=\"{scopingKey}.xml\"");
             configuration.Save(RestOperationContext.Current.OutgoingResponse.OutputStream);
-            totalCount = 0;
             return null;
         }
 

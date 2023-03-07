@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
@@ -73,7 +73,7 @@ namespace SanteDB.Matcher.Services
         private ILocalizationService m_localizationService;
 
         // Tracer
-        private Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
+        private readonly Tracer m_tracer = Tracer.GetTracer(typeof(FileMatchConfigurationProvider));
 
         /// <summary>
         /// Gets the configurations known to this configuration provider
@@ -172,14 +172,21 @@ namespace SanteDB.Matcher.Services
             if (this.m_matchConfigurations.TryGetValue(name, out ConfigCacheObject configData))
             {
                 if (this.m_configuration.CacheFiles)
+                {
                     return configData.Configuration as IRecordMatchingConfiguration;
+                }
                 else
                 {
                     using (var fs = System.IO.File.OpenRead(configData.OriginalFilePath))
+                    {
                         return MatchConfiguration.Load(fs);
+                    }
                 }
             }
-            else return null;
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -197,13 +204,15 @@ namespace SanteDB.Matcher.Services
 
                 if (this.m_matchConfigurations.Any(o => o.Value.Configuration.Uuid == configuration.Uuid))
                 {
-                    throw new InvalidOperationException(this.m_localizationService.FormatString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
+                    throw new InvalidOperationException(this.m_localizationService.GetString("error.server.core.duplicateKey", new { id = configuration.Uuid }));
                 }
                 else
                 {
                     var savePath = this.m_configuration.FilePath.FirstOrDefault(o => !o.ReadOnly);
                     if (savePath == null)
+                    {
                         throw new InvalidOperationException("Cannot find a read/write configuration path");
+                    }
 
                     // Set select metadata
                     if (configuration is MatchConfiguration mci)
@@ -228,7 +237,9 @@ namespace SanteDB.Matcher.Services
                     };
 
                     if (!this.m_matchConfigurations.TryAdd(configuration.Id, configData))
+                    {
                         throw new InvalidOperationException("Storing configuration has failed");
+                    }
                 }
             }
             else if (configuration is MatchConfiguration mc)
@@ -254,7 +265,9 @@ namespace SanteDB.Matcher.Services
                         mc.Save(fs);
                     }
                     else if (configuration is MatchConfigurationCollection mcc)
+                    {
                         mcc.Save(fs);
+                    }
                 }
 
                 configData.Configuration = configuration;
@@ -287,7 +300,10 @@ namespace SanteDB.Matcher.Services
                     throw new IOException($"Error removing {name}", e);
                 }
             }
-            else throw new KeyNotFoundException($"Could not find {name}");
+            else
+            {
+                throw new KeyNotFoundException($"Could not find {name}");
+            }
         }
 
         /// <summary>

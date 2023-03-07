@@ -16,62 +16,68 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2022-5-30
+ * Date: 2021-8-27
  */
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
-using SanteDB.OrmLite.Providers.Postgres;
+using SanteDB.OrmLite.Providers.Sqlite;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Data;
 using System.Text.RegularExpressions;
 
-namespace SanteDB.Matcher.Orm.PostgreSQL
+namespace SanteDB.Matcher.Orm.Sqlite
 {
     /// <summary>
-    /// Represents the PostgreSQL soundex function
+    /// Soundex filter function
     /// </summary>
-    /// <example>
-    /// ?name.component.value=:(similarity)Fyfe
-    /// or with levenshtein
-    /// ?name.component.value=:(similarity|Fyfe)&lt;3
-    /// </example>
-    [ExcludeFromCodeCoverage]
-    public class PostgresSimilarityFunction : IDbFilterFunction
+    public class SqliteSoundexFilterFunction : IDbInitializedFilterFunction
     {
+
+        // Whether SQLite has soundex
+        private static bool? m_hasSoundex;
+
         /// <summary>
-        /// Gets the name of the function
+        /// Get the name of the function
         /// </summary>
-        public string Name => "similarity";
+        public string Name => "soundex";
 
         /// <summary>
-        /// Provider 
+        /// Get the name of the provider
         /// </summary>
-        public string Provider => PostgreSQLProvider.InvariantName;
-
+        public string Provider => SqliteProvider.InvariantName;
 
         /// <summary>
-        /// Creates the SQL statement
+        /// Create SQL statement
         /// </summary>
         public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op))
-            {
-                op = "=";
-            }
+            if (String.IsNullOrEmpty(op)) op = "=";
 
-            switch (parms.Length)
-            {
-                case 0:
-                    return current.Append($"{filterColumn} % ?", QueryBuilder.CreateParameterValue(parms[0], operandType));
-                case 1: // with levenshtein
-                    return current.Append($"{filterColumn} % ? AND similarity({filterColumn}, ?) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, typeof(double)));
-                default:
-                    throw new ArgumentOutOfRangeException("Invalid number of parameters of string diff");
-            }
+            if (parms.Length == 1) // There is a threshold
+                return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(parms[0], operandType));
+            else
+                return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(value, operandType));
         }
 
+        /// <summary>
+        /// Initialize the soundex algorithm
+        /// </summary>
+        public bool Initialize(IDbConnection connection)
+        {
+            if (!m_hasSoundex.HasValue)
+            {
+                try
+                {
+                    m_hasSoundex = connection.ExecuteScalar<Int32>("select sqlite_compileoption_used('SQLITE_SOUNDEX');") == 1;
+                }
+                catch
+                {
+                    m_hasSoundex = false;
+                }
+            }
+            return m_hasSoundex.GetValueOrDefault();
+        }
     }
-
 }

@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using Phonix;
 using SanteDB.Core;
@@ -71,13 +71,16 @@ namespace SanteDB.Matcher.Filters
             var isApprox = false;
 
             if (config != null)
+            {
                 foreach (var m in config.ApproxSearchOptions)
                 {
                     if (m is ApproxPhoneticOption phonetic && m.Enabled)
                     {
                         var minSpec = phonetic.MinSimilarity;
                         if (!phonetic.MinSimilaritySpecified)
+                        {
                             minSpec = 1.0f;
+                        }
 
                         switch (phonetic.Algorithm)
                         {
@@ -94,13 +97,16 @@ namespace SanteDB.Matcher.Filters
                         }
                     }
                     else if (m is ApproxDifferenceOption difference && m.Enabled)
+                    {
                         isApprox &= me.Levenshtein(other) < difference.MaxDifference;
+                    }
                     else if (m is ApproxPatternOption pattern && m.Enabled)
                     {
                         var regex = new Regex(other.Replace("?", ".?").Replace("*", ".*?"), pattern.IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
                         isApprox &= regex.IsMatch(me);
                     }
                 }
+            }
 
             return isApprox;
         }
@@ -175,7 +181,7 @@ namespace SanteDB.Matcher.Filters
 
             return meCode.Levenshtein(otherCode);
         }
-       
+
         /// <summary>
         /// Determines of other is an alias of me and the strength of the alias
         /// </summary>

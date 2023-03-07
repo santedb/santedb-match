@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Matcher.Filters;
 using System;
@@ -43,11 +43,17 @@ namespace SanteDB.Matcher.Transforms.Names
         public object Apply(object a, object b, params object[] parms)
         {
             if (a is string)
+            {
                 return ((String)a).Alias((String)b);
+            }
             else if (a is IEnumerable aEnum && b is IEnumerable bEnum)
+            {
                 return aEnum.OfType<String>().SelectMany(ar => bEnum.OfType<String>().Select(br => ar.Alias(br)));
+            }
             else
+            {
                 throw new ArgumentException("Cannot execute this transform on this data type");
+            }
         }
     }
 }

@@ -28,32 +28,28 @@ using System.Linq;
 namespace SanteDB.Matcher.Transforms.Text
 {
     /// <summary>
-    /// Calculates the sorensen dice difference
+    /// Jaro-Winkler text transformation
     /// </summary>
-    [Description("Calculate the sorensen-dice difference between the inputs"), DisplayName("Sorensen Dice")]
-    public class SorensenDiceTransform : IBinaryDataTransformer
+    [Description("Removes casing from both inputs"), DisplayName("Nocase")]
+    public class NocaseTransform : IUnaryDataTransformer
     {
         /// <summary>
         /// Gets the name of the transform
         /// </summary>
-        public string Name => "sorensen_dice";
+        public String Name => "nocase";
 
         /// <summary>
-        /// Apply the transform
+        /// Apply the tokenizer
         /// </summary>
-        public object Apply(object a, object b, params object[] parms)
+        public object Apply(object input, params object[] parms)
         {
-            if (a is String)
+           if(input is string s)
             {
-                return ((String)a).SorensenDice((String)b);
+                return s.ToLowerInvariant();
             }
-            else if (a is IEnumerable aEnum && b is IEnumerable bEnum)
+            else if (input is IEnumerable inputEnum)
             {
-                return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.SorensenDice(sb)));
-            }
-            else if (a is IdentifiedData aId && b is IdentifiedData bId)
-            {
-                return aId.ToDisplay().SimilarityTo(bId.ToDisplay());
+                return inputEnum.OfType<String>().Select(o => o.ToLowerInvariant());
             }
             else
             {

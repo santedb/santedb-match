@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Event;
 using SanteDB.Core.Model.Constants;
@@ -37,7 +37,6 @@ namespace SanteDB.Matcher.Test
     [ExcludeFromCodeCoverage]
     public class DummyConceptRepositoryService : IDataPersistenceService<Concept>
     {
-
         private Dictionary<Guid, Concept> m_concepts = new Dictionary<Guid, Concept>()
         {
             { NameUseKeys.OfficialRecord, new Concept() { Mnemonic = "OfficialRecord" } },
@@ -63,18 +62,41 @@ namespace SanteDB.Matcher.Test
 
 #pragma warning disable CS0067
         public event EventHandler<DataPersistingEventArgs<Concept>> Inserting;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Inserted;
+
         public event EventHandler<DataPersistingEventArgs<Concept>> Updating;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Updated;
+
         public event EventHandler<DataPersistingEventArgs<Concept>> Obsoleting;
+
         public event EventHandler<DataPersistedEventArgs<Concept>> Obsoleted;
+
         public event EventHandler<DataRetrievingEventArgs<Concept>> Retrieving;
+
         public event EventHandler<DataRetrievedEventArgs<Concept>> Retrieved;
+
         public event EventHandler<QueryRequestEventArgs<Concept>> Querying;
+
         public event EventHandler<QueryResultEventArgs<Concept>> Queried;
 #pragma warning restore CS0067
 
+        public event EventHandler<DataPersistedEventArgs<Concept>> Deleted;
+
+        public event EventHandler<DataPersistingEventArgs<Concept>> Deleting;
+
         public long Count(Expression<Func<Concept, bool>> p, IPrincipal authContext = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Concept Delete(Guid key, TransactionMode mode, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
@@ -88,7 +110,9 @@ namespace SanteDB.Matcher.Test
                 return tr;
             }
             else
+            {
                 return null;
+            }
         }
 
         public Concept Get(Guid key, Guid versionKey)
@@ -96,22 +120,12 @@ namespace SanteDB.Matcher.Test
             return this.Get(key);
         }
 
-        public Concept Get(Guid id, Guid? versionId, bool loadFast, IPrincipal principal)
+        public Concept Get(Guid id, Guid? versionId, IPrincipal principal)
         {
             return this.Get(id);
         }
 
-        public Concept Get(Guid key, Guid? versionKey, IPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
         public Concept Insert(Concept data, TransactionMode mode, IPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Concept Obsolete(Concept data, TransactionMode mode, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
@@ -121,12 +135,22 @@ namespace SanteDB.Matcher.Test
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
+        public void ObsoleteAll(Expression<Func<Concept, bool>> matching, TransactionMode mode, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryResultSet<Concept> Query(Expression<Func<Concept, bool>> query, IPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         public IEnumerable<Concept> Query(Expression<Func<Concept, bool>> query, int offset, int? count, out int totalResults, IPrincipal principal, params ModelSort<Concept>[] order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryResultSet<Concept> Query<TExpression>(Expression<Func<TExpression, bool>> query, IPrincipal principal) where TExpression : Concept
         {
             throw new NotImplementedException();
         }

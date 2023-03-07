@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
@@ -35,8 +35,10 @@ using SanteDB.Matcher.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -71,20 +73,23 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Trace logger
         /// </summary>
-        protected Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
+        protected readonly Tracer m_tracer = new Tracer("SanteDB.Matcher.Engine");
 
         /// <summary>
         /// Service name
         /// </summary>
         public abstract string ServiceName { get; }
-        
+
         /// <summary>
         /// Static CTOR
         /// </summary>
         static BaseRecordMatchingService()
         {
-            foreach (var t in typeof(BaseRecordMatchingService).Assembly.ExportedTypes.Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
+            foreach (var t in typeof(BaseRecordMatchingService).Assembly.GetExportedTypesSafe().Where(t => typeof(IQueryFilterExtension).IsAssignableFrom(t) && !t.IsAbstract))
+            {
                 QueryFilterExtensions.AddExtendedFilter(Activator.CreateInstance(t) as IQueryFilterExtension);
+            }
+
             ModelSerializationBinder.RegisterModelType(typeof(MatchConfiguration));
         }
 
@@ -97,34 +102,45 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="configurationName">The name of the configuration to use</param>
         /// <param name="collector">The collector to use for diagnostics</param>
         /// <returns>The blocked records</returns>
-        public virtual IEnumerable<T> Block<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
+        public virtual IQueryResultSet<T> Block<T>(T input, string configurationName, IEnumerable<Guid> ignoreKeys, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             this.m_tracer.TraceVerbose("Will block {0} on configuration {1}", input, configurationName);
 
             try
             {
                 collector?.LogStartStage("blocking");
-                if (EqualityComparer<T>.Default.Equals(default(T), input)) throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                if (EqualityComparer<T>.Default.Equals(default(T), input))
+                {
+                    throw new ArgumentNullException(nameof(input), "Input classifier is required");
+                }
 
                 // Get configuration if specified
                 var configService = ApplicationServiceContext.Current.GetService<IRecordMatchingConfigurationService>();
                 if (configService == null)
+                {
                     throw new InvalidOperationException("Cannot find configuration service for matching");
+                }
+
                 var config = configService.GetConfiguration(configurationName);
                 if (config == null)
+                {
                     throw new KeyNotFoundException($"Cannot find configuration named {configurationName}");
+                }
 
                 if (config is MatchConfigurationCollection collection)
                 {
                     config = collection.Configurations.FirstOrDefault(o => o.Target.Any(t => typeof(T).IsAssignableFrom(t.ResourceType) || input.GetType().IsAssignableFrom(t.ResourceType))) ?? config;
                 }
 
-                if (config == null || !(config is MatchConfiguration))
-                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this match provider or is not registered");
+                if (config == null || !(config is MatchConfiguration strongConfig))
+                {
+                    throw new InvalidOperationException($"Configuration {config?.GetType().Name ?? "null"} is not compatible with this provider");
+                }
 
-                var strongConfig = config as MatchConfiguration;
                 if (!strongConfig.Target.Any(t => t.ResourceType.IsAssignableFrom(input.GetType()) || t.ResourceType.IsAssignableFrom(typeof(T))))
+                {
                     throw new InvalidOperationException($"Configuration {strongConfig.Id} doesn't appear to contain any reference to {typeof(T).FullName}");
+                }
 
                 // if there is no blocking config, we need to throw an error
                 if (!strongConfig.Blocking.Any())
@@ -132,35 +148,26 @@ namespace SanteDB.Matcher.Matchers
                     throw new InvalidOperationException($"Configuration {config.Id} contains no blocking instructions, cannot Block");
                 }
 
-                IEnumerable<T> retVal = null;
+                IQueryResultSet<T> retVal = null;
 
                 foreach (var b in strongConfig.Blocking)
                 {
                     if (retVal == null)
-                        retVal = this.DoBlock<T>(input, b, ignoreKeys, collector).ToArray();
+                    {
+                        retVal = this.DoBlock<T>(input, b, collector);
+                    }
                     else if (b.Operator == BinaryOperatorType.AndAlso)
                     {
-#if DEBUG
-                        this.m_tracer.TraceVerbose("INTERSECT blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, ignoreKeys, collector), new IdentifiedComparator<T>()).ToArray();
-#if DEBUG
-                        this.m_tracer.TraceVerbose("INTERSECT against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
+                        retVal = retVal.Intersect(this.DoBlock<T>(input, b, collector));
                     }
                     else if (b.Operator == BinaryOperatorType.OrElse)
                     {
-#if DEBUG
-                        this.m_tracer.TraceVerbose("UNION {0} blocked records against filter {1}", retVal.Count(), b.Filter);
-#endif
-                        retVal = retVal.Union(this.DoBlock<T>(input, b, ignoreKeys, collector), new IdentifiedComparator<T>()).ToArray();
-#if DEBUG
-                        this.m_tracer.TraceVerbose("UNION against filter {0} resulted in {1} results", b.Filter, retVal.Count());
-#endif
+                        retVal = retVal.Union(this.DoBlock<T>(input, b, collector));
                     }
                 }
 
-                return ignoreKeys == null ? retVal : retVal.Where(r => !ignoreKeys.Contains(r.Key.Value));
+                var ignoreKeyArray = ignoreKeys.ToArray();
+                return retVal.Where(o=>!ignoreKeyArray.Contains(o.Key.Value));
             }
             catch (Exception e)
             {
@@ -176,13 +183,13 @@ namespace SanteDB.Matcher.Matchers
         /// <summary>
         /// Perform the block operation
         /// </summary>
-        private IEnumerable<T> DoBlock<T>(T input, MatchBlock block, IEnumerable<Guid> ignoreKeys, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
+        private IQueryResultSet<T> DoBlock<T>(T input, MatchBlock block, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
             // Load the persistence service
-            int tr = 1;
             try
             {
                 collector?.LogStartAction(block);
+
                 // Perpare filter
                 var filter = block.Filter;
                 NameValueCollection qfilter = new NameValueCollection();
@@ -217,34 +224,21 @@ namespace SanteDB.Matcher.Matchers
 
                     if (shouldIncludeExpression)
                     {
-                        var nvc = NameValueCollection.ParseQueryString(b.Expression);
+                        var nvc = b.Expression.ParseQueryString();
                         // Build the expression
-                        foreach (var nv in nvc)
+                        foreach (var nv in nvc.AllKeys)
                         {
-                            foreach (var val in nv.Value)
-                            {
-                                qfilter.Add(nv.Key, val);
-
-                            }
+                            qfilter.Add(nv, nvc.GetValues(nv));
                         }
                     }
                 }
 
                 // Do we skip when no conditions?
-                if (!qfilter.Any())
+                if (!qfilter.AllKeys.Any())
                 {
-                    yield break;
+                    return new MemoryQueryResultSet<T>(new List<T>());
                 }
 
-                // Add ignore clauses
-                if (ignoreKeys?.Any() == true)
-                {
-                    qfilter.Add("id", ignoreKeys.Select(o => $"!{o}"));
-                }
-                if (input.Key.HasValue)
-                {
-                    qfilter.Add("id", $"!{input.Key}");
-                }
 
                 // Make LINQ query
                 // NOTE: We can't build and store this since input is a closure
@@ -262,7 +256,7 @@ namespace SanteDB.Matcher.Matchers
                     foreach (var stateKey in StatusKeys.ActiveStates)
                     {
 
-                        if(statePart == null)
+                        if (statePart == null)
                         {
                             statePart = Expression.MakeBinary(ExpressionType.Equal, stateAccess, Expression.Convert(Expression.Constant(stateKey), typeof(Guid?)));
                         }
@@ -274,55 +268,44 @@ namespace SanteDB.Matcher.Matchers
                     linq = Expression.Lambda<Func<T, bool>>(Expression.MakeBinary(ExpressionType.AndAlso,
                             statePart, linq.Body), linq.Parameters[0]);
                 }
+
                 this.m_tracer.TraceVerbose("Will execute block query : {0}", linq);
 
                 // Query control variables for iterating result sets
-                var batch = block.BatchSize;
-                if (batch == 0) { batch = 100; }
 
                 // Set the authentication context
+                using(DataPersistenceControlContext.Create(LoadMode.SyncLoad))
                 using (AuthenticationContext.EnterSystemContext())
                 {
-                    int ofs = 0;
-                    while (ofs < tr)
+                    IQueryResultSet<T> results = null;
+
+                    if (block.UseRawPersistenceLayer)
                     {
-
-                        if (block.UseRawPersistenceLayer)
+                        var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
+                        if (persistenceService == null)
                         {
-                            var persistenceService = ApplicationServiceContext.Current.GetService<IDataPersistenceService<T>>();
-                            if (persistenceService == null)
-                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
-                            var records = persistenceService.Query(linq, ofs, batch, out tr, AuthenticationContext.SystemPrincipal);
-                            collector?.LogSample(linq.ToString(), tr);
-                            foreach (var itm in records)
-                                yield return itm;
-                            ofs += batch;
-                        }
-                        else
-                        {
-                            var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
-                            if (persistenceService == null)
-                                throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
-
-                            var records = persistenceService.Find(linq, ofs, batch, out tr);
-                            collector?.LogSample(linq.ToString(), tr);
-                            foreach (var itm in records)
-                            {
-                                if(itm.Key.HasValue &&
-                                    itm.Key != input.Key &&
-                                    ignoreKeys?.Contains(itm.Key.Value) != true)
-                                    yield return itm;
-                            }
-                            ofs += batch;
+                            throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
                         }
 
-                        if(ofs > 100)
-                        {
-                            collector?.LogSample("too-many-results", tr);
-                            yield break;
-                        }
+                        results = persistenceService.Query(linq, AuthenticationContext.SystemPrincipal);
+
                     }
+                    else
+                    {
+                        var persistenceService = ApplicationServiceContext.Current.GetService<IRepositoryService<T>>();
+                        if (persistenceService == null)
+                        {
+                            throw new InvalidOperationException($"Cannot find persistence service for {typeof(T).FullName}");
+                        }
+
+                        results = persistenceService.Find(linq);
+
+                    }
+
+
+
+                    collector?.LogSample(linq.ToString(), results.Count());
+                    return results;
                 }
             }
             finally
@@ -346,8 +329,10 @@ namespace SanteDB.Matcher.Matchers
         /// </summary>
         public object CreateMatchReport(Type recordType, object input, IEnumerable<IRecordMatchResult> matches, IRecordMatchingDiagnosticSession diagnosticSession = null)
         {
+
             return new MatchReport()
             {
+                Input = (input as IIdentifiedResource)?.Key ?? Guid.Empty,
                 Diagnostics = diagnosticSession?.GetSessionData() as MatchDiagnostics,
                 Results = matches.Select(o => new MatchResultReport(new MatchResult<IdentifiedData>(o.Record, o.Score, o.Strength, o.Configuration, o.Classification, o.Method, o.Vectors))).ToList()
             };

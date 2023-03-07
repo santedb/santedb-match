@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Matcher.Util;
 using System;
@@ -43,11 +43,17 @@ namespace SanteDB.Matcher.Transforms.Text
         public object Apply(object a, object b, params object[] parms)
         {
             if (a is String)
+            {
                 return ((String)a).Levenshtein((String)b);
+            }
             else if (a is IEnumerable aEnum && b is IEnumerable bEnum)
+            {
                 return aEnum.OfType<String>().SelectMany(sa => bEnum.OfType<String>().Select(sb => sa.Levenshtein(sb)));
+            }
             else
+            {
                 throw new InvalidOperationException("Cannot process this transformation on this type of input");
+            }
         }
     }
 }

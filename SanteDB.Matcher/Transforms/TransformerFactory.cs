@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using System;
 using System.Collections.Generic;
@@ -46,8 +46,13 @@ namespace SanteDB.Matcher.Transforms
             get
             {
                 if (s_current == null)
+                {
                     lock (s_lock)
+                    {
                         s_current = s_current ?? new TransformerFactory();
+                    }
+                }
+
                 return s_current;
             }
         }
@@ -57,7 +62,7 @@ namespace SanteDB.Matcher.Transforms
         /// </summary>
         private TransformerFactory()
         {
-            this.m_dataTransformers = typeof(TransformerFactory).Assembly.ExportedTypes
+            this.m_dataTransformers = typeof(TransformerFactory).Assembly.GetExportedTypesSafe()
                 .Where(o => typeof(IDataTransformer).IsAssignableFrom(o) && !o.IsAbstract && !o.IsInterface)
                 .ToDictionary(o => (Activator.CreateInstance(o) as IDataTransformer).Name, o => o);
         }
@@ -81,8 +86,12 @@ namespace SanteDB.Matcher.Transforms
         public void Add(String name, Type transformerType)
         {
             lock (s_lock)
+            {
                 if (!this.m_dataTransformers.ContainsKey(transformerType.Name))
+                {
                     this.m_dataTransformers.Add(transformerType.Name, transformerType);
+                }
+            }
         }
 
         /// <summary>

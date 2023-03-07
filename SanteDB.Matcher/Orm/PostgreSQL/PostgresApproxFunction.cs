@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
@@ -44,7 +44,7 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Tracer to trace the approx function
         /// </summary>
-        private Tracer m_tracer = Tracer.GetTracer(typeof(PostgresApproxlikeFunction));
+        private readonly Tracer m_tracer = Tracer.GetTracer(typeof(PostgresApproxlikeFunction));
 
         /// <summary>
         /// Gets the name of the function
@@ -54,18 +54,21 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
         /// <summary>
         /// Provider
         /// </summary>
-        public string Provider => "pgsql";
+        public string Provider => PostgreSQLProvider.InvariantName;
 
         /// <summary>
         /// Creates the SQL statement
         /// </summary>
-        public SqlStatement CreateSqlStatement(SqlStatement current, string filterColumn, string[] parms, string operand, Type operandType)
+        public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length != 1)
+            {
                 throw new ArgumentException("Approx requires at least one parameter");
+            }
 
             var config = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<ApproximateMatchingConfigurationSection>();
             if (config == null)
+            {
                 config = new ApproximateMatchingConfigurationSection()
                 {
                     ApproxSearchOptions = new List<ApproxSearchOption>()
@@ -75,31 +78,50 @@ namespace SanteDB.Matcher.Orm.PostgreSQL
                         new ApproxDifferenceOption() { Enabled = true, MaxDifference = 1 }
                     }
                 };
+            }
 
-            var filter = new SqlStatement(current.DbProvider);
+            var filter = new SqlStatementBuilder(current.DbProvider);
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxDifferenceOption difference)
+                {
                     filter.Or($"(length(trim({filterColumn})) > {difference.MaxDifference * 2} AND  levenshtein(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) <= {difference.MaxDifference})", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                }
                 else if (alg is ApproxPhoneticOption phonetic)
                 {
                     var min = phonetic.MinSimilarity;
-                    if (!phonetic.MinSimilaritySpecified) min = 1.0f;
+                    if (!phonetic.MinSimilaritySpecified)
+                    {
+                        min = 1.0f;
+                    }
+
                     if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Soundex)
+                    {
                         filter.Or($"soundex({filterColumn}) = soundex(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    }
                     else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone)
+                    {
                         filter.Or($"metaphone({filterColumn},4) = metaphone(?,4)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    }
                     else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.DoubleMetaphone)
+                    {
                         filter.Or($"dmetaphone({filterColumn}) = dmetaphone(?)", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    }
                     else
+                    {
                         throw new InvalidOperationException($"Phonetic algorithm {phonetic.Algorithm} is not valid");
+                    }
                 }
                 else if (alg is ApproxPatternOption pattern)
                 {
                     if (pattern.IgnoreCase)
+                    {
                         filter.Or($"{filterColumn} ilike ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                    }
                     else
+                    {
                         filter.Or($"{filterColumn} like ?", QueryBuilder.CreateParameterValue(parms[0].Replace("*", "%").Replace("?", "_"), typeof(String)));
+                    }
                 }
             }
 

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2021, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2022, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-5
+ * Date: 2022-5-30
  */
 using NUnit.Framework;
 using SanteDB.Matcher.Transforms;
@@ -51,7 +51,7 @@ namespace SanteDB.Matcher.Test
             Assert.IsAssignableFrom<JaroWinklerTransform>(instance);
             Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
 
-            if(instance is IBinaryDataTransformer binary)
+            if (instance is IBinaryDataTransformer binary)
             {
                 var distance = binary.Apply("Oscar", "Ofsar");
                 Assert.LessOrEqual(0.1d, (double)distance);
@@ -65,16 +65,17 @@ namespace SanteDB.Matcher.Test
         [Test]
         public void TestSorensenDiceTransform()
         {
-             var instance = TransformerFactory.Current.CreateTransformer("sorensen_dice");
+            var instance = TransformerFactory.Current.CreateTransformer("sorensen_dice");
             Assert.IsAssignableFrom<SorensenDiceTransform>(instance);
             Assert.IsInstanceOf<IBinaryDataTransformer>(instance);
 
             // Apply
-            if (instance is IBinaryDataTransformer binary) {
+            if (instance is IBinaryDataTransformer binary)
+            {
                 var distance = binary.Apply("Night", "Nacht");
                 Assert.AreEqual(0.25d, distance);
                 distance = binary.Apply("Testing", "Testong");
-                Assert.AreEqual(2.0/3.0, distance);
+                Assert.AreEqual(2.0 / 3.0, distance);
                 distance = binary.Apply("This is a long string", "This is shorter");
                 Assert.AreEqual(0.41379310344827586d, distance);
                 distance = binary.Apply("Bahamas", "Bahamas, The");

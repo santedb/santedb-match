@@ -1,26 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> -->
-  <!-- <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /> -->
-  <!-- <PropertyGroup> -->
-    <!-- <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion> -->
-    <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration> -->
-    <!-- <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform> -->
-    <!-- <ProjectGuid>{A37BB496-739D-440E-AB64-E2939A759898}</ProjectGuid> -->
-    <!-- <OutputType>Library</OutputType> -->
-    <!-- <RootNamespace>SanteDB.Matcher</RootNamespace> -->
-    <!-- <AssemblyName>SanteDB.Matcher</AssemblyName> -->
-    <!-- <DefaultLanguage>en-US</DefaultLanguage> -->
-    <!-- <FileAlignment>512</FileAlignment> -->
-    <!-- <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids> -->
-    <!-- <TargetFrameworkProfile>Profile7</TargetFrameworkProfile> -->
-    <!-- <TargetFrameworkVersion>v4.7</TargetFrameworkVersion> -->
-  <!-- </PropertyGroup> -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(VersionNumber)' == ''">
-    <VersionNumber>2.1.0-debug</VersionNumber>
+    <VersionNumber>3.0-debug</VersionNumber>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>SanteDB.Matcher</PackageId>
@@ -183,5 +167,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <!-- <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" /> -->
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>

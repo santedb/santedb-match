@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-8-27
+ * Date: 2022-5-30
  */
 using SanteDB.Core.Diagnostics;
 using SanteDB.Matcher.Definition;
@@ -44,8 +44,24 @@ namespace SanteDB.Matcher.Util
             this.PropertyName = propertyName;
             this.Evaluated = evaluated;
             this.CalculatedScore = calculatedScore;
-            this.A = aValue;
-            this.B = bValue;
+
+            if (aValue is IEnumerable ae && !(aValue is String))
+            {
+                this.A = ae.OfType<Object>().FirstOrDefault();
+            }
+            else
+            {
+                this.A = aValue;
+            }
+
+            if (bValue is IEnumerable be && !(bValue is String))
+            {
+                this.B = be.OfType<Object>().FirstOrDefault();
+            }
+            else
+            {
+                this.B = bValue;
+            }
             this.Result = result;
         }
 
@@ -92,7 +108,8 @@ namespace SanteDB.Matcher.Util
         /// </summary>
         static AssertionUtil()
         {
-            foreach (var t in typeof(AssertionUtil).Assembly.ExportedTypes.Where(t => typeof(IDataTransformer).IsAssignableFrom(t) && !t.IsAbstract))
+            
+            foreach (var t in typeof(AssertionUtil).Assembly.GetExportedTypesSafe().Where(t => typeof(IDataTransformer).IsAssignableFrom(t) && !t.IsAbstract))
             {
                 var idt = Activator.CreateInstance(t) as IDataTransformer;
                 s_transforms.Add(idt.Name, idt);
@@ -108,7 +125,7 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Get the null score
         /// </summary>
-        private static double? GetNullScore(MatchAttribute attribute)
+        internal static double? GetNullScore(MatchAttribute attribute)
         {
             switch (attribute.WhenNull)
             {
@@ -133,9 +150,10 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Executes a transform
         /// </summary>
-        /// <param name="transform">The transform to run</param>
+        /// <param name="transformName">The transform to run</param>
         /// <param name="aValue">The A value to pass to the transform</param>
         /// <param name="bValue">The B value to pass to the transform</param>
+        /// <param name="transformParameters">The parameters to pass to the transform</param>
         /// <returns>The result of the transform to be assigned back to the scope (or to the values in the case of unary transforms)</returns>
         internal static object ExecuteTransform(String transformName, object[] transformParameters, ref object aValue, ref object bValue)
         {
@@ -164,10 +182,14 @@ namespace SanteDB.Matcher.Util
                         return (transformer as IBinaryDataTransformer).Apply(aValue, bValue, transformParameters);
                     }
                     else
+                    {
                         throw new InvalidOperationException("Invalid type of transform");
+                    }
                 }
                 else
+                {
                     throw new KeyNotFoundException($"Transform {transformName} is not registered");
+                }
             }
             catch (Exception e)
             {
@@ -195,21 +217,32 @@ namespace SanteDB.Matcher.Util
                 foreach (var xform in assertion.Transforms)
                 {
                     if (a == null || b == null)
+                    {
                         break;
+                    }
+
                     scope = ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b) ?? scope;
                 }
                 if (a == null || b == null)
-                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                {
+                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
+                }
                 else if (a is IEnumerable enumA && !enumA.OfType<Object>().Any() || b is IEnumerable enumB && !enumB.OfType<Object>().Any())
-                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                {
+                    return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
+                }
 
                 // Scope as enum
                 if (scope is IEnumerable enumScope)
                 {
                     if (!enumScope.OfType<Object>().Any()) // No results - cannot evaluate
-                        return new AssertionResult(propertyName, false, false, GetNullScore(attribute), aValue, bValue);
+                    {
+                        return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
+                    }
                     else
+                    {
                         scope = enumScope.OfType<Object>().Max();
+                    }
                 }
 
                 var retVal = true;
@@ -220,7 +253,7 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                    retVal &= subVal.Result;
+                                retVal &= subVal.Result;
                             }
                             break;
                         }
@@ -229,34 +262,50 @@ namespace SanteDB.Matcher.Util
                             foreach (var asrt in assertion.Assertions)
                             {
                                 var subVal = ExecuteAssertion(propertyName, asrt, attribute, a, b);
-                                    retVal |= subVal.Result;
+                                retVal |= subVal.Result;
                             }
                             break;
                         }
                     case BinaryOperatorType.Equal:
-                        if (assertion.ValueSpecified)
+                        if (assertion.ValueSpecified && scope != null)
+                        {
                             retVal = scope.Equals(assertion.Value);
+                        }
                         else
                         {
                             if (a == b) // reference equality
+                            {
                                 retVal = true;
+                            }
                             else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                            {
                                 retVal = aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            }
                             else
+                            {
                                 retVal = a.Equals(b);
+                            }
                         }
                         break;
                     case BinaryOperatorType.NotEqual:
                         if (assertion.ValueSpecified)
+                        {
                             retVal = !scope.Equals(assertion.Value);
+                        }
                         else
                         {
                             if (a == null)
+                            {
                                 retVal = b != null;
+                            }
                             else if (a is IEnumerable aEnum && b is IEnumerable bEnum) // Run against sequence
+                            {
                                 retVal = !aEnum.OfType<Object>().SequenceEqual(bEnum.OfType<Object>());
+                            }
                             else
+                            {
                                 retVal = !a.Equals(b);
+                            }
                         }
                         break;
                     case BinaryOperatorType.GreaterThan:
@@ -279,12 +328,16 @@ namespace SanteDB.Matcher.Util
                 m_tracer.TraceVerbose("ASSERT - {0} {1} {2} => {3}", aValue, assertion.Operator, bValue, retVal);
 #endif
                 var weightedScore = retVal ? attribute.MatchWeight : attribute.NonMatchWeight;
+                object matchedA = a, matchedB = b;
                 // Is there a partial measure applied? only apply if the match assertion was correct
                 if (attribute.Measure != null && retVal)
                 {
                     a = aValue; b = bValue;
                     foreach (var xform in attribute.Measure.Transforms)
+                    {
                         ExecuteTransform(xform.Name, xform.Parameters.ToArray(), ref a, ref b);
+                    }
+
                     var measureResult = ExecuteTransform(attribute.Measure.Name, attribute.Measure.Parameters.ToArray(), ref a, ref b);
                     if (measureResult is IEnumerable enumMeasure)
                     {
@@ -301,7 +354,7 @@ namespace SanteDB.Matcher.Util
 
                 m_tracer.TraceInfo("Match attribute ({0}) was scored against input as {1}", attribute, weightedScore);
 
-                return new AssertionResult(propertyName, true, retVal, weightedScore, aValue, bValue);
+                return new AssertionResult(propertyName, true, retVal, weightedScore, matchedA, matchedB);
             }
             catch (Exception e)
             {

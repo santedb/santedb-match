@@ -16,13 +16,12 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2021-11-17
+ * Date: 2022-5-30
  */
 using Newtonsoft.Json;
 using SanteDB.Core.Interop;
 using SanteDB.Core.Matching;
 using SanteDB.Core.Model.Parameters;
-using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Transforms;
 using SanteDB.Rest.Common;
 using System;
@@ -31,7 +30,6 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Rest
@@ -40,7 +38,7 @@ namespace SanteDB.Matcher.Rest
     /// The type of transformer
     /// </summary>
     [XmlType(nameof(TransformerType), Namespace = "http://santedb.org/matching")]
-    internal enum TransformerType
+    public enum TransformerType
     {
         /// <summary>
         /// The transform is binary (works with two operands)
@@ -60,7 +58,7 @@ namespace SanteDB.Matcher.Rest
     /// </summary>
     [XmlType(nameof(TransformerInfo), Namespace = "http://santedb.org/matching")]
     [ExcludeFromCodeCoverage]
-    internal class TransformerInfo
+    public class TransformerInfo
     {
         /// <summary>
         /// Serialization ctor
@@ -117,7 +115,7 @@ namespace SanteDB.Matcher.Rest
     /// </summary>
     [XmlType(nameof(TransformerArgumentInfo), Namespace = "http://santedb.org/matching")]
     [ExcludeFromCodeCoverage]
-    internal class TransformerArgumentInfo
+    public class TransformerArgumentInfo
     {
         /// <summary>
         /// CTOR for argument serialization
