@@ -26,7 +26,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Condition="$(SolutionName.Contains('-ext'))" Project="$(SolutionDir)\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.targets"/>
+  <Import Condition="$(SolutionName.Contains('-ext'))" Project="$(SolutionDir)\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.targets" />
   <Choose>
     <When Condition="$(SolutionName.Contains('-ext'))">
       
@@ -50,8 +50,8 @@
 		    <ProjectReference Include="..\..\santedb-api\SanteDB.Core.TestFramework\SanteDB.Core.TestFramework.csproj">
           <Name>SanteDB.Core.TestFramework</Name>
         </ProjectReference>
-        <ProjectReference Include="..\..\santedb-data\SanteDB.Persistence.Data\SanteDB.Persistence.Data.csproj"/>
-        <ProjectReference Include="..\..\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.csproj"/>
+        <ProjectReference Include="..\..\santedb-data\SanteDB.Persistence.Data\SanteDB.Persistence.Data.csproj" />
+        <ProjectReference Include="..\..\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.csproj" />
 
       </ItemGroup>
     </When>
@@ -75,7 +75,7 @@
       <Version>1.1.4</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.13.3</Version>
