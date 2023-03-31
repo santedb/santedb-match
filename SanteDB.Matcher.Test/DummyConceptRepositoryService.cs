@@ -80,11 +80,11 @@ namespace SanteDB.Matcher.Test
         public event EventHandler<QueryRequestEventArgs<Concept>> Querying;
 
         public event EventHandler<QueryResultEventArgs<Concept>> Queried;
-#pragma warning restore CS0067
 
         public event EventHandler<DataPersistedEventArgs<Concept>> Deleted;
 
         public event EventHandler<DataPersistingEventArgs<Concept>> Deleting;
+#pragma warning restore CS0067
 
         public long Count(Expression<Func<Concept, bool>> p, IPrincipal authContext = null)
         {
