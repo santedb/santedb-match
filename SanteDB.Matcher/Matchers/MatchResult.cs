@@ -45,22 +45,27 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="method">The method that was used to establish the match</param>
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
         /// <param name="vectors">The attributes + scores</param>
-        /// <param name="configurationName">The name of the configuration used to match</param>
-        public MatchResult(IdentifiedData record, double score, double strength, String configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
+        /// <param name="configuration">The name of the configuration used to match</param>
+        public MatchResult(IdentifiedData record, double score, double strength, IRecordMatchingConfiguration configuration, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
         {
             this.Strength = strength;
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
+<<<<<<< HEAD
             this.ConfigurationName = configurationName;
             this.Vectors = vectors?.Select(o => o is MatchVector mv ? mv : new MatchVector(o)).ToList() ?? new List<MatchVector>();
+=======
+            this.Configuration = configuration;
+            this.Vectors = vectors.Select(o => o is MatchVector mv ? mv : new MatchVector(o)).ToList();
+>>>>>>> develop
             this.Method = method;
         }
 
         /// <summary>
         /// Gets the configuration name used to match
         /// </summary>
-        public string ConfigurationName { get; private set; }
+        public IRecordMatchingConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Gets the record that was matched
@@ -122,10 +127,10 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="classification">The classification</param>
         /// <param name="method">The method that was used to establish the match</param>
         /// <param name="strength">The relative strength (0 .. 1) of the match given the maximum score the match could have gotten</param>
-        /// <param name="configurationName">The name of the configuration used to score</param>
+        /// <param name="configuration">The name of the configuration used to score</param>
         /// <param name="vectors">The matching attribute and scores</param>
-        public MatchResult(T record, double score, double strength, string configurationName, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
-            : base(record, score, strength, configurationName, classification, method, vectors)
+        public MatchResult(T record, double score, double strength, IRecordMatchingConfiguration configuration, RecordMatchClassification classification, RecordMatchMethod method, IEnumerable<IRecordMatchVector> vectors)
+            : base(record, score, strength, configuration, classification, method, vectors)
         {
         }
 
