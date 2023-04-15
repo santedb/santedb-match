@@ -52,7 +52,7 @@ namespace SanteDB.Matcher.Matchers
             this.Record = record;
             this.Score = score;
             this.Classification = classification;
-            this.ConfigurationName = configurationName;
+            this.Configuration = configuration;
             this.Vectors = vectors?.Select(o => o is MatchVector mv ? mv : new MatchVector(o)).ToList() ?? new List<MatchVector>();
             this.Method = method;
         }
