@@ -50,7 +50,7 @@ namespace SanteDB.Matcher.Definition
             this.Version = 1;
             this.CreatedBy = value.CreatedBy;
             this.CreationTime = value.CreationTime.DateTime;
-            this.State = value.State;
+            this.Status = value.Status;
 
             this.Tags = new List<MatchConfigurationMetadataTag>(value.Tags.Select(o => new MatchConfigurationMetadataTag()
             {
@@ -75,7 +75,7 @@ namespace SanteDB.Matcher.Definition
         /// Gets or sets the status
         /// </summary>
         [XmlElement("status"), JsonProperty("status")]
-        public MatchConfigurationStatus State { get; set; }
+        public MatchConfigurationStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the version

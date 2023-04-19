@@ -257,7 +257,7 @@ namespace SanteDB.Matcher.Services
                     if (configuration is MatchConfiguration mc)
                     {
                         // is the user changing the state
-                        if (mc.Metadata.State != configData.Configuration.Metadata.State)
+                        if (mc.Metadata.Status != configData.Configuration.Metadata.State)
                         {
                             this.m_pepService.Demand(PermissionPolicyIdentifiers.ActivateMatchConfiguration);
                         }

@@ -81,11 +81,11 @@ namespace SanteDB.Matcher.Rest
             // Get status
             if (parameters.TryGet<bool>("state", out bool state) && state)
             {
-                matchConfiguration.Metadata.State = MatchConfigurationStatus.Active;
+                matchConfiguration.Metadata.Status = MatchConfigurationStatus.Active;
             }
             else
             {
-                matchConfiguration.Metadata.State = MatchConfigurationStatus.Inactive;
+                matchConfiguration.Metadata.Status = MatchConfigurationStatus.Inactive;
             }
             return this.m_matchConfiguration.SaveConfiguration(matchConfiguration);
         }
