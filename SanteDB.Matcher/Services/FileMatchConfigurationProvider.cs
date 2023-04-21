@@ -302,7 +302,7 @@ namespace SanteDB.Matcher.Services
             }
             else
             {
-                throw new KeyNotFoundException($"Could not find {name}");
+                throw new KeyNotFoundException($"Could not find match configuration {name}");
             }
         }
 
