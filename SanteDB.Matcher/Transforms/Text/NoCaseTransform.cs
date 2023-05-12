@@ -18,8 +18,6 @@
  * User: fyfej
  * Date: 2023-3-10
  */
-using SanteDB.Core.Model;
-using SanteDB.Matcher.Util;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -43,7 +41,7 @@ namespace SanteDB.Matcher.Transforms.Text
         /// </summary>
         public object Apply(object input, params object[] parms)
         {
-           if(input is string s)
+            if (input is string s)
             {
                 return s.ToLowerInvariant();
             }

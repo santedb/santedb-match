@@ -19,14 +19,14 @@
  * Date: 2023-3-10
  */
 using SanteDB.Core.Diagnostics;
+using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Sqlite;
 using System;
+using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using SanteDB.OrmLite;
-using System.Data;
 
 namespace SanteDB.Matcher.Orm.Sqlite
 {

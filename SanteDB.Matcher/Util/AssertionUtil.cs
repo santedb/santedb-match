@@ -108,7 +108,7 @@ namespace SanteDB.Matcher.Util
         /// </summary>
         static AssertionUtil()
         {
-            
+
             foreach (var t in typeof(AssertionUtil).Assembly.GetExportedTypesSafe().Where(t => typeof(IDataTransformer).IsAssignableFrom(t) && !t.IsAbstract))
             {
                 var idt = Activator.CreateInstance(t) as IDataTransformer;

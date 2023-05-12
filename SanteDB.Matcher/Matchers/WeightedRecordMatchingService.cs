@@ -50,7 +50,7 @@ namespace SanteDB.Matcher.Matchers
         {
             try
             {
-                if(blocks is IQueryResultSet)
+                if (blocks is IQueryResultSet)
                 {
                     blocks = blocks.ToArray();
                 }
@@ -150,15 +150,16 @@ namespace SanteDB.Matcher.Matchers
                 // Throw out attributes which are dependent however the dependent attribute was unsuccessful
                 // So if for example: If the scoring for CITY is only counted when STATE is successful, but STATE was
                 // unsuccessful, we want to exclude CITY.
-                for(var i = 0; i < attributeResult.Count; i++)
+                for (var i = 0; i < attributeResult.Count; i++)
                 {
-                    if (!attributeResult[i].Attribute.When.All(w => {
+                    if (!attributeResult[i].Attribute.When.All(w =>
+                    {
                         var attScore = attributeResult.FirstOrDefault(r => r?.Attribute.Id == w.AttributeRef);
                         return attScore == null || attScore.Evaluated && attScore.Score > 0;
                     }))
                     {
                         var newScore = AssertionUtil.GetNullScore(attributeResult[i].Attribute);
-                        if(newScore.HasValue)
+                        if (newScore.HasValue)
                         {
                             attributeResult[i].Score = newScore.Value;
                         }

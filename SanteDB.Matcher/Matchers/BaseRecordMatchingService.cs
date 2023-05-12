@@ -38,7 +38,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace SanteDB.Matcher.Matchers
 {
@@ -167,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 var ignoreKeyArray = ignoreKeys?.ToArray() ?? new Guid[0];
-                return retVal.Where(o=>!ignoreKeyArray.Contains(o.Key.Value));
+                return retVal.Where(o => !ignoreKeyArray.Contains(o.Key.Value));
             }
             catch (Exception e)
             {
@@ -274,7 +273,7 @@ namespace SanteDB.Matcher.Matchers
                 // Query control variables for iterating result sets
 
                 // Set the authentication context
-                using(DataPersistenceControlContext.Create(LoadMode.SyncLoad))
+                using (DataPersistenceControlContext.Create(LoadMode.SyncLoad))
                 using (AuthenticationContext.EnterSystemContext())
                 {
                     IQueryResultSet<T> results = null;

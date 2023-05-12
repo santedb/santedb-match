@@ -129,7 +129,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
                     m_hasSoundex = false;
                 }
             }
-            else if(m_hasSpellFix.GetValueOrDefault())
+            else if (m_hasSpellFix.GetValueOrDefault())
             {
                 connection.LoadExtension("spellfix");
 
