@@ -93,6 +93,13 @@ namespace SanteDB.Matcher.Services
             this.m_pepService = pepService;
             this.m_configuration = configurationManager.GetSection<FileMatchConfigurationSection>();
             this.m_localizationService = localizationService;
+
+            foreach(var fp in this.m_configuration.FilePath.Where(o=>!o.ReadOnly))
+            {
+                if (!Directory.Exists(fp.Path)) {
+                    Directory.CreateDirectory(fp.Path);
+                }
+            }
             // When application has started
             ApplicationServiceContext.Current.Started += (o, e) =>
             {
@@ -257,7 +264,7 @@ namespace SanteDB.Matcher.Services
                     if (configuration is MatchConfiguration mc)
                     {
                         // is the user changing the state
-                        if (mc.Metadata.Status != configData.Configuration.Metadata.State)
+                        if (mc.Metadata.Status != configData.Configuration.Metadata.Status)
                         {
                             this.m_pepService.Demand(PermissionPolicyIdentifiers.ActivateMatchConfiguration);
                         }
