@@ -93,6 +93,13 @@ namespace SanteDB.Matcher.Services
             this.m_pepService = pepService;
             this.m_configuration = configurationManager.GetSection<FileMatchConfigurationSection>();
             this.m_localizationService = localizationService;
+
+            foreach(var fp in this.m_configuration.FilePath.Where(o=>!o.ReadOnly))
+            {
+                if (!Directory.Exists(fp.Path)) {
+                    Directory.CreateDirectory(fp.Path);
+                }
+            }
             // When application has started
             ApplicationServiceContext.Current.Started += (o, e) =>
             {
