@@ -35,6 +35,8 @@ namespace SanteDB.Matcher.Orm.Sqlite
     /// </summary>
     public class SqliteLevenshteinFilterFunction : IDbInitializedFilterFunction
     {
+        private bool m_hasNaggedMissingSpellfix = false;
+
         /// <summary>
         /// Name of the filter function
         /// </summary>
@@ -95,17 +97,29 @@ namespace SanteDB.Matcher.Orm.Sqlite
                 }
                 catch (Exception e) when (e.Message == "SQL logic error")
                 {
-                    Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
+                    if (!this.m_hasNaggedMissingSpellfix)
+                    {
+                        Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
+                        this.m_hasNaggedMissingSpellfix = true;
+                    }
                     return false;
                 }
                 catch (Exception e)
                 {
-                    Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
+                    if (!this.m_hasNaggedMissingSpellfix)
+                    {
+                        Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
+                        this.m_hasNaggedMissingSpellfix = true;
+                    }
                     return false;
                 }
 
             }
-            Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - Missing Library");
+            if (!this.m_hasNaggedMissingSpellfix)
+            {
+                Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - Missing Library");
+                this.m_hasNaggedMissingSpellfix = true;
+            }
 
             return false;
         }
