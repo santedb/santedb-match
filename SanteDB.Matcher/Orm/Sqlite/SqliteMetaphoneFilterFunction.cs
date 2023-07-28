@@ -24,6 +24,7 @@ using SanteDB.OrmLite.Providers;
 using SanteDB.OrmLite.Providers.Sqlite;
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -66,37 +67,33 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public bool Initialize(IDbConnection connection)
         {
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SpellFix.dll")) ||
+            /*if (File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SpellFix.dll")) ||
                 File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "spellfix.so")))
+            {*/
+            try
             {
-                try
+                if (connection.ExecuteScalar<Int32>("SELECT sqlite_compileoption_used('SQLITE_ENABLE_LOAD_EXTENSION')") == 1)
                 {
-                    if (connection.ExecuteScalar<Int32>("SELECT sqlite_compileoption_used('SQLITE_ENABLE_LOAD_EXTENSION')") == 1)
-                    {
-                        try
-                        {
-                            connection.LoadExtension("spellfix");
-                        }
-                        catch
-                        { }
-                        var diff = connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');");
-                        if (diff > 1)
-                            connection.ExecuteScalar<Int32>("SELECT editdist3('__sfEditCost');");
-                    }
-                    return true;
-                }
-                catch (Exception e) when (e.Message == "SQL logic error")
-                {
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
-                    return false;
-                }
-            }
+                    connection.LoadExtension("spellfix");
 
-            return false;
+                    var diff = connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');");
+                    if (diff > 1)
+                        connection.ExecuteScalar<Int32>("SELECT editdist3('__sfEditCost');");
+                }
+                return true;
+            }
+            catch (Exception e) when (e.Message == "SQL logic error")
+            {
+                return false;
+            }
+            catch (Exception e)
+            {
+                Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
+                return false;
+            }
+            //}
+
+            //return false;
         }
     }
 }
