@@ -51,6 +51,7 @@ namespace SanteDB.Matcher.Definition
         [JsonProperty("args")]
         public List<Object> Parameters { get; set; }
 
+        /// <inheritdoc />
         public override string ToString() => $"XFRM: {this.Name}({String.Join(",", this.Parameters.Select(p => p.ToString()))})";
     }
 }

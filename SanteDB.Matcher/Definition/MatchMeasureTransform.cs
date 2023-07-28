@@ -30,9 +30,15 @@ namespace SanteDB.Matcher.Definition
     [XmlType(nameof(MatchMeasureSource), Namespace = "http://santedb.org/matcher")]
     public enum MatchMeasureSource
     {
+        /// <summary>
+        /// The source is asserted from context.
+        /// </summary>
         [XmlEnum("asserted")]
         Assertion,
 
+        /// <summary>
+        /// The source is an attribute.
+        /// </summary>
         [XmlEnum("attribute")]
         Attribute
     }

@@ -106,6 +106,7 @@ namespace SanteDB.Matcher.Matchers
         /// <param name="configuration">The name of the configuration used</param>
         /// <param name="evaluationType">The evaluation type</param>
         /// <param name="matchThreshold">The matching threshold</param>
+        /// <param name="nonMatchThreshold">The non-matching threshold.</param>
         /// <param name="collector">The diagnostics collector to use</param>
         private IRecordMatchResult<T> ClassifyInternal<T>(T input, T block, List<MatchAttribute> attributes, IRecordMatchingConfiguration configuration, ThresholdEvaluationType evaluationType, double matchThreshold, double nonMatchThreshold, IRecordMatchingDiagnosticSession collector = null) where T : IdentifiedData
         {
