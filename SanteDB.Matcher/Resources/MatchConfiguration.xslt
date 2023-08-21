@@ -390,7 +390,7 @@ function renderBlockingSubgraph(e,a,r){var n="subgraph Blocking[\"<i class='fa f
 
         <xsl:if test="$m:jsonConfig">
 
-          <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js">
+          <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js">
             <![CDATA[// Mermaid Include]]>
           </script>
           <script type="text/javascript">

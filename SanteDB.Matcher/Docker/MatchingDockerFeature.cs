@@ -39,8 +39,17 @@ namespace SanteDB.Matcher.Docker
     {
 
         // Mode setting
+        /// <summary>
+        /// The mode setting key.
+        /// </summary>
         public const string ModeSetting = "MODE";
+        /// <summary>
+        /// Use the <see cref="SimpleRecordMatchingService"/>.
+        /// </summary>
         public const string SimpleMode = "SIMPLE";
+        /// <summary>
+        /// Use the <see cref="WeightedRecordMatchingService"/>.
+        /// </summary>
         public const string WeightedMode = "WEIGHTED";
 
         /// <summary>

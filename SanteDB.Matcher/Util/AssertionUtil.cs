@@ -202,7 +202,9 @@ namespace SanteDB.Matcher.Util
         /// <summary>
         /// Execute an assertion
         /// </summary>
+        /// <param name="propertyName">The name of the property to execute the assertion against.</param>
         /// <param name="assertion">The assertion to execute</param>
+        /// <param name="attribute">The configured attribute.</param>
         /// <param name="aValue">The value of the A value</param>
         /// <param name="bValue">The value of the B value</param>
         /// <returns>True if the assertion passes, false if not, null if the execution was skipped</returns>

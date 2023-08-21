@@ -79,11 +79,14 @@ namespace SanteDB.Matcher.Transforms
             return Activator.CreateInstance(ttype) as IDataTransformer;
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         /// <summary>
         /// Add the specified data transformer to the factory
         /// </summary>
+        /// <param name="name">This parameter is not used. Specify <c>null</c>.</param>
         /// <param name="transformerType">The transformer type to register</param>
         public void Add(String name, Type transformerType)
+
         {
             lock (s_lock)
             {
@@ -93,6 +96,7 @@ namespace SanteDB.Matcher.Transforms
                 }
             }
         }
+#pragma warning restore IDE0060 // Remove unused parameter
 
         /// <summary>
         /// Get the transformers
