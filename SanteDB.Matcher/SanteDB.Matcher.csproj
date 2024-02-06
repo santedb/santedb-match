@@ -111,7 +111,16 @@
     <!-- <Compile Include="Util\StringDifference.cs" /> -->
   <!-- </ItemGroup> -->
   <Choose>
-    <When Condition="$(SolutionName.Contains('-ext'))">
+    <When Condition="$(SolutionName.Contains('-nuget'))">
+      <ItemGroup>
+        <PackageReference Include="SanteDB.Core.Applets" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Api" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.OrmLite" Version="$(VersionNumber)" />
+        <PackageReference Include="SanteDB.Docker.Core" Version="$(VersionNumber)" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
       <ItemGroup>
         <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
           <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
@@ -127,16 +136,6 @@
         </ProjectReference>
         <ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj" />
         <ProjectReference Include="..\..\santedb-docker\SanteDB.Docker.Core\SanteDB.Docker.Core.csproj" />
-
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="SanteDB.Core.Applets" Version="$(VersionNumber)" />
-        <PackageReference Include="SanteDB.Core.Api" Version="$(VersionNumber)" />
-        <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
-        <PackageReference Include="SanteDB.OrmLite" Version="$(VersionNumber)" />
-        <PackageReference Include="SanteDB.Docker.Core" Version="$(VersionNumber)" />
       </ItemGroup>
     </Otherwise>
   </Choose>
