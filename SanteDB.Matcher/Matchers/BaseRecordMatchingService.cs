@@ -166,7 +166,7 @@ namespace SanteDB.Matcher.Matchers
                 }
 
                 var ignoreKeyArray = ignoreKeys?.ToArray() ?? new Guid[0];
-                return retVal.Where(o => !ignoreKeyArray.Contains(o.Key.Value));
+                return retVal.Where(o => !ignoreKeyArray.Contains(o.Key.Value) && o.Key != input.Key);
             }
             catch (Exception e)
             {
