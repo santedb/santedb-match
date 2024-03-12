@@ -203,6 +203,8 @@ namespace SanteDB.Matcher.Test
 
             var output = matchService.Classify(patient, blocks, "test.complex");
 
+            var natches = output.Where(o => o.Classification == RecordMatchClassification.Match).ToArray();
+            var probs = output.Where(o => o.Classification == RecordMatchClassification.Probable).ToArray();
             Assert.AreEqual(3, output.Count(o => o.Classification == RecordMatchClassification.Match));
             Assert.AreEqual(9, output.Count(o => o.Classification == RecordMatchClassification.Probable));
         }
