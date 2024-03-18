@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2023, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2024, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2023-5-19
+ * Date: 2023-6-21
  */
 using NUnit.Framework;
 using SanteDB.Core;
@@ -203,6 +203,8 @@ namespace SanteDB.Matcher.Test
 
             var output = matchService.Classify(patient, blocks, "test.complex");
 
+            var natches = output.Where(o => o.Classification == RecordMatchClassification.Match).ToArray();
+            var probs = output.Where(o => o.Classification == RecordMatchClassification.Probable).ToArray();
             Assert.AreEqual(3, output.Count(o => o.Classification == RecordMatchClassification.Match));
             Assert.AreEqual(9, output.Count(o => o.Classification == RecordMatchClassification.Probable));
         }

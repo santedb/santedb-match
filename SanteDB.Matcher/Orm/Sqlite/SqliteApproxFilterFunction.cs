@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2023, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2024, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2023-5-19
+ * Date: 2023-6-21
  */
 using SanteDB.Core;
 using SanteDB.Core.Services;
@@ -59,10 +59,13 @@ namespace SanteDB.Matcher.Orm.Sqlite
         public SqlStatementBuilder CreateSqlStatement(SqlStatementBuilder current, string filterColumn, string[] parms, string operand, Type operandType)
         {
             if (parms.Length != 1)
+            {
                 throw new ArgumentException("Approx requires at least one parameter");
+            }
 
             var config = ApplicationServiceContext.Current.GetService<IConfigurationManager>().GetSection<ApproximateMatchingConfigurationSection>();
             if (config == null)
+            {
                 config = new ApproximateMatchingConfigurationSection()
                 {
                     ApproxSearchOptions = new List<ApproxSearchOption>()
@@ -70,23 +73,36 @@ namespace SanteDB.Matcher.Orm.Sqlite
                         new ApproxPatternOption() { Enabled = true, IgnoreCase = true }
                     }
                 };
+            }
 
             var filter = new SqlStatementBuilder(current.DbProvider);
 
             foreach (var alg in config.ApproxSearchOptions.Where(o => o.Enabled))
             {
                 if (alg is ApproxDifferenceOption difference && m_hasSpellFix.GetValueOrDefault())
+                {
                     filter.Or($"(length(trim({filterColumn})) > {difference.MaxDifference * 2} AND  editdist3(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) <= {difference.MaxDifference})", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                }
                 else if (alg is ApproxPhoneticOption phonetic && m_hasSoundex.GetValueOrDefault())
                 {
                     var min = phonetic.MinSimilarity;
-                    if (!phonetic.MinSimilaritySpecified) min = 1.0f;
+                    if (!phonetic.MinSimilaritySpecified)
+                    {
+                        min = 1.0f;
+                    }
+
                     if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Soundex || phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Auto)
+                    {
                         filter.Or($"((4 - editdist3(soundex({filterColumn}), soundex(?)))/4.0) >= {min}", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    }
                     else if (phonetic.Algorithm == ApproxPhoneticOption.PhoneticAlgorithmType.Metaphone)
+                    {
                         filter.Or($"((length(spellfix1_phonehash({filterColumn})) - editdist3(spellfix1_phonehash({filterColumn}), spellfix1_phonehash(?)))/length(spellfix1_phonehash({filterColumn}))) >= {min}", QueryBuilder.CreateParameterValue(parms[0], typeof(String)));
+                    }
                     else
+                    {
                         throw new InvalidOperationException($"Phonetic algorithm {phonetic.Algorithm} is not valid");
+                    }
                 }
                 else if (alg is ApproxPatternOption pattern)
                 {
