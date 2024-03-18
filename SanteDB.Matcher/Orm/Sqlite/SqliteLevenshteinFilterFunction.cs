@@ -73,10 +73,10 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public bool Initialize(IDbConnection connection)
         {
-            if (Assembly.GetEntryAssembly() != null &&
-                !String.IsNullOrEmpty(Assembly.GetEntryAssembly().Location) &&
-                (File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SpellFix.dll")) ||
-                File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "spellfix.so"))))
+            var asm = this.GetType().Assembly;
+            if (!String.IsNullOrEmpty(asm.Location) &&
+                (File.Exists(Path.Combine(Path.GetDirectoryName(asm.Location), "SpellFix.dll")) ||
+                File.Exists(Path.Combine(Path.GetDirectoryName(asm.Location), "spellfix.so"))))
             {
                 try
                 {
