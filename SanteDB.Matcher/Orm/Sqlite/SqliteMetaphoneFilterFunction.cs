@@ -68,7 +68,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// True if the extension is installed
         /// </summary>
-        public bool Initialize(IDbConnection connection)
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
         {
             /*if (File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SpellFix.dll")) ||
                 File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "spellfix.so")))

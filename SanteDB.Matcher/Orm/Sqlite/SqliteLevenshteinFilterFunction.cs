@@ -71,7 +71,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// True if the extension is installed
         /// </summary>
-        public bool Initialize(IDbConnection connection)
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
         {
             var asm = this.GetType().Assembly;
             if (!String.IsNullOrEmpty(asm.Location) &&
