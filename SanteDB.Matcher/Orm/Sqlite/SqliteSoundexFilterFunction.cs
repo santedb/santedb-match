@@ -71,7 +71,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// Initialize the soundex algorithm
         /// </summary>
-        public bool Initialize(IDbConnection connection)
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
         {
             if (!m_hasSoundex.HasValue)
             {
