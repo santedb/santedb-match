@@ -46,6 +46,9 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public string Provider => SqliteProvider.InvariantName;
 
+        ///<inheritdoc />
+        public int Order => -100;
+
         /// <summary>
         /// Create SQL statement
         /// </summary>
@@ -71,20 +74,6 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// Initialize the soundex algorithm
         /// </summary>
-        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
-        {
-            if (!m_hasSoundex.HasValue)
-            {
-                try
-                {
-                    m_hasSoundex = connection.ExecuteScalar<Int32>("select sqlite_compileoption_used('SQLITE_SOUNDEX');") == 1;
-                }
-                catch
-                {
-                    m_hasSoundex = false;
-                }
-            }
-            return m_hasSoundex.GetValueOrDefault();
-        }
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction) => connection.CheckAndLoadSpellfix();
     }
 }

@@ -48,6 +48,9 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public string Name => "approx";
 
+        ///<inheritdoc />
+        public int Order => -100;
+
         /// <summary>
         /// Get the provider
         /// </summary>
@@ -116,41 +119,6 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// True if the extension is installed
         /// </summary>
-        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
-        {
-            if (!m_hasSoundex.HasValue)
-            {
-                try
-                {
-                    m_hasSoundex = connection.ExecuteScalar<Int32>("select sqlite_compileoption_used('SQLITE_SOUNDEX');") == 1;
-                    if (connection.ExecuteScalar<Int32>("SELECT sqlite_compileoption_used('SQLITE_ENABLE_LOAD_EXTENSION')") == 1)
-                    {
-                        try
-                        {
-                            try
-                            {
-                                m_hasSpellFix = connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');") > 0;
-                            }
-                            catch
-                            {
-                                connection.LoadExtension("spellfix");
-                                m_hasSpellFix = connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');") > 0;
-                            }
-                        }
-                        catch { m_hasSpellFix = false; }
-                    }
-                }
-                catch
-                {
-                    m_hasSoundex = false;
-                }
-            }
-            else if (m_hasSpellFix.GetValueOrDefault())
-            {
-                connection.LoadExtension("spellfix");
-
-            }
-            return true;
-        }
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction) => connection.CheckAndLoadSpellfix();
     }
 }

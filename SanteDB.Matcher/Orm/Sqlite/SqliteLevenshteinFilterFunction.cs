@@ -47,6 +47,9 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public string Provider => SqliteProvider.InvariantName;
 
+        ///<inheritdoc />
+        public int Order => -100;
+
         /// <summary>
         /// Create SQL statement
         /// </summary>
@@ -71,62 +74,6 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// True if the extension is installed
         /// </summary>
-        public bool Initialize(IDbConnection connection, IDbTransaction transaction)
-        {
-            var asm = this.GetType().Assembly;
-            if (!String.IsNullOrEmpty(asm.Location) &&
-                (File.Exists(Path.Combine(Path.GetDirectoryName(asm.Location), "SpellFix.dll")) ||
-                File.Exists(Path.Combine(Path.GetDirectoryName(asm.Location), "spellfix.so"))))
-            {
-                try
-                {
-                    if (connection.ExecuteScalar<Int32>("SELECT sqlite_compileoption_used('SQLITE_ENABLE_LOAD_EXTENSION')") == 1)
-                    {
-                        try // It might already be loaded
-                        {
-                            connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');");
-                        }
-                        catch
-                        {
-                            Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceInfo("Loading Spellfix");
-                            connection.LoadExtension("spellfix");
-                        }
-
-                        var diff = connection.ExecuteScalar<Int32>("SELECT editdist3('test','test1');");
-                        if (diff > 1)
-                        {
-                            connection.ExecuteScalar<Int32>("SELECT editdist3('__sfEditCost');");
-                        }
-                    }
-                    return true;
-                }
-                catch (Exception e) when (e.Message == "SQL logic error")
-                {
-                    if (!this.m_hasNaggedMissingSpellfix)
-                    {
-                        Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
-                        this.m_hasNaggedMissingSpellfix = true;
-                    }
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    if (!this.m_hasNaggedMissingSpellfix)
-                    {
-                        Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - {0}", e);
-                        this.m_hasNaggedMissingSpellfix = true;
-                    }
-                    return false;
-                }
-
-            }
-            if (!this.m_hasNaggedMissingSpellfix)
-            {
-                Tracer.GetTracer(typeof(SqliteLevenshteinFilterFunction)).TraceWarning("Could not initialize SpellFix - Missing Library");
-                this.m_hasNaggedMissingSpellfix = true;
-            }
-
-            return false;
-        }
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction) => connection.CheckAndLoadSpellfix();
     }
 }
