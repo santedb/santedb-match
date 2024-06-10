@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2023, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2024, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -16,7 +16,7 @@
  * the License.
  * 
  * User: fyfej
- * Date: 2023-5-19
+ * Date: 2023-6-21
  */
 using SanteDB.OrmLite;
 using SanteDB.OrmLite.Providers;
@@ -46,6 +46,9 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public string Provider => SqliteProvider.InvariantName;
 
+        ///<inheritdoc />
+        public int Order => -100;
+
         /// <summary>
         /// Create SQL statement
         /// </summary>
@@ -53,31 +56,24 @@ namespace SanteDB.Matcher.Orm.Sqlite
         {
             var match = new Regex(@"^([<>]?=?)(.*?)$").Match(operand);
             String op = match.Groups[1].Value, value = match.Groups[2].Value;
-            if (String.IsNullOrEmpty(op)) op = "=";
+            if (String.IsNullOrEmpty(op))
+            {
+                op = "=";
+            }
 
             if (parms.Length == 1) // There is a threshold
+            {
                 return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(parms[0], operandType));
+            }
             else
+            {
                 return current.Append($"soundex({filterColumn}) {op} soundex(?)", QueryBuilder.CreateParameterValue(value, operandType));
+            }
         }
 
         /// <summary>
         /// Initialize the soundex algorithm
         /// </summary>
-        public bool Initialize(IDbConnection connection)
-        {
-            if (!m_hasSoundex.HasValue)
-            {
-                try
-                {
-                    m_hasSoundex = connection.ExecuteScalar<Int32>("select sqlite_compileoption_used('SQLITE_SOUNDEX');") == 1;
-                }
-                catch
-                {
-                    m_hasSoundex = false;
-                }
-            }
-            return m_hasSoundex.GetValueOrDefault();
-        }
+        public bool Initialize(IDbConnection connection, IDbTransaction transaction) => connection.CheckAndLoadSpellfix();
     }
 }
