@@ -40,7 +40,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// <summary>
         /// Name of the filter function
         /// </summary>
-        public string Name => "levenshtein";
+        public virtual string Name => "levenshtein";
 
         /// <summary>
         /// Get the invariant name
@@ -76,4 +76,17 @@ namespace SanteDB.Matcher.Orm.Sqlite
         /// </summary>
         public bool Initialize(IDbConnection connection, IDbTransaction transaction) => connection.CheckAndLoadSpellfix();
     }
+
+    /// <summary>
+    /// similarity_lev in SQLite is the same as levenshtein
+    /// </summary>
+    public class SqliteSimilarityLevenshteinFilterFunction : SqliteLevenshteinFilterFunction
+    {
+        /// <summary>
+        /// Name of the filter function
+        /// </summary>
+        public override string Name => "similarity_lev";
+
+    }
+
 }
