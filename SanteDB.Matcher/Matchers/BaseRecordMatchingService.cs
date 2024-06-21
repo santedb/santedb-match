@@ -203,7 +203,7 @@ namespace SanteDB.Matcher.Matchers
                         {
                             var parameter = Expression.Parameter(typeof(T));
                             Expression guardBody = null;
-                            foreach (var whenClause in b.When)
+                            foreach (var whenClause in b.When.Where(o=>!String.IsNullOrEmpty(o)))
                             {
                                 var guardClause = QueryExpressionParser.BuildLinqExpression<T>($"{whenClause}=!null".ParseQueryString(), "o", safeNullable: true, forceLoad: true);
                                 
@@ -216,10 +216,15 @@ namespace SanteDB.Matcher.Matchers
                                     guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardClause, parameter), guardBody);
                                 }
                             }
-                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
+
+
+                            if (guardBody != null)
+                            {
+                                b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
+                            }
                         }
 
-                        shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
+                        shouldIncludeExpression = (bool)(guardExpression?.DynamicInvoke(input) ?? true);
                     }
 
                     if (shouldIncludeExpression)
