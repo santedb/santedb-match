@@ -195,7 +195,7 @@ namespace SanteDB.Matcher.Matchers
                 foreach (var b in filter)
                 {
                     bool shouldIncludeExpression = true;
-                    if (b.When?.Any() == true) // Only include the filter when the conditions are met
+                    if (b.When?.All(p=>!String.IsNullOrEmpty(p)) == true) // Only include the filter when the conditions are met
                     {
                         var guardExpression = b.GuardExpression;
 
@@ -203,22 +203,28 @@ namespace SanteDB.Matcher.Matchers
                         {
                             var parameter = Expression.Parameter(typeof(T));
                             Expression guardBody = null;
-                            foreach (var whenClause in b.When)
+                            foreach (var whenClause in b.When.Where(o=>!String.IsNullOrEmpty(o)))
                             {
-                                var selectorExpression = QueryExpressionParser.BuildPropertySelector<T>(whenClause, true);
+                                var guardClause = QueryExpressionParser.BuildLinqExpression<T>($"{whenClause}=!null".ParseQueryString(), "o", safeNullable: true, forceLoad: true);
+                                
                                 if (guardBody == null)
                                 {
-                                    guardBody = Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null));
+                                    guardBody = Expression.Invoke(guardClause, parameter);
                                 }
                                 else
                                 {
-                                    guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardBody, parameter), Expression.MakeBinary(ExpressionType.NotEqual, Expression.Invoke(selectorExpression, parameter), Expression.Constant(null)));
+                                    guardBody = Expression.MakeBinary(ExpressionType.AndAlso, Expression.Invoke(guardClause, parameter), guardBody);
                                 }
                             }
-                            b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
+
+
+                            if (guardBody != null)
+                            {
+                                b.GuardExpression = guardExpression = Expression.Lambda(guardBody, parameter).Compile();
+                            }
                         }
 
-                        shouldIncludeExpression = (bool)guardExpression.DynamicInvoke(input);
+                        shouldIncludeExpression = (bool)(guardExpression?.DynamicInvoke(input) ?? true);
                     }
 
                     if (shouldIncludeExpression)

@@ -204,7 +204,11 @@ namespace SanteDB.Matcher.Services
         /// <returns>The updated configuration</returns>
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
-            this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+
+            if (AuthenticationContext.Current.Principal != AuthenticationContext.SystemPrincipal && ApplicationServiceContext.Current.HostType != SanteDBHostType.Server)
+            {
+                this.m_pepService.Demand(PermissionPolicyIdentifiers.AlterMatchConfiguration);
+            }
 
             if (!this.m_matchConfigurations.TryGetValue(configuration.Id, out ConfigCacheObject configData))
             {

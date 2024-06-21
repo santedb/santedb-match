@@ -19,6 +19,7 @@
  * Date: 2023-6-21
  */
 using SanteDB.Core.Diagnostics;
+using SanteDB.Core.i18n;
 using SanteDB.Matcher.Definition;
 using SanteDB.Matcher.Exceptions;
 using SanteDB.Matcher.Transforms;
@@ -311,15 +312,31 @@ namespace SanteDB.Matcher.Util
                         }
                         break;
                     case BinaryOperatorType.GreaterThan:
+                        if(scope == null)
+                        {
+                            throw new MatchingException(String.Format(ErrorMessages.INVALID_EXPRESSION_TYPE, "eq or ne", "gt"));
+                        }
                         retVal = (double)scope > assertion.Value;
                         break;
                     case BinaryOperatorType.GreaterThanOrEqual:
+                        if (scope == null)
+                        {
+                            throw new MatchingException(String.Format(ErrorMessages.INVALID_EXPRESSION_TYPE, "eq or ne", "gte"));
+                        }
                         retVal = (double)scope >= assertion.Value;
                         break;
                     case BinaryOperatorType.LessThan:
+                        if (scope == null)
+                        {
+                            throw new MatchingException(String.Format(ErrorMessages.INVALID_EXPRESSION_TYPE, "eq or ne", "lt"));
+                        }
                         retVal = (double)scope < assertion.Value;
                         break;
                     case BinaryOperatorType.LessThanOrEqual:
+                        if (scope == null)
+                        {
+                            throw new MatchingException(String.Format(ErrorMessages.INVALID_EXPRESSION_TYPE, "eq or ne", "lte"));
+                        }
                         retVal = (double)scope <= assertion.Value;
                         break;
                     default:
