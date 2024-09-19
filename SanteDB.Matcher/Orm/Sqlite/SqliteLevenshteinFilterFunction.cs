@@ -15,8 +15,6 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2023-6-21
  */
 using SanteDB.Core.Diagnostics;
 using SanteDB.OrmLite;
@@ -65,7 +63,7 @@ namespace SanteDB.Matcher.Orm.Sqlite
             switch (parms.Length)
             {
                 case 1:
-                    return current.Append($"editdist3(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(value, typeof(Int32)));
+                    return current.Append($"editdist3(TRIM(LOWER({filterColumn})), TRIM(LOWER(?))) {op} ?", QueryBuilder.CreateParameterValue(parms[0], operandType), QueryBuilder.CreateParameterValue(Int32.Parse(value) * 100, typeof(Int32)));
                 default:
                     throw new ArgumentOutOfRangeException("Invalid number of parameters of string diff");
             }
