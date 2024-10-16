@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SanteDB.Matcher.Configuration.File</RootNamespace>
     <AssemblyName>SanteDB.Matcher.Configuration.File</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -32,11 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-	<ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj">
-	    <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
-		<Name>SanteDB.Matcher</Name>
-	</ProjectReference>
-
+    <ProjectReference Include="..\SanteDB.Matcher\SanteDB.Matcher.csproj">
+      <Project>{A37BB496-739D-440E-AB64-E2939A759898}</Project>
+      <Name>SanteDB.Matcher</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="$(SolutionName.Contains('-ext'))">
@@ -63,9 +62,9 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-      <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="11.0.2.0" />
-		</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2.0" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
