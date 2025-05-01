@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2021 - 2024, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
+ * Copyright (C) 2021 - 2025, SanteSuite Inc. and the SanteSuite Contributors (See NOTICE.md for full copyright notices)
  * Copyright (C) 2019 - 2021, Fyfe Software Inc. and the SanteSuite Contributors
  * Portions Copyright (C) 2015-2018 Mohawk College of Applied Arts and Technology
  * 
@@ -15,6 +15,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
+ * User: fyfej
+ * Date: 2023-6-21
  */
 using SanteDB.Core;
 using SanteDB.Core.Diagnostics;
@@ -100,72 +102,69 @@ namespace SanteDB.Matcher.Services
                 }
             }
             // When application has started
-            ApplicationServiceContext.Current.Started += (o, e) =>
+            try
             {
-                try
+                if (this.m_configuration == null)
                 {
-                    if (this.m_configuration == null)
+                    this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
+                    return;
+                }
+
+                this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
+                this.m_tracer.TraceInfo("Loading match configurations...");
+                foreach (var configDir in this.m_configuration.FilePath)
+                {
+                    if (!Path.IsPathRooted(configDir.Path))
                     {
-                        this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
-                        return;
+                        configDir.Path = Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), configDir.Path);
                     }
 
-                    this.m_matchConfigurations = new ConcurrentDictionary<string, ConfigCacheObject>();
-                    this.m_tracer.TraceInfo("Loading match configurations...");
-                    foreach (var configDir in this.m_configuration.FilePath)
+                    if (!Directory.Exists(configDir.Path))
                     {
-                        if (!Path.IsPathRooted(configDir.Path))
+                        this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
+                    }
+                    else
+                    {
+                        foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
                         {
-                            configDir.Path = Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), configDir.Path);
-                        }
-
-                        if (!Directory.Exists(configDir.Path))
-                        {
-                            this.m_tracer.TraceWarning("Skipping {0} because it doesn't exist!", configDir.Path);
-                        }
-                        else
-                        {
-                            foreach (var fileName in Directory.GetFiles(configDir.Path, "*.xml"))
+                            this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
+                            try
                             {
-                                this.m_tracer.TraceInfo("Attempting load of {0}", fileName);
-                                try
+                                MatchConfiguration config = null;
+                                using (var fs = System.IO.File.OpenRead(fileName))
                                 {
-                                    MatchConfiguration config = null;
-                                    using (var fs = System.IO.File.OpenRead(fileName))
-                                    {
-                                        config = MatchConfiguration.Load(fs);
-                                    }
-
-                                    var originalPath = fileName;
-                                    if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out Guid uuid) || uuid != config.Uuid) // Migrate the config
-                                    {
-                                        originalPath = Path.Combine(configDir.Path, $"{config.Uuid}.xml");
-                                        File.Move(fileName, originalPath);
-                                        using (var fs = File.Create(originalPath))
-                                        {
-                                            config.Save(fs);
-                                        }
-                                    }
-
-                                    this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
-                                    {
-                                        OriginalFilePath = originalPath,
-                                        Configuration = config
-                                    });
+                                    config = MatchConfiguration.Load(fs);
                                 }
-                                catch (Exception ex)
+
+                                var originalPath = fileName;
+                                if (!Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out Guid uuid) || uuid != config.Uuid) // Migrate the config
                                 {
-                                    this.m_tracer.TraceWarning("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
+                                    originalPath = Path.Combine(configDir.Path, $"{config.Uuid}.xml");
+                                    File.Move(fileName, originalPath);
+                                    using (var fs = File.Create(originalPath))
+                                    {
+                                        config.Save(fs);
+                                    }
                                 }
+
+                                this.m_matchConfigurations.TryAdd(config.Id, new ConfigCacheObject()
+                                {
+                                    OriginalFilePath = originalPath,
+                                    Configuration = config
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                this.m_tracer.TraceWarning("Could not load {0} - SKIPPING - {1}", fileName, ex.Message);
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    this.m_tracer.TraceError("Could not fully load configuration for matching : {0}", ex);
-                }
-            };
+            }
+            catch (Exception ex)
+            {
+                this.m_tracer.TraceError("Could not fully load configuration for matching : {0}", ex);
+            }
         }
 
         /// <summary>
