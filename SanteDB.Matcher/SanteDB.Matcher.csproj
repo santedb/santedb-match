@@ -149,14 +149,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Phonix">
-      <HintPath>..\Solution Items\Phonix.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>
+    <PackageReference Include="Phonix" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\santedb-restsvc\SanteDB.Rest.Common\SanteDB.Rest.Common.csproj" />
