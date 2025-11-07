@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<dataset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://santedb.org/data" id="SanteMatch Policies">
+<dataset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://santedb.org/data" id="SanteMatch Policies v3.0">
   <update insertIfNotExists="true">
     <SecurityPolicy xmlns="http://santedb.org/model">
       <id>d194af12-3672-11ec-8d3d-0242ac130003</id>
       <name>Unrestricted Match Configuration</name>
       <oid>1.3.6.1.4.1.33349.3.1.5.9.2.0.15.1</oid>
-      <isPublic>true</isPublic>
+      <isPublic>false</isPublic>
       <canOverride>false</canOverride>
     </SecurityPolicy>
   </update>
@@ -14,7 +14,7 @@
       <id>d194b14c-3672-11ec-8d3d-0242ac130003</id>
       <name>Alter Match Configurations</name>
       <oid>1.3.6.1.4.1.33349.3.1.5.9.2.0.15.1.1</oid>
-      <isPublic>true</isPublic>
+      <isPublic>false</isPublic>
       <canOverride>false</canOverride>
     </SecurityPolicy>
   </update>
@@ -23,7 +23,7 @@
       <id>d194b3d6-3672-11ec-8d3d-0242ac130003</id>
       <name>Disable/Enable Match Configurations</name>
       <oid>1.3.6.1.4.1.33349.3.1.5.9.2.0.15.1.2</oid>
-      <isPublic>true</isPublic>
+      <isPublic>false</isPublic>
       <canOverride>false</canOverride>
     </SecurityPolicy>
   </update>
