@@ -54,7 +54,7 @@ namespace SanteDB.Matcher.Filters
             if (parms.Length == 1)
             {
                 return Expression.MakeBinary(comparison,
-                    Expression.Call(this.ExtensionMethod, scope, parms[0]),
+                    Expression.Call(this.ExtensionMethod, scope, Expression.Convert(parms[0], typeof(String))),
                     valueExpression);
             }
             else

@@ -50,7 +50,7 @@ namespace SanteDB.Matcher.Filters
             {
                 var exm = typeof(StringDifference).GetRuntimeMethod(nameof(StringDifference.SimilarityTo), new Type[] { typeof(String), typeof(String) });
                 return Expression.MakeBinary(comparison,
-                                Expression.Call(exm, scope, parms[0]),
+                                Expression.Call(exm, scope, Expression.Convert(parms[0], typeof(String))),
                                 valueExpression);
             }
             else
