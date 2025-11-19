@@ -46,8 +46,8 @@ namespace SanteDB.Matcher.Filters
         public BinaryExpression Compose(Expression scope, ExpressionType comparison, Expression valueExpression, Expression[] parms)
         {
             return Expression.MakeBinary(ExpressionType.Equal,
-                Expression.Call(this.ExtensionMethod, scope),
-                Expression.Call(this.ExtensionMethod, valueExpression));
+                Expression.Call(this.ExtensionMethod, Expression.Convert(scope, typeof(String))),
+                Expression.Call(this.ExtensionMethod, Expression.Convert(valueExpression, typeof(String))));
         }
     }
 }

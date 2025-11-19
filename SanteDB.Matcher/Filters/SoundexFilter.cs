@@ -52,8 +52,8 @@ namespace SanteDB.Matcher.Filters
             else
             {
                 return Expression.MakeBinary(ExpressionType.Equal,
-                    Expression.Call(this.ExtensionMethod, scope),
-                    Expression.Call(this.ExtensionMethod, valueExpression));
+                    Expression.Call(this.ExtensionMethod, Expression.Convert(scope, typeof(string))),
+                    Expression.Call(this.ExtensionMethod, Expression.Convert(valueExpression, typeof(String))));
             }
         }
     }

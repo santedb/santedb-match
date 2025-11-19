@@ -49,13 +49,13 @@ namespace SanteDB.Matcher.Filters
             if (parms.Length == 1)
             {
                 return Expression.MakeBinary(ExpressionType.Equal,
-                    Expression.Call(this.ExtensionMethod, scope, parms[0]),
+                    Expression.Call(this.ExtensionMethod, scope, Expression.Convert(parms[0], typeof(String))),
                     Expression.Constant(true));
             }
             else if (parms.Length == 2)
             {
                 return Expression.MakeBinary(ExpressionType.Equal,
-                    Expression.Call(this.ExtensionMethod, scope, parms[0], parms[1]),
+                    Expression.Call(this.ExtensionMethod, scope, Expression.Convert(parms[0], typeof(String)), Expression.Convert(parms[1], typeof(string))),
                     Expression.Constant(true));
             }
             else
