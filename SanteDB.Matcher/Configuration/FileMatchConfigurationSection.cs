@@ -19,9 +19,13 @@
  * Date: 2023-6-21
  */
 using Newtonsoft.Json;
+using SanteDB.Core.BusinessRules;
 using SanteDB.Core.Configuration;
 using SanteDB.Matcher.Definition;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace SanteDB.Matcher.Configuration
@@ -31,7 +35,7 @@ namespace SanteDB.Matcher.Configuration
     /// </summary>
     [XmlType(nameof(FileMatchConfigurationSection), Namespace = "http://santedb.org/configuration")]
     [JsonObject(nameof(FileMatchConfigurationSection))]
-    public class FileMatchConfigurationSection : IConfigurationSection
+    public class FileMatchConfigurationSection : IConfigurationSection, IValidatableConfigurationSection
     {
 
         /// <summary>
@@ -46,5 +50,27 @@ namespace SanteDB.Matcher.Configuration
         [XmlArray("basePath"), XmlArrayItem("add"), JsonProperty("basePath")]
         public List<FilePathConfiguration> FilePath { get; set; }
 
+
+        /// <inheritdoc/>
+        public IEnumerable<DetectedIssue> Validate()
+        {
+            foreach (var path in this.FilePath.Select(o => o.Path.ToLower()))
+            {
+                if (!Directory.Exists(path)) // HACK: Might be on linux or have a lower case data file
+                {
+                    yield return new DetectedIssue(DetectedIssuePriorityType.Warning, "err.config.folder", $"Folder {path} doesn't exist", Guid.Empty);
+                }
+                else if (!Directory.EnumerateFiles(path, "*.xml").Any())
+                {
+                    yield return new DetectedIssue(DetectedIssuePriorityType.Warning, "err.config.nods", $"Folder path {path} does not contain any match configurations", Guid.Empty);
+                }
+                
+                if (!Path.IsPathRooted(path))
+                {
+                    yield return new DetectedIssue(DetectedIssuePriorityType.Warning, "err.config.abs", $"Folder path {path} should be absolute", Guid.Empty);
+                }
+                
+            }
+        }
     }
 }
