@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(VersionNumber)' == ''">
-    <VersionNumber>3.0-debug</VersionNumber>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(VersionNumber)' == ''">
+		<VersionNumber>3.0-debug</VersionNumber>
+	</PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net10.0;net48;netstandard2.0</TargetFrameworks>
+	</PropertyGroup>
   <PropertyGroup>
     <PackageId>SanteDB.Matcher</PackageId>
     <Title>SanteDB.Matcher</Title>
@@ -19,7 +19,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSymbols>true</IncludeSymbols>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	    <Product>SanteDB</Product>
     <Copyright>Copyright (C) 2015-2026 SanteSuite Contributors (See: NOTICES)</Copyright>
     <PackageIconUrl>http://santesuite.org/assets/img/logo.png</PackageIconUrl>
@@ -31,7 +30,6 @@
     <None Remove="Docker\MatchingFeature.xml" />
     <None Remove="Resources\MatchConfiguration.xslt" />
   </ItemGroup>
-    
   <ItemGroup>
     <EmbeddedResource Include="Docker\MatchingFeature.xml" />
     <EmbeddedResource Include="Resources\MatchConfiguration.xslt" />
@@ -39,77 +37,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>      
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-  <!-- <ItemGroup> -->
-    <!-- <Compile Include="Configuration\AssemblyMatchConfigurationSection.cs" /> -->
-    <!-- <Compile Include="Exceptions\MatchingException.cs" /> -->
-    <!-- <Compile Include="Filters\AliasFilter.cs" /> -->
-    <!-- <Compile Include="Filters\DateDiffFilter.cs" /> -->
-    <!-- <Compile Include="Filters\FilterExtensionMethods.cs" /> -->
-    <!-- <Compile Include="Filters\DoubleMetaphoneFilter.cs" /> -->
-    <!-- <Compile Include="Filters\PhoneticDifferenceFilter.cs" /> -->
-    <!-- <Compile Include="Filters\SubstringFilter.cs" /> -->
-    <!-- <Compile Include="Filters\LevenshteinFilter.cs" /> -->
-    <!-- <Compile Include="Filters\MetaphoneFilter.cs" /> -->
-    <!-- <Compile Include="Filters\SoundsLikeFilter.cs" /> -->
-    <!-- <Compile Include="Filters\SoundexFilter.cs" /> -->
-    <!-- <Compile Include="Matchers\BaseRecordMatchingService.cs" /> -->
-    <!-- <Compile Include="Matchers\DeterministicRecordMatchingService.cs" /> -->
-    <!-- <Compile Include="Matchers\MatchResult.cs" /> -->
-    <!-- <Compile Include="Matchers\ProbabalisticRecordMatchingService.cs" /> -->
-    <!-- <Compile Include="MathExtensions.cs" /> -->
-    <!-- <Compile Include="Configuration\BinaryOperatorType.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchBlock.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchConfiguration.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchConfigurationCollection.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchTarget.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchTransform.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchTransformConfiguration.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchVector.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchVectorNullBehavior.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchVectorAssertion.cs" /> -->
-    <!-- <Compile Include="Configuration\MatchVectorWeightType.cs" /> -->
-    <!-- <Compile Include="Model\MatchReport.cs" /> -->
-    <!-- <Compile Include="Model\MatchResultReport.cs" /> -->
-    <!-- <Compile Include="Model\VectorResultReport.cs" /> -->
-    <!-- <Compile Include="Properties\AssemblyInfo.cs" /> -->
-    <!-- <Compile Include="Services\AppletMatchConfigurationProvider.cs" /> -->
-    <!-- <Compile Include="Services\AssemblyMatchConfigurationProvider.cs" /> -->
-    <!-- <Compile Include="Transforms\Date\DateDifferenceTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Date\DateExtractTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\IDataTransformer.cs" /> -->
-    <!-- <Compile Include="Transforms\Names\NamePartExtractTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Numeric\AbsoluteValueTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\DoubleMetaphoneTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\LengthTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\LevenshteinDifferenceTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\MetaphoneTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\SimilarityTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\SoundexTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Text\SubstringTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\Timespan\TimespanExtractTransform.cs" /> -->
-    <!-- <Compile Include="Transforms\TransformerFactory.cs" /> -->
-    <!-- <Compile Include="Util\StringDifference.cs" /> -->
-  <!-- </ItemGroup> -->
   <Choose>
     <When Condition="$(SolutionName.Contains('-nuget'))">
       <ItemGroup>
@@ -118,24 +45,17 @@
         <PackageReference Include="SanteDB.Core.Model" Version="$(VersionNumber)" />
         <PackageReference Include="SanteDB.OrmLite" Version="$(VersionNumber)" />
         <PackageReference Include="SanteDB.Docker.Core" Version="$(VersionNumber)" />
+				<PackageReference Include="SanteDB.Rest.Common" Version="$(VersionNumber)" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj">
-          <Project>{F1A82A4F-4A57-47D7-AE76-444C8A4FF54A}</Project>
-          <Name>SanteDB.Core.Model</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\..\santedb-api\SanteDB.Core.Api\SanteDB.Core.Api.csproj">
-          <Project>{3A45F695-47A2-464C-ACE6-BDABBFA39FBC}</Project>
-          <Name>SanteDB.Core.Api</Name>
-        </ProjectReference>
-        <ProjectReference Include="..\..\santedb-applets\SanteDB.Core.Applets\SanteDB.Core.Applets.csproj">
-          <Project>{39E61451-F4FE-493D-B754-5F06EB284AAC}</Project>
-          <Name>SanteDB.Core.Applets</Name>
-        </ProjectReference>
+        <ProjectReference Include="..\..\santedb-model\SanteDB.Core.Model\SanteDB.Core.Model.csproj" />
+        <ProjectReference Include="..\..\santedb-api\SanteDB.Core.Api\SanteDB.Core.Api.csproj" />
+        <ProjectReference Include="..\..\santedb-applets\SanteDB.Core.Applets\SanteDB.Core.Applets.csproj" />
         <ProjectReference Include="..\..\santedb-orm\SanteDB.OrmLite\SanteDB.OrmLite.csproj" />
         <ProjectReference Include="..\..\santedb-docker\SanteDB.Docker.Core\SanteDB.Docker.Core.csproj" />
+				<ProjectReference Include="..\..\santedb-restsvc\SanteDB.Rest.Common\SanteDB.Rest.Common.csproj" />
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -149,23 +69,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.3</Version>
-    </PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="[13.0.4,13.1)" />
     <PackageReference Include="Phonix" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\santedb-restsvc\SanteDB.Rest.Common\SanteDB.Rest.Common.csproj" />
+    
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\MatchConfiguration.xslt" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Data\000-MatchAdminPolicies.dataset">
+    <None Include="Data\*.dataset">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
