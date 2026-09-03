@@ -73,9 +73,6 @@
     <PackageReference Include="Phonix" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
-    
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\MatchConfiguration.xslt" />
   </ItemGroup>
   <ItemGroup>
