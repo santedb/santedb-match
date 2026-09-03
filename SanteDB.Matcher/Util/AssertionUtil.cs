@@ -242,7 +242,7 @@ namespace SanteDB.Matcher.Util
                     {
                         return new AssertionResult(propertyName, false, false, GetNullScore(attribute), a, b);
                     }
-                    else
+                    else if(assertion.Operator != BinaryOperatorType.Equal)
                     {
                         scope = enumScope.OfType<Object>().Max();
                     }

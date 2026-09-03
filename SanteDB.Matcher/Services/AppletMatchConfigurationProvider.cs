@@ -130,5 +130,20 @@ namespace SanteDB.Matcher.Services
         {
             return this.m_configurationCache.Values.Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
+
+        /// <inheritdoc/>
+        public bool TryLoadConfigurationFromStream(Stream configurationStream, out IRecordMatchingConfiguration configuration)
+        {
+            try
+            {
+                configuration = MatchConfiguration.Load(configurationStream);
+                return true;
+            }
+            catch
+            {
+                configuration = null;
+                return false;
+            }
+        }
     }
 }

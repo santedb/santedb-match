@@ -147,5 +147,21 @@ namespace SanteDB.Matcher.Services
         {
             throw new NotSupportedException("Saving to assemblies is not supported");
         }
+
+
+        /// <inheritdoc/>
+        public bool TryLoadConfigurationFromStream(Stream configurationStream, out IRecordMatchingConfiguration configuration)
+        {
+            try
+            {
+                configuration = MatchConfiguration.Load(configurationStream);
+                return true;
+            }
+            catch
+            {
+                configuration = null;
+                return false;
+            }
+        }
     }
 }
