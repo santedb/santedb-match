@@ -19,16 +19,20 @@
  * Date: 2023-6-21
  */
 using SanteDB.Core;
+using SanteDB.Core.Applets.Model;
 using SanteDB.Core.Applets.Services;
 using SanteDB.Core.Diagnostics;
 using SanteDB.Core.Matching;
 using SanteDB.Matcher.Definition;
+using SharpCompress.Compressors.ZStandard.Unsafe;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
+using System.Xml.Linq;
 
 namespace SanteDB.Matcher.Services
 {
@@ -84,7 +88,24 @@ namespace SanteDB.Matcher.Services
                     {
                         this.m_tracer.TraceInfo("Will load {0}..", amgr.ToString());
 
-                        using (var ms = new MemoryStream(amgr.Content as byte[]))
+                        byte[] contentByte = null;
+                        switch(amgr.Content)
+                        {
+                            case AppletAssetCdata cd:
+                                contentByte = Encoding.UTF8.GetBytes(cd.Value);
+                                break;
+                            case XElement xe:
+                                contentByte = Encoding.UTF8.GetBytes(xe.ToString());
+                                break;
+                            case byte[] b:
+                                contentByte = b;
+                                break;
+                            case String s:
+                                contentByte = Encoding.UTF8.GetBytes(s);
+                                break;
+                        }
+
+                        using (var ms = new MemoryStream(contentByte))
                         {
                             retVal = MatchConfiguration.Load(ms);
                         }
@@ -129,6 +150,21 @@ namespace SanteDB.Matcher.Services
         public IEnumerable<IRecordMatchingConfiguration> GetConfigurations<T>(Expression<Func<IRecordMatchingConfiguration, bool>> filter)
         {
             return this.m_configurationCache.Values.Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
+        }
+
+        /// <inheritdoc/>
+        public bool TryLoadConfigurationFromStream(Stream configurationStream, out IRecordMatchingConfiguration configuration)
+        {
+            try
+            {
+                configuration = MatchConfiguration.Load(configurationStream);
+                return true;
+            }
+            catch
+            {
+                configuration = null;
+                return false;
+            }
         }
     }
 }

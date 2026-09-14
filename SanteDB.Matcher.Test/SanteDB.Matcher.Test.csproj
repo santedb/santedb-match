@@ -26,7 +26,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Condition="$(SolutionName.Contains('-ext'))" Project="$(SolutionDir)\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.targets" />
   <Choose>
     <When Condition="$(SolutionName.Contains('-ext'))">
       
@@ -51,7 +50,7 @@
           <Name>SanteDB.Core.TestFramework</Name>
         </ProjectReference>
         <ProjectReference Include="..\..\santedb-data\SanteDB.Persistence.Data\SanteDB.Persistence.Data.csproj" />
-        <ProjectReference Include="..\..\santedb-data\SanteDB.Core.TestFramework.FirebirdSQL\SanteDB.Core.TestFramework.FirebirdSQL.csproj" />
+        <ProjectReference Include="..\..\santedb-data\SanteDB.Core.TestFramework.Sqlite\SanteDB.Core.TestFramework.Sqlite.csproj" />
 
       </ItemGroup>
     </When>

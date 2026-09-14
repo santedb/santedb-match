@@ -23,6 +23,7 @@ using SanteDB.Matcher.Definition;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -69,6 +70,12 @@ namespace SanteDB.Matcher.Test
         public IRecordMatchingConfiguration SaveConfiguration(IRecordMatchingConfiguration configuration)
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public bool TryLoadConfigurationFromStream(Stream configurationStream, out IRecordMatchingConfiguration configuration)
+        {
+            throw new NotSupportedException();
         }
 
         public IRecordMatchingConfiguration DeleteConfiguration(string name)

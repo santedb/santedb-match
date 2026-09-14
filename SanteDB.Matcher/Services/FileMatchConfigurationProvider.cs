@@ -322,5 +322,23 @@ namespace SanteDB.Matcher.Services
         {
             return this.m_matchConfigurations.Values.Select(o => o.Configuration).OfType<IRecordMatchingConfiguration>().Where(o => o.AppliesTo.Contains(typeof(T))).Where(filter.Compile());
         }
+
+
+        /// <inheritdoc/>
+        public bool TryLoadConfigurationFromStream(Stream configurationStream, out IRecordMatchingConfiguration configuration)
+        {
+            try
+            {
+                var retVal = MatchConfiguration.Load(configurationStream);
+                retVal.Metadata.Status = MatchConfigurationStatus.Inactive;
+                configuration = retVal;
+                return true;
+            }
+            catch
+            {
+                configuration = null;
+                return false;
+            }
+        }
     }
 }
