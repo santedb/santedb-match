@@ -18,6 +18,7 @@
  * User: fyfej
  * Date: 2023-6-21
  */
+using SanteDB.Core.i18n;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,13 +48,31 @@ namespace SanteDB.Matcher.Transforms.Text
                 throw new ArgumentException("Require token delimiter parameter");
             }
 
-            // Processed tokens for the name
-            List<String> tokens = new List<string>() { (String)input };
-            foreach (char delim in (String)parms[0])
+            if (input is String str)
             {
-                tokens = tokens.SelectMany(o => o.Split(delim)).ToList();
+                input = new String[] { str };
             }
-            return tokens;
+
+            if (input is IEnumerable<String> iens)
+            {
+                // Processed tokens for the name
+                List<String> tokens = iens.ToList();
+                var delimiters = Uri.UnescapeDataString(parms[0] as string);
+                if(String.IsNullOrEmpty(delimiters))
+                {
+                    delimiters = " ";
+                }
+
+                foreach (char delim in delimiters)
+                {
+                    tokens = tokens.SelectMany(o => o.Split(delim)).ToList();
+                }
+                return tokens;
+            }
+            else
+            {
+                throw new InvalidOperationException(String.Format(ErrorMessages.ARGUMENT_INVALID_TYPE, typeof(String), input.GetType()));
+            }
         }
     }
 }
